@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
   <title>Smart Almox | Almoxarifado CT UFPB</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,7 +12,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background-color: #F5F7FA; font-family: 'Inter', system-ui, sans-serif; color: #1E2A3E; padding-bottom: 90px; scroll-behavior: smooth; overflow-x: hidden; }
+    /* ITEM 15 - Bloquear seleção global, permitindo apenas nos inputs */
+    body { background-color: #F5F7FA; font-family: 'Inter', system-ui, sans-serif; color: #1E2A3E; padding-bottom: 90px; scroll-behavior: smooth; overflow-x: hidden; -webkit-user-select: none; user-select: none; }
+    input, select, textarea { -webkit-user-select: auto; user-select: auto; }
     
     .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #005BBB 0%, #003D7A 100%); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; transition: opacity 0.5s ease-out; opacity: 1; }
     .splash-content { animation: fadeInUpScale 0.8s ease-out; }
@@ -39,8 +41,9 @@
     .chip-cat { background: #F0F2F5; padding: 8px 18px; border-radius: 40px; font-size: 0.8rem; font-weight: 600; color: #1E2A3E; transition: all 0.2s ease; cursor: pointer; }
     .chip-cat.active { background: #005BBB; color: white; }
 
+    /* ITEM 14 - Carrossel com botões embaixo */
     .carousel-section { max-width: 1400px; margin: 16px auto 0; padding: 0 16px; }
-    .carousel-container { position: relative; border-radius: 28px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.08); background: #fff; }
+    .carousel-container { position: relative; border-radius: 28px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.08); background: #fff; padding-bottom: 40px; }
     .carousel-track { display: flex; transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1); }
     .carousel-slide { min-width: 100%; background: linear-gradient(120deg, #F0F7FF 0%, #FFFFFF 100%); padding: 24px 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; justify-content: space-between; }
     .slide-text { flex: 2; }
@@ -48,10 +51,11 @@
     .slide-text p { color: #2c3e50; font-weight: 500; }
     .slide-icon { font-size: 48px; background: #005BBB10; border-radius: 60px; padding: 12px; }
     
-    .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: white; border: none; width: 40px; height: 40px; border-radius: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
-    .carousel-btn.prev { left: 12px; }
-    .carousel-btn.next { right: 12px; }
-    .carousel-dots { display: flex; justify-content: center; gap: 8px; padding: 12px; background: white; }
+    .carousel-btn { position: absolute; bottom: 8px; background: transparent; border: none; width: 40px; height: 40px; border-radius: 40px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; color: #005BBB; transition: 0.2s; }
+    .carousel-btn:hover { background: #F0F7FF; }
+    .carousel-btn.prev { left: 16px; }
+    .carousel-btn.next { right: 16px; }
+    .carousel-dots { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; justify-content: center; gap: 8px; }
     .dot { width: 8px; height: 8px; background: #ccc; border-radius: 10px; cursor: pointer; transition: 0.2s; }
     .dot.active { width: 24px; background: #005BBB; }
 
@@ -73,7 +77,7 @@
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
     .input-group { display: flex; flex-direction: column; gap: 6px; }
     .input-group label { font-size: 0.75rem; font-weight: 600; color: #334155; text-transform: uppercase; }
-    .input-group input, .input-group select { background: #F8FAFE; border: 1px solid #E2E8F0; border-radius: 14px; padding: 12px 14px; font-size: 0.9rem; font-family: inherit; }
+    .input-group input, .input-group select, .input-group textarea { background: #F8FAFE; border: 1px solid #E2E8F0; border-radius: 14px; padding: 12px 14px; font-size: 0.9rem; font-family: inherit; resize: none;}
     .full-width { grid-column: span 2; }
     @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } .modal-container { padding: 20px; } }
 
@@ -104,13 +108,15 @@
     .admin-table th { background: #F0F2F5; padding: 12px; text-align: left; font-size: 0.85rem; color: #5A6874; }
     .admin-table td { padding: 12px; border-bottom: 1px solid #EDF2F7; font-size: 0.9rem; }
     .admin-input { border: 1px solid #CBD5E1; border-radius: 8px; padding: 8px; width: 100%; min-width: 80px; }
-    .admin-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
-    .admin-tab-btn { background: white; border: 2px solid #E2E8F0; color: #5A6874; padding: 16px; border-radius: 16px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .admin-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    @media (max-width: 768px) { .admin-tabs { grid-template-columns: 1fr; } }
+    .admin-tab-btn { background: white; border: 2px solid #E2E8F0; color: #5A6874; padding: 16px; border-radius: 16px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .admin-tab-btn.active { border-color: #005BBB; color: #005BBB; background: #F8FAFE; }
+    .admin-card-tab { display: none; }
     
     .pedido-admin-card { background: #F8FAFE; border: 1px solid #E2E8F0; border-radius: 16px; padding: 16px; margin-bottom: 12px; }
     .pedido-admin-header { display: flex; justify-content: space-between; align-items: flex-start; }
-    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; }
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; text-align: center; }
     
     .search-wrapper { padding: 16px; max-width: 1400px; margin: 0 auto; }
     .search-bar { background: #F0F2F5; border-radius: 32px; display: flex; align-items: center; padding: 12px 16px; gap: 8px; }
@@ -209,9 +215,9 @@
     <div id="aguaFormCard" style="background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
       <h2 style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><i class="material-icons" style="color: #005BBB;">local_drink</i> Solicitar Água</h2>
       <div class="form-grid">
-        <div class="input-group full-width"><label>Setor/Unidade *</label><select id="aguaSetor"><option value="">Selecione...</option><option>Almoxarifado</option><option>Secretaria do CT</option><option>DEM - Mecânica</option><option>DEA - Alimentos</option><option>DECA - Civil</option></select></div>
+        <div class="input-group full-width"><label>Setor/Unidade *</label><select id="aguaSetor" class="dynamic-sectors"></select></div>
         <div class="input-group"><label>Nome *</label><input type="text" id="aguaNome"></div>
-        <div class="input-group"><label>WhatsApp *</label><input type="text" id="aguaContato" class="mask-whatsapp" placeholder="(83) 90000-0000"></div>
+        <div class="input-group"><label>WhatsApp *</label><input type="tel" inputmode="numeric" id="aguaContato" class="mask-whatsapp" placeholder="(83) 90000-0000"></div>
         <div class="input-group"><label>E-mail *</label><input type="email" id="aguaEmail"></div>
         <div class="input-group"><label>Perfil</label><select id="aguaPerfil"><option>Técnico-Administrativo</option><option>Docente</option><option>Discente</option></select></div>
         <div class="input-group"><label>Lotação/Sala *</label><input type="text" id="aguaLotacao"></div>
@@ -231,17 +237,17 @@
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
       <h2><i class="material-icons" style="vertical-align: middle;">admin_panel_settings</i> Painel Gestor</h2>
       <div style="display:flex; gap:8px;">
-        <button class="btn-secondary" style="width: auto; padding: 8px 16px;" onclick="forcarAtualizacao()"><i class="material-icons">refresh</i> Atualizar</button>
-        <button class="btn-secondary" style="width: auto; padding: 8px 16px;" onclick="mudarSenha()">Trocar Senha</button>
+        <button class="btn-secondary" style="width: auto; padding: 8px 16px;" onclick="mudarSenha()"><i class="material-icons">key</i> Senha</button>
       </div>
     </div>
 
     <div class="admin-tabs">
-      <button class="admin-tab-btn" id="btn-tab-cadastrar" onclick="switchAdminTab('cadastrar')"><i class="material-icons">add_box</i> Cadastrar Material</button>
-      <button class="admin-tab-btn" id="btn-tab-estoque" onclick="switchAdminTab('estoque')"><i class="material-icons">inventory</i> Gerenciar Estoque</button>
+      <button class="admin-tab-btn" id="btn-tab-cadastrar" onclick="switchAdminTab('cadastrar')"><i class="material-icons">add_box</i> Materiais</button>
+      <button class="admin-tab-btn" id="btn-tab-estoque" onclick="switchAdminTab('estoque')"><i class="material-icons">inventory</i> Estoque</button>
+      <button class="admin-tab-btn" id="btn-tab-setores" onclick="switchAdminTab('setores')"><i class="material-icons">business</i> Setores</button>
     </div>
 
-    <div id="admin-tab-cadastrar" class="admin-card" style="display: none;">
+    <div id="admin-tab-cadastrar" class="admin-card admin-card-tab">
       <h3 style="margin-bottom: 16px;">Novo Material</h3>
       <div class="form-grid">
         <div class="input-group">
@@ -251,19 +257,19 @@
         </div>
         <div class="input-group"><label>Nome do Item *</label><input type="text" id="adminNovoNome"></div>
         <div class="input-group"><label>URL da Imagem</label><input type="text" id="adminNovaImg" placeholder="https://..."></div>
-        <div class="input-group"><label>Estoque Inicial</label><input type="number" id="adminNovoEstoque" value="0"></div>
+        <div class="input-group"><label>Estoque Inicial</label><input type="number" inputmode="numeric" id="adminNovoEstoque" value="0"></div>
       </div>
       <button class="btn-primary" style="width: auto; padding: 12px 24px;" onclick="adminAdicionarItem()">Salvar Material</button>
     </div>
 
-    <div id="admin-tab-estoque" class="admin-card" style="display: none;">
-      <h3 style="margin-bottom: 16px;">Entradas de Estoque e Histórico</h3>
+    <div id="admin-tab-estoque" class="admin-card admin-card-tab">
+      <h3 style="margin-bottom: 16px;">Entradas de Estoque e Gestão</h3>
       <table class="admin-table">
         <thead>
           <tr>
-            <th>Material</th>
-            <th>Estoque Atual</th>
-            <th style="width:100px;">Adicionar</th>
+            <th>Material / Categoria</th>
+            <th>Estoque</th>
+            <th style="width:100px;">Entrada</th>
             <th style="width:150px;">Observação</th>
             <th style="width:180px;">Ações</th>
           </tr>
@@ -272,13 +278,24 @@
       </table>
     </div>
 
+    <div id="admin-tab-setores" class="admin-card admin-card-tab">
+      <h3 style="margin-bottom: 16px;"><i class="material-icons" style="vertical-align:middle">business</i> Cadastro Rápido de Setores</h3>
+      <p style="font-size:0.85rem; color:#6B7A8A; margin-bottom:12px;">Cole ou digite os setores separados por ponto e vírgula (<b>;</b>). Ex: <i>Setor 1; Setor 2; Almoxarifado CT</i></p>
+      <textarea id="adminImportSetores" rows="4" style="width:100%; border:1px solid #CBD5E1; border-radius:12px; padding:12px; font-family:inherit; resize:vertical; margin-bottom:12px;"></textarea>
+      <button class="btn-primary" style="width:auto; padding:10px 20px;" onclick="importarSetores()">Importar Setores</button>
+      <hr style="margin:20px 0; border:none; border-top:1px solid #EDF2F7;">
+      <h4 style="margin-bottom:12px;">Setores Cadastrados:</h4>
+      <div id="listaSetoresCadastrados" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+      <button class="btn-secondary" style="width:auto; padding:6px 12px; margin-top:16px; color:#B91C1C;" onclick="limparSetores()">Zerar Lista de Setores</button>
+    </div>
+
     <div class="admin-card" style="margin-top: 24px;">
       <h3 style="margin-bottom: 16px; color: #B91C1C;"><i class="material-icons">pending_actions</i> Pendentes / Fila de Água</h3>
       <div id="adminPendentesList"></div>
     </div>
 
     <div class="admin-card">
-      <h3 style="margin-bottom: 16px; color: #1E7E34;"><i class="material-icons">history</i> Últimos 10 Atualizados</h3>
+      <h3 style="margin-bottom: 16px; color: #1E7E34;"><i class="material-icons">history</i> Últimos Atualizados</h3>
       <div id="adminUltimosList"></div>
       <button class="btn-secondary" style="margin-top: 16px;" onclick="abrirTodosPedidosModal()"><i class="material-icons">list_alt</i> Consultar e Exportar Todos os Pedidos</button>
     </div>
@@ -307,9 +324,9 @@
       <i class="material-icons" style="cursor:pointer;" onclick="voltarParaCarrinho()">arrow_back</i>
     </div>
     <div class="form-grid">
-      <div class="input-group full-width"><label>Setor/Unidade *</label><select id="reqSetor"><option value="">Selecione...</option><option>Almoxarifado</option><option>Secretaria do CT</option><option>DEM - Mecânica</option><option>DEA - Alimentos</option><option>DECA - Civil</option></select></div>
+      <div class="input-group full-width"><label>Setor/Unidade *</label><select id="reqSetor" class="dynamic-sectors"></select></div>
       <div class="input-group"><label>Nome completo *</label><input type="text" id="reqNome"></div>
-      <div class="input-group"><label>WhatsApp *</label><input type="text" id="reqContato" class="mask-whatsapp" placeholder="(83) 90000-0000"></div>
+      <div class="input-group"><label>WhatsApp *</label><input type="tel" inputmode="numeric" id="reqContato" class="mask-whatsapp" placeholder="(83) 90000-0000"></div>
       <div class="input-group"><label>E-mail *</label><input type="email" id="reqEmail"></div>
       <div class="input-group"><label>Perfil</label><select id="reqPerfil"><option>Discente</option><option>Docente</option><option>Técnico-Administrativo</option></select></div>
       <div class="input-group"><label>Lotação/Sala *</label><input type="text" id="reqLotacao"></div>
@@ -331,7 +348,7 @@
     </div>
     <div style="overflow-x: auto; max-height: 50vh;">
       <table class="admin-table">
-        <thead><tr><th>Data</th><th>Tipo</th><th>Setor</th><th>Solicitante</th><th>Status</th></tr></thead>
+        <thead><tr><th>Data/Hora</th><th>Tipo</th><th>Setor</th><th>Solicitante</th><th>Status</th><th>Entrega/Fim</th></tr></thead>
         <tbody id="tabelaTodosPedidosBody"></tbody>
       </table>
     </div>
@@ -341,12 +358,12 @@
 <div id="modalHistoricoItem" class="modal-modern">
   <div class="modal-container" style="max-width: 900px;">
     <div style="display:flex; justify-content:space-between; margin-bottom: 16px;">
-      <h2 id="histItemNomeHeader"><i class="material-icons">manage_history</i> Histórico do Material</h2>
+      <h2 id="histItemNomeHeader"><i class="material-icons">manage_history</i> Histórico</h2>
       <i class="material-icons" style="cursor:pointer;" onclick="fecharModal('modalHistoricoItem')">close</i>
     </div>
     <div style="display:flex; gap:12px; margin-bottom:16px;">
       <button class="btn-primary" style="width:auto; padding:8px 16px; background:#1E7E34;" onclick="exportarHistoricoItemXLSX()"><i class="material-icons">table_view</i> Excel (XLSX)</button>
-      <button class="btn-primary" style="width:auto; padding:8px 16px; background:#B91C1C;" onclick="exportarHistoricoItemPDF()"><i class="material-icons">picture_as_pdf</i> Gerar PDF</button>
+      <button class="btn-primary" style="width:auto; padding:8px 16px; background:#B91C1C;" onclick="exportarHistoricoItemPDF()"><i class="material-icons">picture_as_pdf</i> PDF</button>
     </div>
     <div style="overflow-x: auto; max-height: 50vh;">
       <table class="admin-table">
@@ -368,16 +385,36 @@
     
     <div class="input-group full-width" style="margin-bottom: 16px;">
       <label>Status do Pedido</label>
-      <select id="editPedidoStatus" style="font-weight:bold;">
+      <select id="editPedidoStatus" style="font-weight:bold; font-size:1.05rem;">
         <option value="Aguardando">Aguardando</option>
         <option value="Aguardando retirada">Aguardando retirada</option>
         <option value="Entregue">Entregue</option>
-        <option value="Cancelado/Rejeitado">Cancelado/Rejeitado</option>
+        <option value="Cancelado/Rejeitado">Cancelado / Rejeitado</option>
       </select>
     </div>
     <div id="editarPedidoItensContainer"></div>
     <input type="hidden" id="editPedidoIdAtual">
-    <button class="btn-primary" style="margin-top:20px;" onclick="salvarEdicaoPedido()"><i class="material-icons">save</i> Salvar Alterações e Fechar</button>
+    <button class="btn-primary" style="margin-top:20px;" onclick="salvarEdicaoPedido()"><i class="material-icons">save</i> Salvar Alterações</button>
+  </div>
+</div>
+
+<div id="modalEditarMaterial" class="modal-modern">
+  <div class="modal-container">
+    <div style="display:flex; justify-content:space-between; margin-bottom: 16px;">
+      <h2><i class="material-icons">edit</i> Editar Material</h2>
+      <i class="material-icons" style="cursor:pointer;" onclick="fecharModal('modalEditarMaterial')">close</i>
+    </div>
+    <div class="form-grid">
+      <div class="input-group full-width"><label>Nome do Item</label><input type="text" id="editMatNome"></div>
+      <div class="input-group"><label>Categoria</label><input type="text" id="editMatCat"></div>
+      <div class="input-group"><label>Estoque Atual (Absoluto)</label><input type="number" inputmode="numeric" id="editMatEstoque"></div>
+      <div class="input-group full-width"><label>URL da Imagem</label><input type="text" id="editMatImg"></div>
+    </div>
+    <input type="hidden" id="editMatIdAtual">
+    <div style="display:flex; gap:12px; margin-top:20px;">
+      <button class="btn-secondary" style="color:#B91C1C; border-color:#B91C1C;" onclick="excluirMaterialAdmin()"><i class="material-icons">delete</i> Excluir Item</button>
+      <button class="btn-primary" onclick="salvarEdicaoMaterial()"><i class="material-icons">save</i> Salvar Material</button>
+    </div>
   </div>
 </div>
 
@@ -401,18 +438,14 @@ function enviarParaGoogleSheets(dados) {
     method: 'POST', mode: 'no-cors', 
     headers: { 'Content-Type': 'application/json' }, 
     body: JSON.stringify(dados) 
-  }).catch(e => console.error("Erro Nuvem", e));
+  }).catch(e => console.log("Nota: O envio foi tentado. Garanta que o AppScript esteja apto a receber o payload JSON."));
 }
 
 function salvarBackupNuvem() {
-  enviarParaGoogleSheets({
-    tipo: 'backup_estado_app', materiais: materiaisDB, historico: historicoGlobal, fila: filaAgua, histItens: historicoItens
-  });
+  enviarParaGoogleSheets({ tipo: 'backup_estado_app', materiais: materiaisDB, historico: historicoGlobal, fila: filaAgua, histItens: historicoItens });
 }
 
-function forcarAtualizacao() { window.location.href = window.location.pathname + '?t=' + new Date().getTime(); }
-
-// ---------- Chaves de Armazenamento Fixas ----------
+// ---------- BDs ----------
 const DB_MATERIAIS = 'almox_db_materiais';
 const DB_CARRINHO  = 'almox_db_carrinho';
 const DB_HISTORICO = 'almox_db_hist_global';
@@ -420,13 +453,13 @@ const DB_FILA_AGUA = 'almox_db_fila_agua';
 const DB_HIST_ITEN = 'almox_db_hist_itens';
 const DB_PREFS_USR = 'almox_db_prefs_user';
 const DB_PEDIDO_AG = 'almox_db_meu_pedido_agua';
+const DB_SETORES   = 'almox_db_setores'; // Novo ITEM 16
 
 let materiaisDB = JSON.parse(localStorage.getItem(DB_MATERIAIS));
 if(!materiaisDB) {
   materiaisDB = [
     { id: '1a', categoria: 'Expediente', nome: 'Caneta azul', imagem: 'https://cdn-icons-png.flaticon.com/512/103/103554.png', estoque: 50 },
-    { id: '2b', categoria: 'Expediente', nome: 'Papel A4 (resma)', imagem: 'https://cdn-icons-png.flaticon.com/512/2965/2965311.png', estoque: 20 },
-    { id: '3c', categoria: 'Limpeza', nome: 'Copo descartável', imagem: 'https://cdn-icons-png.flaticon.com/512/3024/3024502.png', estoque: 0 }
+    { id: '2b', categoria: 'Expediente', nome: 'Papel A4 (resma)', imagem: 'https://cdn-icons-png.flaticon.com/512/2965/2965311.png', estoque: 20 }
   ];
   localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
 }
@@ -434,17 +467,17 @@ if(!materiaisDB) {
 let historicoItens = JSON.parse(localStorage.getItem(DB_HIST_ITEN));
 if(!historicoItens) {
   historicoItens = [
-    { idItem: '1a', data: new Date().toLocaleString(), tipo: 'Saldo Inicial', qtd: 50, obs: 'Cadastro Original do Sistema', saldo: 50 },
-    { idItem: '2b', data: new Date().toLocaleString(), tipo: 'Saldo Inicial', qtd: 20, obs: 'Cadastro Original do Sistema', saldo: 20 },
-    { idItem: '3c', data: new Date().toLocaleString(), tipo: 'Saldo Inicial', qtd: 0, obs: 'Cadastro Original do Sistema', saldo: 0 }
+    { idItem: '1a', data: new Date().toLocaleString(), tipo: 'Saldo Inicial', qtd: 50, obs: 'Cadastro Original', saldo: 50 },
+    { idItem: '2b', data: new Date().toLocaleString(), tipo: 'Saldo Inicial', qtd: 20, obs: 'Cadastro Original', saldo: 20 }
   ];
   localStorage.setItem(DB_HIST_ITEN, JSON.stringify(historicoItens));
 }
 
+let setoresDB = JSON.parse(localStorage.getItem(DB_SETORES)) || ["Almoxarifado", "Secretaria do CT", "DEM - Mecânica", "DEA - Alimentos", "DECA - Civil"];
+
 let carrinho = JSON.parse(localStorage.getItem(DB_CARRINHO)) || [];
 let historicoGlobal = JSON.parse(localStorage.getItem(DB_HISTORICO)) || []; 
 let filaAgua = JSON.parse(localStorage.getItem(DB_FILA_AGUA)) || [];
-
 let currentFilter = ""; let currentSearch = "";
 
 // ---------- LOG DE HISTÓRICO DE ITENS ----------
@@ -453,40 +486,51 @@ function registrarHistoricoItem(idItem, tipo, qtd, obs, saldo) {
   localStorage.setItem(DB_HIST_ITEN, JSON.stringify(historicoItens));
 }
 
+// ---------- SETORES (ITEM 16) ----------
+function renderSetoresSelects() {
+  let html = '<option value="" disabled selected>Selecione o setor</option>' + setoresDB.map(s => `<option value="${s}">${s}</option>`).join('');
+  document.querySelectorAll('.dynamic-sectors').forEach(select => select.innerHTML = html);
+  
+  const listaCont = document.getElementById('listaSetoresCadastrados');
+  if(listaCont) {
+    listaCont.innerHTML = setoresDB.map(s => `<span style="background:#EFF3F8; color:#1E2A3E; padding:4px 10px; border-radius:20px; font-size:0.8rem;">${s}</span>`).join('');
+  }
+}
+
+function importarSetores() {
+  let text = document.getElementById('adminImportSetores').value;
+  if(!text) return;
+  let novos = text.split(';').map(s => s.trim()).filter(s => s.length > 0);
+  if(novos.length > 0) {
+    setoresDB = [...new Set([...setoresDB, ...novos])]; // merge e remove duplos
+    localStorage.setItem(DB_SETORES, JSON.stringify(setoresDB));
+    renderSetoresSelects();
+    document.getElementById('adminImportSetores').value = '';
+    Swal.fire({toast:true, position:'top-end', icon:'success', title:'Setores importados!', showConfirmButton:false, timer:1500});
+  }
+}
+
+function limparSetores() {
+  Swal.fire({ title: 'Atenção', text: 'Apagar todos os setores?', icon: 'warning', showCancelButton:true }).then(res => {
+    if(res.isConfirmed) { setoresDB = []; localStorage.setItem(DB_SETORES, JSON.stringify(setoresDB)); renderSetoresSelects(); }
+  });
+}
+
 // ---------- AUTO-PREENCHIMENTO LOCAL ----------
 function carregarDadosLocaisUsuario() {
   let prefs = JSON.parse(localStorage.getItem(DB_PREFS_USR));
   if(prefs) {
-    if(document.getElementById('reqNome')) document.getElementById('reqNome').value = prefs.nome || '';
-    if(document.getElementById('reqContato')) document.getElementById('reqContato').value = prefs.whatsapp || '';
-    if(document.getElementById('reqEmail')) document.getElementById('reqEmail').value = prefs.email || '';
-    if(document.getElementById('reqSetor')) document.getElementById('reqSetor').value = prefs.setor || '';
-    if(document.getElementById('reqPerfil')) document.getElementById('reqPerfil').value = prefs.perfil || '';
-    if(document.getElementById('reqLotacao')) document.getElementById('reqLotacao').value = prefs.lotacao || '';
-    
-    if(document.getElementById('aguaNome')) document.getElementById('aguaNome').value = prefs.nome || '';
-    if(document.getElementById('aguaContato')) document.getElementById('aguaContato').value = prefs.whatsapp || '';
-    if(document.getElementById('aguaEmail')) document.getElementById('aguaEmail').value = prefs.email || '';
-    if(document.getElementById('aguaSetor')) document.getElementById('aguaSetor').value = prefs.setor || '';
-    if(document.getElementById('aguaPerfil')) document.getElementById('aguaPerfil').value = prefs.perfil || '';
-    if(document.getElementById('aguaLotacao')) document.getElementById('aguaLotacao').value = prefs.lotacao || '';
+    ['reqNome','aguaNome'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = prefs.nome || ''; });
+    ['reqContato','aguaContato'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = prefs.whatsapp || ''; });
+    ['reqEmail','aguaEmail'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = prefs.email || ''; });
+    ['reqSetor','aguaSetor'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = prefs.setor || ''; });
+    ['reqPerfil','aguaPerfil'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = prefs.perfil || ''; });
+    ['reqLotacao','aguaLotacao'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = prefs.lotacao || ''; });
   }
 }
 function salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao) {
   localStorage.setItem(DB_PREFS_USR, JSON.stringify({ nome, whatsapp, email, setor, perfil, lotacao }));
 }
-
-// Máscara WhatsApp
-document.querySelectorAll('.mask-whatsapp').forEach(input => {
-  input.addEventListener('input', function(e) {
-    let v = e.target.value.replace(/\D/g, "");
-    if(v.length > 11) v = v.slice(0,11); 
-    if(v.length > 2) v = `(${v.substring(0,2)}) ${v.substring(2)}`;
-    if(v.length > 10) v = `${v.substring(0,10)}-${v.substring(10)}`;
-    e.target.value = v;
-  });
-});
-function validaWhatsapp(val) { return val.replace(/\D/g, "").length >= 10; }
 
 // ---------- NAVEGAÇÃO SPA ----------
 function mudarView(viewId) {
@@ -564,7 +608,6 @@ function finalizarRequisicaoModal() {
 
   salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
 
-  // Abater Estoque e Registrar
   carrinho.forEach(c => { 
     let dbM = materiaisDB.find(m => m.id === c.id); 
     if(dbM) {
@@ -633,7 +676,7 @@ function cancelarAgua() {
   checkAguaStatus();
 }
 
-// ---------- HISTÓRICO USUÁRIO ----------
+// ---------- HISTÓRICO USUÁRIO (ITEM 18) ----------
 function renderHistoricoUsuario() {
   const cont = document.getElementById('historicoContainer');
   if(historicoGlobal.length === 0) return cont.innerHTML = '<div style="text-align:center;">Nenhum pedido feito.</div>';
@@ -644,9 +687,11 @@ function renderHistoricoUsuario() {
     else if(h.status === 'Entregue') { corStatus='#BBF7D0'; txtStatus='#166534'; }
     else if(h.status === 'Cancelado/Rejeitado') { corStatus='#FEE2E2'; txtStatus='#991B1B'; }
 
+    let dtEntregaStr = h.dataEntrega ? `<br><span style="font-size:0.75rem; color:#166534; font-weight:600;">Entregue em: ${h.dataEntrega}</span>` : '';
+
     return `<div style="background:white; border-radius:20px; padding:20px; margin-bottom:16px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
       <div style="display:flex; justify-content:space-between; border-bottom:1px solid #edf2f7; padding-bottom:12px; margin-bottom:12px;">
-        <div><strong>${h.tipo === 'Água' ? '💧 Água' : '📦 Materiais'} - ${h.setor}</strong><br><span style="font-size:0.8rem; color:#64748B;">${h.data}</span></div>
+        <div><strong>${h.tipo === 'Água' ? '💧 Água' : '📦 Materiais'} - ${h.setor}</strong><br><span style="font-size:0.8rem; color:#64748B;">Pedido: ${h.data}</span>${dtEntregaStr}</div>
         <span style="background:${corStatus}; color:${txtStatus}; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:700; height:fit-content;">${h.status}</span>
       </div>
       ${h.tipo === 'Material' ? `<ul style="list-style:none; font-size:0.9rem;">${h.itens.map(i=> {
@@ -664,10 +709,20 @@ function abrirAdmin() {
 }
 function mudarSenha() { Swal.fire({ title: 'Nova Senha', input: 'password', showCancelButton:true }).then(res => { if(res.isConfirmed) localStorage.setItem('senhaAdminCT', res.value); }); }
 
+// ITEM 3: Toggle Tabs Admin
 function switchAdminTab(tab) {
-  document.getElementById('btn-tab-cadastrar').classList.remove('active'); document.getElementById('btn-tab-estoque').classList.remove('active');
-  document.getElementById('admin-tab-cadastrar').style.display = 'none'; document.getElementById('admin-tab-estoque').style.display = 'none';
-  document.getElementById(`btn-tab-${tab}`).classList.add('active'); document.getElementById(`admin-tab-${tab}`).style.display = 'block';
+  let btn = document.getElementById(`btn-tab-${tab}`);
+  let panel = document.getElementById(`admin-tab-${tab}`);
+  
+  if (btn.classList.contains('active')) {
+    btn.classList.remove('active');
+    panel.style.display = 'none';
+  } else {
+    document.querySelectorAll('.admin-tab-btn').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.admin-card-tab').forEach(el => el.style.display = 'none');
+    btn.classList.add('active');
+    panel.style.display = 'block';
+  }
 }
 
 function renderCategoriasAdmin() {
@@ -679,6 +734,7 @@ function checkNovaCat() {
   const select = document.getElementById('adminNovaCatSelect'); const input = document.getElementById('adminNovaCatInput');
   if(select.value === 'NOVA') { input.style.display = 'block'; input.focus(); } else { input.style.display = 'none'; }
 }
+
 function adminAdicionarItem() {
   let cat = document.getElementById('adminNovaCatSelect').value;
   if(cat === 'NOVA') cat = document.getElementById('adminNovaCatInput').value.trim();
@@ -703,13 +759,14 @@ function renderAdminEstoque() {
   document.getElementById('adminTableBody').innerHTML = materiaisDB.map(m => `
     <tr>
       <td style="font-weight:600;">${m.nome} <br><span style="font-size:0.75rem; color:#6B7A8A;">${m.categoria}</span></td>
-      <td style="font-weight:800; color:#005BBB;">${m.estoque} un</td>
-      <td><input type="number" class="admin-input" id="entrada-${m.id}" placeholder="+ Qtd"></td>
-      <td><input type="text" class="admin-input" id="obs-${m.id}" placeholder="Motivo/Nota"></td>
+      <td style="font-weight:800; color:#005BBB; font-size:1.1rem;">${m.estoque} <span style="font-size:0.8rem;font-weight:normal">un</span></td>
+      <td><input type="number" inputmode="numeric" class="admin-input" id="entrada-${m.id}" placeholder="+ Qtd"></td>
+      <td><input type="text" class="admin-input" id="obs-${m.id}" placeholder="Motivo"></td>
       <td>
         <div style="display:flex; gap:6px;">
-          <button class="btn-primary" style="padding:6px; width:auto;" onclick="registrarEntrada('${m.id}')">Adicionar</button>
-          <button class="btn-secondary" style="padding:6px; width:auto;" onclick="abrirHistoricoItem('${m.id}')" title="Ver Histórico"><i class="material-icons" style="font-size:18px;">history</i></button>
+          <button class="btn-primary" style="padding:8px; width:auto;" onclick="registrarEntrada('${m.id}')" title="Adicionar Estoque"><i class="material-icons" style="font-size:20px;">add</i></button>
+          <button class="btn-secondary" style="padding:8px; width:auto; color:#005BBB; border-color:#005BBB;" onclick="abrirEdicaoMaterial('${m.id}')" title="Editar Material"><i class="material-icons" style="font-size:20px;">edit</i></button>
+          <button class="btn-secondary" style="padding:8px; width:auto;" onclick="abrirHistoricoItem('${m.id}')" title="Ver Histórico"><i class="material-icons" style="font-size:20px;">manage_history</i></button>
         </div>
       </td>
     </tr>`).join('');
@@ -726,14 +783,60 @@ function registrarEntrada(id) {
     localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); 
     registrarHistoricoItem(id, 'Entrada Manual', qtd, obs, item.estoque);
     salvarBackupNuvem();
-    
     inptQtd.value = ''; inptObs.value = ''; 
     Swal.fire({toast:true, position:'top-end', icon:'success', title:'Estoque somado', showConfirmButton:false, timer:1000}); 
     renderAdminEstoque(); 
   }
 }
 
-// Modal Histórico do Item Específico
+// ITEM 3: Editar/Excluir Material
+function abrirEdicaoMaterial(id) {
+  let item = materiaisDB.find(m => m.id === id); if(!item) return;
+  document.getElementById('editMatIdAtual').value = id;
+  document.getElementById('editMatNome').value = item.nome;
+  document.getElementById('editMatCat').value = item.categoria;
+  document.getElementById('editMatImg').value = item.imagem;
+  document.getElementById('editMatEstoque').value = item.estoque;
+  document.getElementById('modalEditarMaterial').style.display = 'flex';
+}
+
+function salvarEdicaoMaterial() {
+  let id = document.getElementById('editMatIdAtual').value;
+  let item = materiaisDB.find(m => m.id === id); if(!item) return;
+  
+  let oldEst = item.estoque;
+  item.nome = document.getElementById('editMatNome').value.trim();
+  item.categoria = document.getElementById('editMatCat').value.trim();
+  item.imagem = document.getElementById('editMatImg').value.trim();
+  let novoEstoque = parseInt(document.getElementById('editMatEstoque').value);
+
+  if(novoEstoque >= 0 && novoEstoque !== oldEst) {
+    let dif = novoEstoque - oldEst;
+    let t = dif > 0 ? 'Entrada (Edição Admin)' : 'Saída (Edição Admin)';
+    item.estoque = novoEstoque;
+    registrarHistoricoItem(id, t, Math.abs(dif), 'Ajuste Absoluto via Edição', item.estoque);
+  }
+
+  localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
+  salvarBackupNuvem();
+  fecharModal('modalEditarMaterial'); renderAdminEstoque(); renderCategoriasAdmin();
+  Swal.fire({toast:true, position:'top-end', icon:'success', title:'Material salvo!', showConfirmButton:false, timer:1500});
+}
+
+function excluirMaterialAdmin() {
+  let id = document.getElementById('editMatIdAtual').value;
+  Swal.fire({ title:'Tem certeza?', text:'Deseja excluir este material para sempre?', icon:'warning', showCancelButton:true, confirmButtonColor:'#d33' })
+  .then(res => {
+    if(res.isConfirmed) {
+      materiaisDB = materiaisDB.filter(m => m.id !== id);
+      localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
+      salvarBackupNuvem();
+      fecharModal('modalEditarMaterial'); renderAdminEstoque(); renderCategoriasAdmin();
+      Swal.fire('Excluído', '', 'success');
+    }
+  });
+}
+
 function abrirHistoricoItem(idItem) {
   let item = materiaisDB.find(m => m.id === idItem); if(!item) return;
   document.getElementById('histItemNomeHeader').innerHTML = `<i class="material-icons">manage_history</i> ${item.nome}`;
@@ -742,7 +845,7 @@ function abrirHistoricoItem(idItem) {
   let hist = historicoItens.filter(h => h.idItem === idItem);
   document.getElementById('tabelaHistoricoItemBody').innerHTML = hist.length === 0 ? '<tr><td colspan="5" style="text-align:center;">Sem histórico</td></tr>' : hist.map(h => {
     let styleRow = h.tipo === 'Pedido Rejeitado' ? `text-decoration: line-through; color: #B91C1C;` : ``;
-    return `<tr><td>${h.data}</td><td><strong style="color:${(h.tipo.includes('Entrada')||h.tipo==='Saldo Inicial')?'#166534':'#B91C1C'}">${h.tipo}</strong></td><td><span style="${styleRow}">${h.qtd}</span></td><td>${h.saldo}</td><td>${h.obs}</td></tr>`;
+    return `<tr><td style="font-size:0.8rem;">${h.data}</td><td><strong style="color:${(h.tipo.includes('Entrada')||h.tipo==='Saldo Inicial')?'#166534':'#B91C1C'}; font-size:0.85rem;">${h.tipo}</strong></td><td><span style="${styleRow}">${h.qtd}</span></td><td><strong>${h.saldo}</strong></td><td style="font-size:0.85rem;">${h.obs}</td></tr>`;
   }).join('');
   document.getElementById('modalHistoricoItem').style.display = 'flex';
 }
@@ -751,20 +854,17 @@ function exportarHistoricoItemXLSX() {
   let idItem = document.getElementById('histItemIdAtual').value; let item = materiaisDB.find(m => m.id === idItem);
   let dados = historicoItens.filter(h => h.idItem === idItem).map(h => ({ Data: h.data, Tipo: h.tipo, Quantidade: h.qtd, Saldo: h.saldo, Observacao: h.obs }));
   if(dados.length === 0) return;
-  let ws = XLSX.utils.json_to_sheet(dados); let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Hist");
-  XLSX.writeFile(wb, `Historico_${item.nome.replace(/\s/g,'_')}.xlsx`);
+  let ws = XLSX.utils.json_to_sheet(dados); let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Hist"); XLSX.writeFile(wb, `Historico_${item.nome.replace(/\s/g,'_')}.xlsx`);
 }
-
 function exportarHistoricoItemPDF() {
   let idItem = document.getElementById('histItemIdAtual').value; let item = materiaisDB.find(m => m.id === idItem);
   let hist = historicoItens.filter(h => h.idItem === idItem); if(hist.length === 0) return;
-  const { jsPDF } = window.jspdf; const doc = new jsPDF();
-  doc.text(`Histórico: ${item.nome}`, 14, 15);
+  const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.text(`Histórico: ${item.nome}`, 14, 15);
   doc.autoTable({ startY: 25, head: [['Data', 'Tipo', 'Qtd', 'Saldo', 'Observação']], body: hist.map(h => [h.data, h.tipo, h.qtd, h.saldo, h.obs]) });
   doc.save(`Historico_${item.nome.replace(/\s/g,'_')}.pdf`);
 }
 
-// Gestão de Pedidos (Aguardando / Edit)
+// Gestão de Pedidos (ITEM 17 e 18)
 function renderAdminPedidos() {
   let pendentes = historicoGlobal.filter(h => h.status === 'Aguardando' || h.status === 'Aguardando retirada');
   let ultimos10 = historicoGlobal.filter(h => h.status !== 'Aguardando' && h.status !== 'Aguardando retirada').slice(0, 10);
@@ -779,24 +879,27 @@ function renderAdminPedidos() {
       let badgeColor = p.status === 'Aguardando' ? 'background:#FEF08A; color:#854D0E;' : 'background:#DBEAFE; color:#1D4ED8;';
 
       let zapBtn = (p.status === 'Aguardando retirada' && cleanZ) ? `<a href="https://wa.me/55${cleanZ}?text=${msgZap}" target="_blank" class="btn-secondary" style="background:#25D366; color:white; border:none; width:auto; padding:6px 12px; text-decoration:none; display:flex; align-items:center; gap:6px;"><i class="material-icons" style="font-size:16px;">chat</i> Avisar WhatsApp</a>` : '';
-      let acaoBtn = `<button class="btn-primary" style="padding:6px 12px; width:auto;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons" style="font-size:16px;">edit</i> Gerenciar / Despachar</button>`;
+      let acaoBtn = `<button class="btn-primary" style="padding:6px 12px; width:auto;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons" style="font-size:16px;">edit</i> Gerenciar</button>`;
 
-      return `<div class="pedido-admin-card" style="border-left: 4px solid ${isAgua ? '#005BBB' : '#F59E0B'};"><div class="pedido-admin-header"><div><strong>${isAgua ? '💧 Água' : '📦 Materiais'} - ${p.setor}</strong><br><span style="font-size:0.8rem;">Solict.: ${p.nome} | Whats: ${p.whatsapp||'N/A'}</span></div><span class="badge-status" style="${badgeColor}">${p.status}</span></div>${!isAgua ? `<div style="font-size:0.85rem; background:white; padding:8px; border-radius:8px; margin-top:8px;">${p.itens.map(i=>`${i.nome} (${i.qtd})`).join(', ')}</div>` : ''}<div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">${acaoBtn}${zapBtn}</div></div>`;
+      return `<div class="pedido-admin-card" style="border-left: 4px solid ${isAgua ? '#005BBB' : '#F59E0B'};"><div class="pedido-admin-header"><div><strong>${isAgua ? '💧 Água' : '📦 Materiais'} - ${p.setor}</strong><br><span style="font-size:0.8rem;">Solict.: ${p.nome} | Whats: ${p.whatsapp||'N/A'}</span><br><span style="font-size:0.75rem; color:#64748B;">📅 Pedido: ${p.data}</span></div><span class="badge-status" style="${badgeColor}">${p.status}</span></div>${!isAgua ? `<div style="font-size:0.85rem; background:white; padding:8px; border-radius:8px; margin-top:8px;">${p.itens.map(i=>`${i.nome} (${i.qtd})`).join(', ')}</div>` : ''}<div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">${acaoBtn}${zapBtn}</div></div>`;
     }).join('');
   }
 
-  document.getElementById('adminUltimosList').innerHTML = ultimos10.length === 0 ? '<p>Nenhum concluído.</p>' : ultimos10.map(p => `<div style="padding:10px; border-bottom:1px solid #EDF2F7; display:flex; justify-content:space-between; align-items:center;"><div style="font-size:0.85rem;"><strong>${p.tipo}</strong> - ${p.setor} (${p.nome})</div><div style="display:flex; gap:8px; align-items:center;"><span style="font-weight:bold; font-size:0.8rem; color:${p.status==='Cancelado/Rejeitado'?'#B91C1C':'#166534'}">${p.status}</span><button class="btn-secondary" style="padding:4px; border:none;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons" style="font-size:18px;">edit</i></button></div></div>`).join('');
+  document.getElementById('adminUltimosList').innerHTML = ultimos10.length === 0 ? '<p>Nenhum concluído.</p>' : ultimos10.map(p => {
+    let dtEntregaStr = p.dataEntrega ? `<br><span style="font-size:0.75rem; color:#166534;">Entregue: ${p.dataEntrega}</span>` : '';
+    return `<div style="padding:10px; border-bottom:1px solid #EDF2F7; display:flex; justify-content:space-between; align-items:center;"><div style="font-size:0.85rem;"><strong>${p.tipo}</strong> - ${p.setor} (${p.nome})${dtEntregaStr}</div><div style="display:flex; gap:8px; align-items:center;"><span style="font-weight:bold; font-size:0.8rem; color:${p.status==='Cancelado/Rejeitado'?'#B91C1C':'#166534'}">${p.status}</span><button class="btn-secondary" style="padding:4px; border:none;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons" style="font-size:18px;">edit</i></button></div></div>`;
+  }).join('');
 }
 
 function abrirEdicaoPedido(id) {
   let pedido = historicoGlobal.find(h => h.id == id); if(!pedido) return;
   document.getElementById('editPedidoIdAtual').value = id;
-  document.getElementById('editarPedidoHeader').innerHTML = `<strong>Solicitante:</strong> ${pedido.nome} <br><strong>Setor:</strong> ${pedido.setor} <br><strong>WhatsApp:</strong> ${pedido.whatsapp||'N/A'}`;
+  document.getElementById('editarPedidoHeader').innerHTML = `<strong>Solicitante:</strong> ${pedido.nome} <br><strong>Setor:</strong> ${pedido.setor} <br><strong>Data Pedido:</strong> ${pedido.data} <br><strong>WhatsApp:</strong> ${pedido.whatsapp||'N/A'}`;
   document.getElementById('editPedidoStatus').value = pedido.status;
 
   const contItens = document.getElementById('editarPedidoItensContainer');
   if(pedido.tipo === 'Material' && pedido.itens) {
-    contItens.innerHTML = '<h4 style="margin-bottom:8px;">Itens Solicitados:</h4>' + pedido.itens.map((item, idx) => `<div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; background:#F8FAFE; padding:8px; border-radius:8px;"><span style="flex:1; font-size:0.9rem;">${item.nome}</span><input type="number" id="editItemQtd_${idx}" value="${item.qtd}" style="width:60px; padding:4px; text-align:center; border:1px solid #cbd5e1; border-radius:4px;"> un</div>`).join('');
+    contItens.innerHTML = '<h4 style="margin-bottom:8px;">Itens Solicitados:</h4>' + pedido.itens.map((item, idx) => `<div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; background:#F8FAFE; padding:8px; border-radius:8px;"><span style="flex:1; font-size:0.9rem;">${item.nome}</span><input type="number" inputmode="numeric" id="editItemQtd_${idx}" value="${item.qtd}" style="width:60px; padding:4px; text-align:center; border:1px solid #cbd5e1; border-radius:4px;"> un</div>`).join('');
   } else { contItens.innerHTML = ''; }
   document.getElementById('modalEditarPedido').style.display = 'flex';
 }
@@ -828,15 +931,18 @@ function salvarEdicaoPedido() {
     });
   }
   
+  // ITEM 18: TIMESTAMP DE ENTREGA
+  if (novoStatus === 'Entregue' && pedido.status !== 'Entregue') {
+    pedido.dataEntrega = new Date().toLocaleString();
+  }
+
   if(pedido.tipo === 'Água' && (novoStatus === 'Entregue' || novoStatus === 'Cancelado/Rejeitado')) {
-    filaAgua = filaAgua.filter(f => f.id != id);
-    localStorage.setItem(DB_FILA_AGUA, JSON.stringify(filaAgua));
+    filaAgua = filaAgua.filter(f => f.id != id); localStorage.setItem(DB_FILA_AGUA, JSON.stringify(filaAgua));
   }
 
   pedido.status = novoStatus;
   localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
   localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal));
-  
   salvarBackupNuvem(); 
   
   fecharModal('modalEditarPedido'); renderAdminPedidos(); renderAdminEstoque();
@@ -844,16 +950,19 @@ function salvarEdicaoPedido() {
 }
 
 function abrirTodosPedidosModal() {
-  document.getElementById('tabelaTodosPedidosBody').innerHTML = historicoGlobal.map(p => `<tr><td>${p.data.split(' ')[0]}</td><td>${p.tipo}</td><td>${p.setor}</td><td>${p.nome}</td><td><strong>${p.status}</strong></td></tr>`).join('');
+  document.getElementById('tabelaTodosPedidosBody').innerHTML = historicoGlobal.map(p => {
+    let dt = p.dataEntrega ? `<br><small style="color:#166534">Fim: ${p.dataEntrega}</small>` : '';
+    return `<tr><td style="font-size:0.8rem;">Inc: ${p.data}${dt}</td><td>${p.tipo}</td><td>${p.setor}</td><td>${p.nome}</td><td><strong>${p.status}</strong></td></tr>`;
+  }).join('');
   document.getElementById('modalTodosPedidos').style.display = 'flex';
 }
 function exportarXLSX() {
-  let dados = historicoGlobal.map(p => ({ Data: p.data, Tipo: p.tipo, Setor: p.setor, Solicitante: p.nome, WhatsApp: p.whatsapp, Lotacao: p.lotacao, Status: p.status, Itens: p.itens ? p.itens.map(i=>`${i.nome} (${i.qtd})`).join(', ') : '' }));
+  let dados = historicoGlobal.map(p => ({ DataPedido: p.data, DataEntrega: p.dataEntrega||'', Tipo: p.tipo, Setor: p.setor, Solicitante: p.nome, WhatsApp: p.whatsapp, Lotacao: p.lotacao, Status: p.status, Itens: p.itens ? p.itens.map(i=>`${i.nome} (${i.qtd})`).join(', ') : '' }));
   let ws = XLSX.utils.json_to_sheet(dados); let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Pedidos"); XLSX.writeFile(wb, "Pedidos_Almox_UFPB.xlsx");
 }
 function exportarPDF() {
   const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.text("Relatório de Pedidos - Smart Almox CT", 14, 15);
-  doc.autoTable({ startY: 25, head: [['Data', 'Tipo', 'Setor', 'Solicitante', 'Status']], body: historicoGlobal.map(p => [p.data.split(' ')[0], p.tipo, p.setor, p.nome, p.status]) });
+  doc.autoTable({ startY: 25, head: [['Data', 'Tipo', 'Setor', 'Solicitante', 'Status', 'Fim']], body: historicoGlobal.map(p => [p.data.split(' ')[0], p.tipo, p.setor, p.nome, p.status, p.dataEntrega?p.dataEntrega.split(' ')[0]:'-']) });
   doc.save("Relatorio_Pedidos.pdf");
 }
 
@@ -879,10 +988,7 @@ function createDots() {
 }
 function nextSlide() { slideIndex = (slideIndex + 1) % slides.length; updateCarousel(); }
 function prevSlide() { slideIndex = (slideIndex - 1 + slides.length) % slides.length; updateCarousel(); }
-function resetAutoPlay() { 
-  if(autoInterval) clearInterval(autoInterval); 
-  autoInterval = setInterval(nextSlide, 5000); 
-}
+function resetAutoPlay() { if(autoInterval) clearInterval(autoInterval); autoInterval = setInterval(nextSlide, 5000); }
 
 document.getElementById('prevSlideBtn')?.addEventListener('click', () => { prevSlide(); resetAutoPlay(); });
 document.getElementById('nextSlideBtn')?.addEventListener('click', () => { nextSlide(); resetAutoPlay(); });
@@ -890,10 +996,12 @@ document.getElementById('nextSlideBtn')?.addEventListener('click', () => { nextS
 if(slides.length > 0) createDots();
 resetAutoPlay();
 
-setTimeout(() => { const s = document.getElementById('splashScreen'); if(s) { s.style.opacity='0'; setTimeout(()=>s.remove(),500); } }, 3500);
-
+// Inicia sistema
+renderSetoresSelects();
 carregarDadosLocaisUsuario();
 atualizarBadges();
+
+setTimeout(() => { const s = document.getElementById('splashScreen'); if(s) { s.style.opacity='0'; setTimeout(()=>s.remove(),500); } }, 3500);
 </script>
 </body>
 </html>
