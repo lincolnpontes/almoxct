@@ -15,11 +15,10 @@
     body { background-color: #F5F7FA; font-family: 'Inter', system-ui, sans-serif; color: #1E2A3E; padding-bottom: 90px; scroll-behavior: smooth; overflow-x: hidden; -webkit-user-select: none; user-select: none; }
     input, select, textarea { -webkit-user-select: auto; user-select: auto; }
     
-    /* Pop-ups (Toasts) de aviso abaixo do cabeçalho */
+    /* Protege o cabeçalho descendo os popups */
     body.swal2-toast-shown .swal2-container.swal2-top-end, 
     body.swal2-toast-shown .swal2-container.swal2-top-right { top: 80px !important; }
 
-    /* Splash Screen Centralizada */
     .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #005BBB 0%, #003D7A 100%); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; transition: opacity 0.5s ease-out; opacity: 1; }
     .splash-content { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; animation: fadeInUpScale 0.8s ease-out; }
     .splash-icon-img { width: min(30vw, 140px); max-width: 140px; margin-bottom: 24px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2)); animation: gentleFloat 2s infinite ease-in-out; }
@@ -30,6 +29,9 @@
     @keyframes fadeInUpScale { from { opacity:0; transform: translateY(20px) scale(0.95); } to { opacity:1; transform: translateY(0) scale(1); } }
     @keyframes gentleFloat { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-6px); } }
     @keyframes loadingProgress { 0% { width: 0%; } 30% { width: 40%; } 70% { width: 75%; } 100% { width: 100%; } }
+
+    .refresh-btn-splash { position: absolute; bottom: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; color: rgba(255,255,255,0.8); background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .refresh-btn-splash:hover { background: rgba(255,255,255,0.2); color: white; }
 
     .app-header { position: sticky; top: 0; z-index: 110; background: white; padding: 12px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
     .header-row { display: flex; align-items: center; gap: 12px; }
@@ -148,6 +150,9 @@
     <div class="modern-loader"><div class="modern-loader-bar"></div></div>
     <p id="splashStatus" style="margin-top:16px; font-size:0.8rem;">Sincronizando com a nuvem...</p>
   </div>
+  <button class="refresh-btn-splash" onclick="forcarAtualizacao()">
+    <i class="material-icons">refresh</i> Limpar Cache e Atualizar
+  </button>
 </div>
 
 <header class="app-header">
@@ -217,6 +222,7 @@
 
     <div id="aguaFormCard" style="background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
       <h2 style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><i class="material-icons" style="color: #005BBB;">local_drink</i> Solicitar Água</h2>
+      <p style="color: #5A6874; margin-bottom: 24px; font-size: 0.85rem; border-left: 3px solid #005BBB; padding-left: 12px;">Preencha seus dados para entrar na fila de atendimento</p>
       <div class="form-grid">
         <div class="input-group full-width"><label><i class="material-icons">business</i> Setor/Unidade *</label><select id="aguaSetor" class="dynamic-sectors"></select></div>
         <div class="input-group"><label><i class="material-icons">person</i> Nome completo *</label><input type="text" id="aguaNome" placeholder="Ex: João da Silva"></div>
@@ -335,7 +341,7 @@
       <div class="input-group"><label><i class="material-icons">phone</i> WhatsApp *</label><input type="tel" inputmode="numeric" id="reqContato" class="mask-whatsapp" placeholder="(83) 90000-0000"></div>
       <div class="input-group"><label><i class="material-icons">email</i> E-mail institucional *</label><input type="email" id="reqEmail" placeholder="joao@ufpb.br"></div>
       <div class="input-group"><label><i class="material-icons">badge</i> Perfil</label><select id="reqPerfil"><option>Discente</option><option>Docente</option><option>Técnico-Administrativo</option></select></div>
-      <div class="input-group"><label><i class="material-icons">work</i> Lotação/Sala *</label><input type="text" id="reqLotacao" placeholder="Ex: CT - Coordenação"></div>
+      <div class="input-group"><label><i class="material-icons">work</i> Lotação *</label><input type="text" id="reqLotacao" placeholder="Ex: CT - Coordenação"></div>
       <div class="input-group full-width"><label><i class="material-icons">description</i> Assunto</label><input type="text" id="reqAssunto" value="Solicitação de materiais"></div>
     </div>
     
@@ -440,7 +446,7 @@
 </div>
 
 <script>
-// Auto-selecionar texto ao clicar para facilitar edição rápida
+// Auto-selecionar texto ao clicar (ITEM 1)
 document.addEventListener('focusin', function(e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
     setTimeout(() => { e.target.select(); }, 50);
@@ -448,7 +454,7 @@ document.addEventListener('focusin', function(e) {
 });
 
 // ---------- Integração App Script ----------
-// Para funcionar a nuvem, certifique-se de que seu "Código.gs" possua a função doPost(e) que decodifica o JSON abaixo.
+// A nomenclatura dos payloads foi restaurada idêntica ao original para garantir sincronização
 const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbynotzi-Mu68mNg3ZWbCgC2KTQp7xwaUxWYJEfLvX3i4M1G8J8qFCj_y8L67Jzj6KtWjg/exec";
 
 function enviarParaGoogleSheets(dados) {
@@ -456,7 +462,7 @@ function enviarParaGoogleSheets(dados) {
     method: 'POST', mode: 'no-cors', 
     headers: { 'Content-Type': 'application/json' }, 
     body: JSON.stringify(dados) 
-  }).catch(e => console.log("Nuvem: Falha de rede ignorada no envio da requisição."));
+  }).catch(e => console.log("Nuvem: Falha de rede ignorada no envio."));
 }
 
 function salvarBackupNuvem() {
@@ -559,7 +565,7 @@ document.querySelectorAll('.mask-whatsapp').forEach(input => {
 });
 function validaWhatsapp(val) { return val.replace(/\D/g, "").length >= 10; }
 
-// ---------- ITEM 6: NAVEGAÇÃO SPA E BOTÃO VOLTAR NATIVO ----------
+// ---------- ITEM 6: NAVEGAÇÃO SPA E BOTÃO VOLTAR NATIVO PROTEGIDO ----------
 let isProgrammaticStateChange = false;
 let backPressTime = 0;
 
@@ -582,32 +588,38 @@ function mudarView(viewId, isPopState = false) {
   }
 }
 
+// Armadilha do botão de voltar
+history.pushState({ view: 'home' }, "", "#home");
+
 window.addEventListener('popstate', function(e) {
   if (isProgrammaticStateChange) return;
 
-  history.pushState(null, null, location.href); // Intercepta para não sair do navegador
+  // Cancela a saída do navegador recolocando o estado
+  history.pushState(null, null, location.href); 
 
+  // 1. Tenta fechar qualquer modal (Aviso de sucesso, formulários, etc)
+  if (Swal.isVisible()) { Swal.close(); return; }
+  
   let modaisAbertos = Array.from(document.querySelectorAll('.modal-modern')).filter(m => m.style.display === 'flex');
   if (modaisAbertos.length > 0) {
     fecharModal(modaisAbertos[modaisAbertos.length - 1].id, true);
     return;
   }
   
-  if (Swal.isVisible()) { Swal.close(); return; }
-
+  // 2. Tenta voltar para Home se não estiver nela
   let currentView = document.querySelector('.view-section.active').id.replace('view-', '');
   if (currentView !== 'home') {
     mudarView('home', true);
   } else {
+    // 3. Se estiver na Home, exige 2 toques rápidos para realmente sair do app
     let now = new Date().getTime();
-    if (now - backPressTime < 1000) { history.go(-2); } // Sai do app real
+    if (now - backPressTime < 1000) { history.go(-2); } 
     else {
       backPressTime = now;
-      Swal.fire({toast:true, position:'bottom', title:'Toque voltar novamente para sair do sistema', showConfirmButton:false, timer:1500});
+      Swal.fire({toast:true, position:'bottom', title:'Toque voltar novamente para sair', showConfirmButton:false, timer:1500});
     }
   }
 });
-history.pushState(null, null, location.href); // Push inicial
 
 // ---------- MATERIAIS & CARRINHO ----------
 function renderChips() {
@@ -656,8 +668,12 @@ function abrirCarrinho() { renderCarrinho(); document.getElementById('modalCarri
 function fecharModal(id, bypassHistory = false) { document.getElementById(id).style.display = 'none'; }
 
 function confirmarLimparCarrinho() {
-  Swal.fire({ title: 'Você quer mesmo limpar o carrinho?', icon: 'question', showCancelButton: true, confirmButtonColor: '#B91C1C', cancelButtonColor: '#6B7A8A', confirmButtonText: 'Sim', cancelButtonText: 'Cancelar' }).then((res) => {
-    if (res.isConfirmed) { limparCarrinho(); Swal.fire({toast:true, position:'top-end', icon:'success', title:'Carrinho limpo!', showConfirmButton:false, timer:1000}); }
+  Swal.fire({ title: 'Você quer mesmo limpar o carrinho?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#B91C1C', cancelButtonColor: '#6B7A8A', confirmButtonText: 'Sim', cancelButtonText: 'Cancelar' }).then((res) => {
+    if (res.isConfirmed) { 
+      limparCarrinho(); 
+      fecharModal('modalCarrinho'); // Fecha a tela do carrinho para não ficar vazio olhando pro nada
+      Swal.fire({toast:true, position:'top-end', icon:'success', title:'Carrinho limpo!', showConfirmButton:false, timer:1500}); 
+    }
   });
 }
 
@@ -670,61 +686,56 @@ function abrirCheckout() {
 function voltarParaCarrinho() { fecharModal('modalCheckout'); abrirCarrinho(); }
 
 function finalizarRequisicaoModal() {
-  try {
-    const setor = document.getElementById('reqSetor').value;
-    const nome = document.getElementById('reqNome').value.trim();
-    const whatsapp = document.getElementById('reqContato').value;
-    const email = document.getElementById('reqEmail').value.trim();
-    const perfil = document.getElementById('reqPerfil').value;
-    const lotacao = document.getElementById('reqLotacao').value.trim();
-    const assunto = document.getElementById('reqAssunto').value; // Restabelecido
+  const setor = document.getElementById('reqSetor').value;
+  const nome = document.getElementById('reqNome').value.trim();
+  const whatsapp = document.getElementById('reqContato').value;
+  const email = document.getElementById('reqEmail').value.trim();
+  const perfil = document.getElementById('reqPerfil').value;
+  const lotacao = document.getElementById('reqLotacao').value.trim();
 
-    if(!setor || !nome || !whatsapp || !email || !lotacao) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios (*)', 'error');
-    if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido. Digite o DDD e os números corretamente.', 'error');
+  if(!setor || !nome || !whatsapp || !email || !lotacao) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios (*)', 'error');
+  if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido. Digite o DDD e os números corretamente.', 'error');
 
-    salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
+  salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
 
-    // Abater Estoque e Registrar com bloqueio anti-negativo
-    for (let i = carrinho.length - 1; i >= 0; i--) {
-        let c = carrinho[i];
-        let dbM = materiaisDB.find(m => m.id === c.id);
-        if (dbM) {
-            if (c.qtd > dbM.estoque) c.qtd = dbM.estoque; // Impede estoque negativo no checkout
-            if (c.qtd === 0) { carrinho.splice(i, 1); continue; }
-            dbM.estoque -= c.qtd;
-            registrarHistoricoItem(c.id, 'Saída (Pedido)', c.qtd, `Pedido: ${nome} (${setor})`, dbM.estoque);
-        } else { carrinho.splice(i, 1); }
-    }
-    
-    if (carrinho.length === 0) return Swal.fire('Sem Estoque', 'Os itens solicitados esgotaram antes da finalização.', 'error');
-
-    localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
-
-    let pedido = { id: Date.now(), tipo: 'Material', data: new Date().toLocaleString(), setor, nome, whatsapp, email, perfil, lotacao, itens: [...carrinho], status: 'Aguardando' };
-    historicoGlobal.unshift(pedido); localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal));
-    
-    // Formato exato do envio original restaurado
-    enviarParaGoogleSheets({ 
-      tipo: "requisicao", 
-      id: pedido.id,
-      data: new Date().toISOString(),
-      solicitante: nome, 
-      setor: setor, 
-      email: email,
-      contato: whatsapp,
-      perfil: perfil, 
-      lotacao: lotacao, 
-      itens: carrinho.map(i=>`${i.nome} (${i.qtd})`).join(', '),
-      status: "Em análise"
-    });
-    salvarBackupNuvem();
-
-    Swal.fire('✅ Solicitação Enviada!', 'Acompanhe na aba Meus Pedidos.', 'success');
-    limparCarrinho(); fecharModal('modalCheckout'); mudarView('orders');
-  } catch(e) {
-    console.error(e);
-    Swal.fire('Erro Interno', 'Ocorreu um problema ao enviar o pedido. Tente novamente.', 'error');
+  // ITEM 2: Abater Estoque e Registrar com bloqueio anti-negativo absoluto
+  for (let i = carrinho.length - 1; i >= 0; i--) {
+      let c = carrinho[i];
+      let dbM = materiaisDB.find(m => m.id === c.id);
+      if (dbM) {
+          if (c.qtd > dbM.estoque) c.qtd = dbM.estoque; // Evita o -3000
+          if (c.qtd === 0) { carrinho.splice(i, 1); continue; }
+          dbM.estoque -= c.qtd;
+          registrarHistoricoItem(c.id, 'Saída (Pedido)', c.qtd, `Pedido: ${nome} (${setor})`, dbM.estoque);
+      } else { carrinho.splice(i, 1); }
   }
+  
+  if (carrinho.length === 0) return Swal.fire('Sem Estoque', 'Os itens solicitados esgotaram antes da finalização.', 'error');
+
+  localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
+
+  let pedido = { id: Date.now(), tipo: 'Material', data: new Date().toLocaleString(), setor, nome, whatsapp, email, perfil, lotacao, itens: [...carrinho], status: 'Aguardando' };
+  historicoGlobal.unshift(pedido); localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal));
+  
+  // Envio idêntico ao modelo Original
+  const payloadReq = {
+    tipo: "requisicao",
+    id: pedido.id,
+    data: new Date().toISOString(),
+    solicitante: nome,
+    setor: setor,
+    email: email,
+    contato: whatsapp,
+    perfil: perfil,
+    lotacao: lotacao,
+    itens: carrinho.map(i=>`${i.nome} (${i.qtd})`).join(', '),
+    status: "Em análise"
+  };
+  enviarParaGoogleSheets(payloadReq);
+  salvarBackupNuvem();
+
+  Swal.fire('✅ Solicitação Enviada!', 'Acompanhe na aba Meus Pedidos.', 'success');
+  limparCarrinho(); fecharModal('modalCheckout'); mudarView('orders');
 }
 
 // ---------- ÁGUA MINERAL ----------
@@ -745,45 +756,40 @@ function checkAguaStatus() {
 }
 
 function submitAgua() {
-  try {
-    const setor = document.getElementById('aguaSetor').value;
-    const nome = document.getElementById('aguaNome').value.trim();
-    const whatsapp = document.getElementById('aguaContato').value;
-    const email = document.getElementById('aguaEmail').value.trim();
-    const perfil = document.getElementById('aguaPerfil').value;
-    const lotacao = document.getElementById('aguaLotacao').value.trim();
+  const setor = document.getElementById('aguaSetor').value;
+  const nome = document.getElementById('aguaNome').value.trim();
+  const whatsapp = document.getElementById('aguaContato').value;
+  const email = document.getElementById('aguaEmail').value.trim();
+  const perfil = document.getElementById('aguaPerfil').value;
+  const lotacao = document.getElementById('aguaLotacao').value.trim();
 
-    if(!setor || !nome || !whatsapp || !lotacao || !email) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios (*)', 'error');
-    if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido.', 'error');
+  if(!setor || !nome || !whatsapp || !lotacao || !email) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios (*)', 'error');
+  if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido.', 'error');
 
-    salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
+  salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
 
-    let id = Date.now();
-    let pAgua = { id, tipo: 'Água', data: new Date().toLocaleString(), setor, nome, whatsapp, lotacao, status: 'Aguardando' };
-    
-    filaAgua.push(pAgua); historicoGlobal.unshift(pAgua);
-    localStorage.setItem(DB_FILA_AGUA, JSON.stringify(filaAgua)); localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal)); localStorage.setItem(DB_PEDIDO_AG, id);
-    
-    // Formato exato do envio original restaurado
-    enviarParaGoogleSheets({ 
-      tipo: "filaAgua", 
-      id: id,
-      data: new Date().toISOString(),
-      nome: nome, 
-      setor: setor, 
-      email: email,
-      contato: whatsapp,
-      perfil: perfil, 
-      lotacao: lotacao,
-      status: "aguardando"
-    });
-    salvarBackupNuvem();
+  let id = Date.now();
+  let pAgua = { id, tipo: 'Água', data: new Date().toLocaleString(), setor, nome, whatsapp, lotacao, status: 'Aguardando' };
+  
+  filaAgua.push(pAgua); historicoGlobal.unshift(pAgua);
+  localStorage.setItem(DB_FILA_AGUA, JSON.stringify(filaAgua)); localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal)); localStorage.setItem(DB_PEDIDO_AG, id);
+  
+  const payloadAgua = {
+    tipo: "filaAgua",
+    id: id,
+    data: new Date().toISOString(),
+    nome: nome,
+    setor: setor,
+    email: email,
+    contato: whatsapp,
+    perfil: perfil,
+    lotacao: lotacao,
+    status: "aguardando"
+  };
+  enviarParaGoogleSheets(payloadAgua);
+  salvarBackupNuvem();
 
-    Swal.fire('Entrou na fila!', 'Sua solicitação de água mineral foi enviada.', 'success'); checkAguaStatus();
-  } catch(e) { 
-    console.error(e);
-    Swal.fire('Erro', 'Ocorreu um problema ao pedir água.', 'error'); 
-  }
+  Swal.fire('Entrou na fila!', 'Sua solicitação de água mineral foi enviada.', 'success'); checkAguaStatus();
 }
 
 function cancelarAgua() {
@@ -813,8 +819,8 @@ function renderHistoricoUsuario() {
       </div>
       ${h.tipo === 'Material' ? `<ul style="list-style:none; font-size:0.9rem;">${h.itens.map(i=> {
          let isRiscado = h.status === 'Cancelado/Rejeitado' ? `text-decoration: line-through; color: #B91C1C;` : ``;
-         // Mostra a quantidade original se o admin editou
-         let displayQtd = i.qtdOriginal !== undefined && i.qtdOriginal !== i.qtd ? `<span style="text-decoration:line-through; color:#94a3b8; font-size:0.8rem; margin-right:4px;">${i.qtdOriginal}</span> ${i.qtd} un` : `${i.qtd} un`;
+         // ITEM 5: Mostrar quantidade original riscada caso o admin tenha alterado a quantidade (ex: pediu 20, deram 10)
+         let displayQtd = (i.qtdOriginal !== undefined && i.qtdOriginal !== i.qtd) ? `<span style="text-decoration:line-through; color:#94a3b8; font-size:0.8rem; margin-right:4px;">${i.qtdOriginal}</span> ${i.qtd} un` : `${i.qtd} un`;
          return `<li style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="${isRiscado}">${i.nome}</span> <strong style="${isRiscado}">${displayQtd}</strong></li>`;
       }).join('')}</ul>` : ``}
     </div>`;
@@ -894,7 +900,7 @@ function registrarEntrada(id) {
     registrarHistoricoItem(id, 'Entrada Manual', qtd, obs, item.estoque);
     salvarBackupNuvem();
     inptQtd.value = ''; inptObs.value = ''; 
-    Swal.fire({toast:true, position:'top-end', icon:'success', title:'Estoque adicionado', showConfirmButton:false, timer:1000}); 
+    Swal.fire({toast:true, position:'top-end', icon:'success', title:'Estoque somado', showConfirmButton:false, timer:1000}); 
     renderAdminEstoque(); 
   }
 }
@@ -921,7 +927,7 @@ function salvarEdicaoMaterial() {
   }
   localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); salvarBackupNuvem();
   fecharModal('modalEditarMaterial'); renderAdminEstoque(); renderCategoriasAdmin();
-  Swal.fire({toast:true, position:'top-end', icon:'success', title:'Material atualizado!', showConfirmButton:false, timer:1500});
+  Swal.fire({toast:true, position:'top-end', icon:'success', title:'Material salvo!', showConfirmButton:false, timer:1500});
 }
 
 function excluirMaterialAdmin() {
@@ -971,7 +977,7 @@ function renderAdminPedidos() {
       let badgeColor = p.status === 'Aguardando' ? 'background:#FEF08A; color:#854D0E;' : 'background:#DBEAFE; color:#1D4ED8;';
 
       let zapBtn = (p.status === 'Aguardando retirada' && cleanZ) ? `<a href="https://wa.me/55${cleanZ}?text=${msgZap}" target="_blank" class="btn-secondary" style="background:#25D366; color:white; border:none; width:auto; padding:6px 12px; text-decoration:none; display:flex; align-items:center; gap:6px;"><i class="material-icons" style="font-size:16px;">chat</i> Avisar WhatsApp</a>` : '';
-      let acaoBtn = `<button class="btn-primary" style="padding:6px 12px; width:auto;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons" style="font-size:16px;">edit</i> Gerenciar Pedido</button>`;
+      let acaoBtn = `<button class="btn-primary" style="padding:6px 12px; width:auto;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons" style="font-size:16px;">edit</i> Gerenciar</button>`;
 
       return `<div class="pedido-admin-card" style="border-left: 4px solid ${isAgua ? '#005BBB' : '#F59E0B'};"><div class="pedido-admin-header"><div><strong>${isAgua ? '💧 Água' : '📦 Materiais'} - ${p.setor}</strong><br><span style="font-size:0.8rem;">Solict.: ${p.nome} | Whats: ${p.whatsapp||'N/A'}</span><br><span style="font-size:0.75rem; color:#64748B;">📅 Pedido: ${p.data}</span></div><span class="badge-status" style="${badgeColor}">${p.status}</span></div>${!isAgua ? `<div style="font-size:0.85rem; background:white; padding:8px; border-radius:8px; margin-top:8px;">${p.itens.map(i=>{
          let displayQtd = i.qtdOriginal !== undefined && i.qtdOriginal !== i.qtd ? `<span style="text-decoration:line-through; color:#94a3b8;">${i.qtdOriginal}</span> ${i.qtd}` : `${i.qtd}`;
@@ -1016,12 +1022,12 @@ function salvarEdicaoPedido() {
       
       if(isNaN(novaQtd) || novaQtd < 0) novaQtd = 0;
 
-      // Protege contra Admin aprovar mais do que tem no estoque físico
+      // ITEM 2: Impede administrador de aceitar uma quantidade de itens maior do que a capacidade do estoque físico disponível
       if (!sendoCancelado && novaQtd !== item.qtd && dbM) {
-          let maxPossivel = item.qtd + dbM.estoque;
+          let maxPossivel = item.qtd + dbM.estoque; 
           if (novaQtd > maxPossivel) {
               novaQtd = maxPossivel;
-              Swal.fire({toast:true, position:'top-end', icon:'info', title:`Quantidade reajustada para o estoque (${maxPossivel})`, showConfirmButton:false, timer:3000});
+              Swal.fire({toast:true, position:'top-end', icon:'info', title:`Quantidade ajustada para o limite do estoque`, showConfirmButton:false, timer:3000});
           }
           let dif = item.qtd - novaQtd; 
           dbM.estoque += dif;
