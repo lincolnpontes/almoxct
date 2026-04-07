@@ -47,6 +47,13 @@
     .slide-text h3 { font-size: 1.3rem; font-weight: 800; color: #005BBB; margin-bottom: 8px; }
     .slide-text p { color: #2c3e50; font-weight: 500; }
     .slide-icon { font-size: 48px; background: #005BBB10; border-radius: 60px; padding: 12px; }
+    
+    .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: white; border: none; width: 40px; height: 40px; border-radius: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
+    .carousel-btn.prev { left: 12px; }
+    .carousel-btn.next { right: 12px; }
+    .carousel-dots { display: flex; justify-content: center; gap: 8px; padding: 12px; background: white; }
+    .dot { width: 8px; height: 8px; background: #ccc; border-radius: 10px; cursor: pointer; transition: 0.2s; }
+    .dot.active { width: 24px; background: #005BBB; }
 
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 18px; padding: 16px; }
     .product-card { background: white; border-radius: 24px; padding: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: all 0.25s; border: 1px solid #edf2f7; display: flex; flex-direction: column; }
@@ -155,7 +162,18 @@
           <div class="slide-text"><h3>📦 Smart Almox</h3><p>Consulte o status antes de se deslocar até o almoxarifado</p></div>
           <div class="slide-icon">🚀</div>
         </div>
+        <div class="carousel-slide">
+          <div class="slide-text"><h3>⚡ Entregas ágeis</h3><p>Materiais separados em até 2h úteis após aprovação</p></div>
+          <div class="slide-icon">📋</div>
+        </div>
+        <div class="carousel-slide">
+          <div class="slide-text"><h3>🔔 Estoque online</h3><p>Indicadores de disponibilidade atualizados em tempo real</p></div>
+          <div class="slide-icon">📊</div>
+        </div>
       </div>
+      <button class="carousel-btn prev" id="prevSlideBtn"><i class="material-icons">chevron_left</i></button>
+      <button class="carousel-btn next" id="nextSlideBtn"><i class="material-icons">chevron_right</i></button>
+      <div class="carousel-dots" id="carouselDots"></div>
     </div>
   </div>
 
@@ -378,7 +396,6 @@
 // ---------- Integração App Script ----------
 const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbynotzi-Mu68mNg3ZWbCgC2KTQp7xwaUxWYJEfLvX3i4M1G8J8qFCj_y8L67Jzj6KtWjg/exec";
 
-// Dispara um POST com no-cors como no original para a nuvem
 function enviarParaGoogleSheets(dados) {
   fetch(GOOGLE_SHEETS_URL, { 
     method: 'POST', mode: 'no-cors', 
@@ -387,7 +404,6 @@ function enviarParaGoogleSheets(dados) {
   }).catch(e => console.error("Erro Nuvem", e));
 }
 
-// Dispara backup completo para a nuvem sempre que há ações críticas do admin
 function salvarBackupNuvem() {
   enviarParaGoogleSheets({
     tipo: 'backup_estado_app', materiais: materiaisDB, historico: historicoGlobal, fila: filaAgua, histItens: historicoItens
@@ -396,7 +412,7 @@ function salvarBackupNuvem() {
 
 function forcarAtualizacao() { window.location.href = window.location.pathname + '?t=' + new Date().getTime(); }
 
-// ---------- Chaves de Armazenamento Fixas (NUNCA MAIS PERDERÁ OS DADOS) ----------
+// ---------- Chaves de Armazenamento Fixas ----------
 const DB_MATERIAIS = 'almox_db_materiais';
 const DB_CARRINHO  = 'almox_db_carrinho';
 const DB_HISTORICO = 'almox_db_hist_global';
@@ -415,10 +431,19 @@ if(!materiaisDB) {
   localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
 }
 
+let historicoItens = JSON.parse(localStorage.getItem(DB_HIST_ITEN));
+if(!historicoItens) {
+  historicoItens = [
+    { idItem: '1a', data: new Date().toLocaleString(), tipo: 'Saldo Inicial', qtd: 50, obs: 'Cadastro Original do Sistema', saldo: 50 },
+    { idItem: '2b', data: new Date().toLocaleString(), tipo: 'Saldo Inicial', qtd: 20, obs: 'Cadastro Original do Sistema', saldo: 20 },
+    { idItem: '3c', data: new Date().toLocaleString(), tipo: 'Saldo Inicial', qtd: 0, obs: 'Cadastro Original do Sistema', saldo: 0 }
+  ];
+  localStorage.setItem(DB_HIST_ITEN, JSON.stringify(historicoItens));
+}
+
 let carrinho = JSON.parse(localStorage.getItem(DB_CARRINHO)) || [];
 let historicoGlobal = JSON.parse(localStorage.getItem(DB_HISTORICO)) || []; 
 let filaAgua = JSON.parse(localStorage.getItem(DB_FILA_AGUA)) || [];
-let historicoItens = JSON.parse(localStorage.getItem(DB_HIST_ITEN)) || [];
 
 let currentFilter = ""; let currentSearch = "";
 
@@ -428,7 +453,7 @@ function registrarHistoricoItem(idItem, tipo, qtd, obs, saldo) {
   localStorage.setItem(DB_HIST_ITEN, JSON.stringify(historicoItens));
 }
 
-// ---------- AUTO-PREENCHIMENTO LOCAL (Ponto 13) ----------
+// ---------- AUTO-PREENCHIMENTO LOCAL ----------
 function carregarDadosLocaisUsuario() {
   let prefs = JSON.parse(localStorage.getItem(DB_PREFS_USR));
   if(prefs) {
@@ -544,7 +569,7 @@ function finalizarRequisicaoModal() {
     let dbM = materiaisDB.find(m => m.id === c.id); 
     if(dbM) {
       dbM.estoque -= c.qtd; 
-      registrarHistoricoItem(c.id, 'Saída (Reserva)', c.qtd, `Pedido: ${nome} (${setor})`, dbM.estoque);
+      registrarHistoricoItem(c.id, 'Saída (Pedido)', c.qtd, `Pedido: ${nome} (${setor})`, dbM.estoque);
     }
   });
   localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
@@ -666,7 +691,7 @@ function adminAdicionarItem() {
   materiaisDB.push({ id: newId, categoria: cat, nome, imagem: img, estoque: est });
   localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
   
-  if(est > 0) registrarHistoricoItem(newId, 'Entrada Inicial', est, 'Cadastro de Material', est);
+  registrarHistoricoItem(newId, 'Saldo Inicial', est, 'Cadastro de Material', est);
   salvarBackupNuvem();
   
   Swal.fire('Sucesso', 'Material cadastrado!', 'success');
@@ -717,7 +742,7 @@ function abrirHistoricoItem(idItem) {
   let hist = historicoItens.filter(h => h.idItem === idItem);
   document.getElementById('tabelaHistoricoItemBody').innerHTML = hist.length === 0 ? '<tr><td colspan="5" style="text-align:center;">Sem histórico</td></tr>' : hist.map(h => {
     let styleRow = h.tipo === 'Pedido Rejeitado' ? `text-decoration: line-through; color: #B91C1C;` : ``;
-    return `<tr><td>${h.data}</td><td><strong style="color:${h.tipo.includes('Entrada')?'#166534':'#B91C1C'}">${h.tipo}</strong></td><td><span style="${styleRow}">${h.qtd}</span></td><td>${h.saldo}</td><td>${h.obs}</td></tr>`;
+    return `<tr><td>${h.data}</td><td><strong style="color:${(h.tipo.includes('Entrada')||h.tipo==='Saldo Inicial')?'#166534':'#B91C1C'}">${h.tipo}</strong></td><td><span style="${styleRow}">${h.qtd}</span></td><td>${h.saldo}</td><td>${h.obs}</td></tr>`;
   }).join('');
   document.getElementById('modalHistoricoItem').style.display = 'flex';
 }
@@ -753,7 +778,6 @@ function renderAdminPedidos() {
       let msgZap = encodeURIComponent(`Prezado(a) ${p.nome}. O Almoxarifado do CT informa que seu item está aguardando ser retirado.`);
       let badgeColor = p.status === 'Aguardando' ? 'background:#FEF08A; color:#854D0E;' : 'background:#DBEAFE; color:#1D4ED8;';
 
-      // (Ponto 6) Mostrar Whatsapp só se for "Aguardando retirada"
       let zapBtn = (p.status === 'Aguardando retirada' && cleanZ) ? `<a href="https://wa.me/55${cleanZ}?text=${msgZap}" target="_blank" class="btn-secondary" style="background:#25D366; color:white; border:none; width:auto; padding:6px 12px; text-decoration:none; display:flex; align-items:center; gap:6px;"><i class="material-icons" style="font-size:16px;">chat</i> Avisar WhatsApp</a>` : '';
       let acaoBtn = `<button class="btn-primary" style="padding:6px 12px; width:auto;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons" style="font-size:16px;">edit</i> Gerenciar / Despachar</button>`;
 
@@ -791,7 +815,6 @@ function salvarEdicaoPedido() {
       let dbM = materiaisDB.find(m => m.id === item.id);
       let novaQtd = parseInt(document.getElementById(`editItemQtd_${idx}`).value);
       
-      // Ponto 3: Se foi rejeitado, devolve pro estoque e risca na interface
       if(sendoCancelado && !jaEstavaCancelado && dbM) {
         dbM.estoque += item.qtd;
         registrarHistoricoItem(item.id, 'Pedido Rejeitado', item.qtd, `Devolvido - Pedido de ${pedido.nome}`, dbM.estoque);
@@ -814,13 +837,12 @@ function salvarEdicaoPedido() {
   localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
   localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal));
   
-  salvarBackupNuvem(); // Envia para o Script atualizar os BDs lá tbm
+  salvarBackupNuvem(); 
   
   fecharModal('modalEditarPedido'); renderAdminPedidos(); renderAdminEstoque();
   Swal.fire({toast:true, position:'top-end', icon:'success', title:'Atualizado!', showConfirmButton:false, timer:1500});
 }
 
-// Consultar Todos (PDF / XLSX)
 function abrirTodosPedidosModal() {
   document.getElementById('tabelaTodosPedidosBody').innerHTML = historicoGlobal.map(p => `<tr><td>${p.data.split(' ')[0]}</td><td>${p.tipo}</td><td>${p.setor}</td><td>${p.nome}</td><td><strong>${p.status}</strong></td></tr>`).join('');
   document.getElementById('modalTodosPedidos').style.display = 'flex';
@@ -835,10 +857,39 @@ function exportarPDF() {
   doc.save("Relatorio_Pedidos.pdf");
 }
 
-// INICIALIZAÇÃO
-let slideIndex = 0; const track = document.getElementById('carouselTrack'); const slides = document.querySelectorAll('.carousel-slide');
-function nextSlide() { slideIndex = (slideIndex + 1) % slides.length; if(track) track.style.transform = `translateX(-${slideIndex * 100}%)`; }
-setInterval(nextSlide, 5000);
+// INICIALIZAÇÃO E CARROSSEL
+let slideIndex = 0; 
+const track = document.getElementById('carouselTrack'); 
+const slides = document.querySelectorAll('.carousel-slide'); 
+const dotsContainer = document.getElementById('carouselDots');
+let autoInterval;
+
+function updateCarousel() { 
+  if(track) track.style.transform = `translateX(-${slideIndex * 100}%)`; 
+  document.querySelectorAll('.dot').forEach((dot, i) => { dot.classList.toggle('active', i === slideIndex); }); 
+}
+function createDots() { 
+  if(!dotsContainer) return; 
+  slides.forEach((_, i) => { 
+    const dot = document.createElement('div'); dot.classList.add('dot'); 
+    if(i===0) dot.classList.add('active'); 
+    dot.addEventListener('click', () => { slideIndex = i; updateCarousel(); resetAutoPlay(); }); 
+    dotsContainer.appendChild(dot); 
+  }); 
+}
+function nextSlide() { slideIndex = (slideIndex + 1) % slides.length; updateCarousel(); }
+function prevSlide() { slideIndex = (slideIndex - 1 + slides.length) % slides.length; updateCarousel(); }
+function resetAutoPlay() { 
+  if(autoInterval) clearInterval(autoInterval); 
+  autoInterval = setInterval(nextSlide, 5000); 
+}
+
+document.getElementById('prevSlideBtn')?.addEventListener('click', () => { prevSlide(); resetAutoPlay(); });
+document.getElementById('nextSlideBtn')?.addEventListener('click', () => { nextSlide(); resetAutoPlay(); });
+
+if(slides.length > 0) createDots();
+resetAutoPlay();
+
 setTimeout(() => { const s = document.getElementById('splashScreen'); if(s) { s.style.opacity='0'; setTimeout(()=>s.remove(),500); } }, 3500);
 
 carregarDadosLocaisUsuario();
