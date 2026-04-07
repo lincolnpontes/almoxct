@@ -19,19 +19,21 @@
     body.swal2-toast-shown .swal2-container.swal2-top-end, 
     body.swal2-toast-shown .swal2-container.swal2-top-right { top: 80px !important; }
 
+    /* Tela Splash Centralizada */
     .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #005BBB 0%, #003D7A 100%); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; transition: opacity 0.5s ease-out; opacity: 1; }
-    .splash-content { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; animation: fadeInUpScale 0.8s ease-out; }
+    .splash-content { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; animation: fadeInUpScale 0.8s ease-out; margin-bottom: 60px; }
     .splash-icon-img { width: min(30vw, 140px); max-width: 140px; margin-bottom: 24px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2)); animation: gentleFloat 2s infinite ease-in-out; }
     .splash-title { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.5px; background: white; background-clip: text; -webkit-background-clip: text; color: transparent; }
-    .modern-loader { margin: 32px auto 0 auto; width: 200px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
+    .modern-loader { margin: 24px auto 0 auto; width: 200px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
     .modern-loader-bar { width: 0%; height: 100%; background: white; border-radius: 4px; animation: loadingProgress 2s ease-out forwards; }
     
+    .refresh-btn-splash { position: absolute; bottom: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; color: rgba(255,255,255,0.8); background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .refresh-btn-splash:hover { background: rgba(255,255,255,0.2); color: white; }
+    .version-text { position: absolute; bottom: 15px; font-size: 0.7rem; color: rgba(255,255,255,0.5); font-weight: 600; }
+
     @keyframes fadeInUpScale { from { opacity:0; transform: translateY(20px) scale(0.95); } to { opacity:1; transform: translateY(0) scale(1); } }
     @keyframes gentleFloat { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-6px); } }
     @keyframes loadingProgress { 0% { width: 0%; } 30% { width: 40%; } 70% { width: 75%; } 100% { width: 100%; } }
-
-    .refresh-btn-splash { position: absolute; bottom: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; color: rgba(255,255,255,0.8); background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
-    .refresh-btn-splash:hover { background: rgba(255,255,255,0.2); color: white; }
 
     .app-header { position: sticky; top: 0; z-index: 110; background: white; padding: 12px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
     .header-row { display: flex; align-items: center; gap: 12px; }
@@ -153,6 +155,7 @@
   <button class="refresh-btn-splash" onclick="forcarAtualizacao()">
     <i class="material-icons">refresh</i> Limpar Cache e Atualizar
   </button>
+  <div class="version-text">v1.0.1</div>
 </div>
 
 <header class="app-header">
@@ -446,7 +449,7 @@
 </div>
 
 <script>
-// Auto-selecionar texto ao clicar (ITEM 1)
+// Auto-selecionar texto ao clicar para facilitar edição rápida (ITEM 1)
 document.addEventListener('focusin', function(e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
     setTimeout(() => { e.target.select(); }, 50);
@@ -454,7 +457,6 @@ document.addEventListener('focusin', function(e) {
 });
 
 // ---------- Integração App Script ----------
-// A nomenclatura dos payloads foi restaurada idêntica ao original para garantir sincronização
 const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbynotzi-Mu68mNg3ZWbCgC2KTQp7xwaUxWYJEfLvX3i4M1G8J8qFCj_y8L67Jzj6KtWjg/exec";
 
 function enviarParaGoogleSheets(dados) {
@@ -463,10 +465,6 @@ function enviarParaGoogleSheets(dados) {
     headers: { 'Content-Type': 'application/json' }, 
     body: JSON.stringify(dados) 
   }).catch(e => console.log("Nuvem: Falha de rede ignorada no envio."));
-}
-
-function salvarBackupNuvem() {
-  enviarParaGoogleSheets({ tipo: 'backup_estado_app', materiais: materiaisDB, historico: historicoGlobal, fila: filaAgua, histItens: historicoItens });
 }
 
 function forcarAtualizacao() { window.location.href = window.location.pathname + '?t=' + new Date().getTime(); }
@@ -565,7 +563,7 @@ document.querySelectorAll('.mask-whatsapp').forEach(input => {
 });
 function validaWhatsapp(val) { return val.replace(/\D/g, "").length >= 10; }
 
-// ---------- ITEM 6: NAVEGAÇÃO SPA E BOTÃO VOLTAR NATIVO PROTEGIDO ----------
+// ---------- NAVEGAÇÃO SPA E BOTÃO VOLTAR NATIVO PROTEGIDO (ITEM 6) ----------
 let isProgrammaticStateChange = false;
 let backPressTime = 0;
 
@@ -616,7 +614,7 @@ window.addEventListener('popstate', function(e) {
     if (now - backPressTime < 1000) { history.go(-2); } 
     else {
       backPressTime = now;
-      Swal.fire({toast:true, position:'bottom', title:'Toque voltar novamente para sair', showConfirmButton:false, timer:1500});
+      Swal.fire({toast:true, position:'bottom', title:'Toque voltar novamente para sair do sistema', showConfirmButton:false, timer:1500});
     }
   }
 });
@@ -667,12 +665,23 @@ function renderCarrinho() {
 function abrirCarrinho() { renderCarrinho(); document.getElementById('modalCarrinho').style.display = 'flex'; }
 function fecharModal(id, bypassHistory = false) { document.getElementById(id).style.display = 'none'; }
 
+// ITEM 2: Limpar Carrinho Totalmente Corrigido
 function confirmarLimparCarrinho() {
-  Swal.fire({ title: 'Você quer mesmo limpar o carrinho?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#B91C1C', cancelButtonColor: '#6B7A8A', confirmButtonText: 'Sim', cancelButtonText: 'Cancelar' }).then((res) => {
+  Swal.fire({ 
+    title: 'Limpar carrinho?', 
+    text: 'Deseja remover todos os itens?',
+    icon: 'warning', 
+    showCancelButton: true, 
+    confirmButtonColor: '#B91C1C', 
+    cancelButtonColor: '#6B7A8A', 
+    confirmButtonText: 'Sim', 
+    cancelButtonText: 'Cancelar' 
+  }).then((res) => {
     if (res.isConfirmed) { 
-      limparCarrinho(); 
-      fecharModal('modalCarrinho'); // Fecha a tela do carrinho para não ficar vazio olhando pro nada
-      Swal.fire({toast:true, position:'top-end', icon:'success', title:'Carrinho limpo!', showConfirmButton:false, timer:1500}); 
+      carrinho.length = 0; // Método seguro para limpar array em JS
+      salvarCarrinho(); 
+      fecharModal('modalCarrinho'); // Fecha a tela preta
+      Swal.fire({title: 'Limpo!', text: 'Seu carrinho agora está vazio.', icon: 'success', timer: 2000, showConfirmButton: false}); 
     }
   });
 }
@@ -685,57 +694,66 @@ function abrirCheckout() {
 }
 function voltarParaCarrinho() { fecharModal('modalCheckout'); abrirCarrinho(); }
 
+// ITEM 1: Processamento blindado do Requisicao Modal
 function finalizarRequisicaoModal() {
-  const setor = document.getElementById('reqSetor').value;
-  const nome = document.getElementById('reqNome').value.trim();
-  const whatsapp = document.getElementById('reqContato').value;
-  const email = document.getElementById('reqEmail').value.trim();
-  const perfil = document.getElementById('reqPerfil').value;
-  const lotacao = document.getElementById('reqLotacao').value.trim();
+  try {
+    const setor = document.getElementById('reqSetor').value;
+    const nome = document.getElementById('reqNome').value.trim();
+    const whatsapp = document.getElementById('reqContato').value;
+    const email = document.getElementById('reqEmail').value.trim();
+    const perfil = document.getElementById('reqPerfil').value;
+    const lotacao = document.getElementById('reqLotacao').value.trim();
+    const assunto = document.getElementById('reqAssunto').value;
 
-  if(!setor || !nome || !whatsapp || !email || !lotacao) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios (*)', 'error');
-  if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido. Digite o DDD e os números corretamente.', 'error');
+    if(!setor || !nome || !whatsapp || !email || !lotacao) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios (*)', 'error');
+    if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido. Digite o DDD e os números corretamente.', 'error');
 
-  salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
+    salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
 
-  // ITEM 2: Abater Estoque e Registrar com bloqueio anti-negativo absoluto
-  for (let i = carrinho.length - 1; i >= 0; i--) {
-      let c = carrinho[i];
-      let dbM = materiaisDB.find(m => m.id === c.id);
-      if (dbM) {
-          if (c.qtd > dbM.estoque) c.qtd = dbM.estoque; // Evita o -3000
-          if (c.qtd === 0) { carrinho.splice(i, 1); continue; }
-          dbM.estoque -= c.qtd;
-          registrarHistoricoItem(c.id, 'Saída (Pedido)', c.qtd, `Pedido: ${nome} (${setor})`, dbM.estoque);
-      } else { carrinho.splice(i, 1); }
+    // Abater Estoque com Trava de Negativo (ITEM 2)
+    for (let i = carrinho.length - 1; i >= 0; i--) {
+        let c = carrinho[i];
+        let dbM = materiaisDB.find(m => m.id === c.id);
+        if (dbM) {
+            if (c.qtd > dbM.estoque) c.qtd = dbM.estoque; // Evita o -3000
+            if (c.qtd === 0) { carrinho.splice(i, 1); continue; }
+            dbM.estoque -= c.qtd;
+            registrarHistoricoItem(c.id, 'Saída (Pedido)', c.qtd, `Pedido: ${nome} (${setor})`, dbM.estoque);
+        } else { carrinho.splice(i, 1); }
+    }
+    
+    if (carrinho.length === 0) return Swal.fire('Sem Estoque', 'Os itens solicitados esgotaram antes da finalização.', 'error');
+
+    localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
+
+    let pedido = { id: Date.now(), tipo: 'Material', data: new Date().toLocaleString(), setor, nome, whatsapp, email, perfil, lotacao, itens: [...carrinho], status: 'Aguardando' };
+    historicoGlobal.unshift(pedido); localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal));
+    
+    // FORMATO DE ENVIO ORIGINAL EXATAMENTE COMO VOCÊ PEDIU
+    const payloadReq = {
+      tipo: "requisicao",
+      id: pedido.id,
+      data: new Date().toISOString(),
+      solicitante: nome,
+      setor: setor,
+      email: email,
+      contato: whatsapp,
+      perfil: perfil,
+      lotacao: lotacao,
+      itens: carrinho.map(i => `${i.nome} (${i.qtd})`).join(', '),
+      status: "Em análise"
+    };
+    enviarParaGoogleSheets(payloadReq);
+
+    carrinho.length = 0;
+    salvarCarrinho();
+    fecharModal('modalCheckout'); 
+    mudarView('orders');
+    Swal.fire('✅ Solicitação Enviada!', 'Acompanhe na aba Meus Pedidos.', 'success');
+  } catch(e) {
+    console.error(e);
+    Swal.fire('Erro', 'Houve um erro no seu navegador. Feche o app e tente novamente.', 'error');
   }
-  
-  if (carrinho.length === 0) return Swal.fire('Sem Estoque', 'Os itens solicitados esgotaram antes da finalização.', 'error');
-
-  localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
-
-  let pedido = { id: Date.now(), tipo: 'Material', data: new Date().toLocaleString(), setor, nome, whatsapp, email, perfil, lotacao, itens: [...carrinho], status: 'Aguardando' };
-  historicoGlobal.unshift(pedido); localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal));
-  
-  // Envio idêntico ao modelo Original
-  const payloadReq = {
-    tipo: "requisicao",
-    id: pedido.id,
-    data: new Date().toISOString(),
-    solicitante: nome,
-    setor: setor,
-    email: email,
-    contato: whatsapp,
-    perfil: perfil,
-    lotacao: lotacao,
-    itens: carrinho.map(i=>`${i.nome} (${i.qtd})`).join(', '),
-    status: "Em análise"
-  };
-  enviarParaGoogleSheets(payloadReq);
-  salvarBackupNuvem();
-
-  Swal.fire('✅ Solicitação Enviada!', 'Acompanhe na aba Meus Pedidos.', 'success');
-  limparCarrinho(); fecharModal('modalCheckout'); mudarView('orders');
 }
 
 // ---------- ÁGUA MINERAL ----------
@@ -756,40 +774,45 @@ function checkAguaStatus() {
 }
 
 function submitAgua() {
-  const setor = document.getElementById('aguaSetor').value;
-  const nome = document.getElementById('aguaNome').value.trim();
-  const whatsapp = document.getElementById('aguaContato').value;
-  const email = document.getElementById('aguaEmail').value.trim();
-  const perfil = document.getElementById('aguaPerfil').value;
-  const lotacao = document.getElementById('aguaLotacao').value.trim();
+  try {
+    const setor = document.getElementById('aguaSetor').value;
+    const nome = document.getElementById('aguaNome').value.trim();
+    const whatsapp = document.getElementById('aguaContato').value;
+    const email = document.getElementById('aguaEmail').value.trim();
+    const perfil = document.getElementById('aguaPerfil').value;
+    const lotacao = document.getElementById('aguaLotacao').value.trim();
 
-  if(!setor || !nome || !whatsapp || !lotacao || !email) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios (*)', 'error');
-  if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido.', 'error');
+    if(!setor || !nome || !whatsapp || !lotacao || !email) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios (*)', 'error');
+    if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido.', 'error');
 
-  salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
+    salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
 
-  let id = Date.now();
-  let pAgua = { id, tipo: 'Água', data: new Date().toLocaleString(), setor, nome, whatsapp, lotacao, status: 'Aguardando' };
-  
-  filaAgua.push(pAgua); historicoGlobal.unshift(pAgua);
-  localStorage.setItem(DB_FILA_AGUA, JSON.stringify(filaAgua)); localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal)); localStorage.setItem(DB_PEDIDO_AG, id);
-  
-  const payloadAgua = {
-    tipo: "filaAgua",
-    id: id,
-    data: new Date().toISOString(),
-    nome: nome,
-    setor: setor,
-    email: email,
-    contato: whatsapp,
-    perfil: perfil,
-    lotacao: lotacao,
-    status: "aguardando"
-  };
-  enviarParaGoogleSheets(payloadAgua);
-  salvarBackupNuvem();
+    let id = Date.now();
+    let pAgua = { id, tipo: 'Água', data: new Date().toLocaleString(), setor, nome, whatsapp, lotacao, status: 'Aguardando' };
+    
+    filaAgua.push(pAgua); historicoGlobal.unshift(pAgua);
+    localStorage.setItem(DB_FILA_AGUA, JSON.stringify(filaAgua)); localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal)); localStorage.setItem(DB_PEDIDO_AG, id);
+    
+    // FORMATO DE ENVIO ORIGINAL EXATAMENTE COMO VOCÊ PEDIU
+    const payloadAgua = {
+      tipo: "filaAgua",
+      id: id,
+      data: new Date().toISOString(),
+      nome: nome,
+      setor: setor,
+      email: email,
+      contato: whatsapp,
+      perfil: perfil,
+      lotacao: lotacao,
+      status: "aguardando"
+    };
+    enviarParaGoogleSheets(payloadAgua);
 
-  Swal.fire('Entrou na fila!', 'Sua solicitação de água mineral foi enviada.', 'success'); checkAguaStatus();
+    Swal.fire('Entrou na fila!', 'Sua solicitação de água mineral foi enviada.', 'success'); checkAguaStatus();
+  } catch(e) { 
+    console.error(e);
+    Swal.fire('Erro', 'Ocorreu um erro. Feche o app e tente novamente.', 'error'); 
+  }
 }
 
 function cancelarAgua() {
@@ -864,7 +887,6 @@ function adminAdicionarItem() {
   localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
   
   registrarHistoricoItem(newId, 'Saldo Inicial', est, 'Cadastro de Material', est);
-  salvarBackupNuvem();
   
   Swal.fire('Sucesso', 'Material cadastrado!', 'success');
   document.getElementById('adminNovaCatSelect').value = ''; checkNovaCat(); document.getElementById('adminNovaCatInput').value = ''; document.getElementById('adminNovoNome').value = '0';
@@ -898,7 +920,6 @@ function registrarEntrada(id) {
     item.estoque += qtd; 
     localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); 
     registrarHistoricoItem(id, 'Entrada Manual', qtd, obs, item.estoque);
-    salvarBackupNuvem();
     inptQtd.value = ''; inptObs.value = ''; 
     Swal.fire({toast:true, position:'top-end', icon:'success', title:'Estoque somado', showConfirmButton:false, timer:1000}); 
     renderAdminEstoque(); 
@@ -925,7 +946,7 @@ function salvarEdicaoMaterial() {
     let dif = novoEstoque - oldEst; let t = dif > 0 ? 'Entrada (Edição Admin)' : 'Saída (Edição Admin)';
     item.estoque = novoEstoque; registrarHistoricoItem(id, t, Math.abs(dif), 'Ajuste Absoluto via Edição', item.estoque);
   }
-  localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); salvarBackupNuvem();
+  localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); 
   fecharModal('modalEditarMaterial'); renderAdminEstoque(); renderCategoriasAdmin();
   Swal.fire({toast:true, position:'top-end', icon:'success', title:'Material salvo!', showConfirmButton:false, timer:1500});
 }
@@ -933,7 +954,7 @@ function salvarEdicaoMaterial() {
 function excluirMaterialAdmin() {
   let id = document.getElementById('editMatIdAtual').value;
   Swal.fire({ title:'Excluir Material?', text:'Deseja excluir este material do sistema?', icon:'warning', showCancelButton:true, confirmButtonColor:'#d33' })
-  .then(res => { if(res.isConfirmed) { materiaisDB = materiaisDB.filter(m => m.id !== id); localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); salvarBackupNuvem(); fecharModal('modalEditarMaterial'); renderAdminEstoque(); renderCategoriasAdmin(); Swal.fire('Excluído', 'O material foi removido.', 'success'); } });
+  .then(res => { if(res.isConfirmed) { materiaisDB = materiaisDB.filter(m => m.id !== id); localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); fecharModal('modalEditarMaterial'); renderAdminEstoque(); renderCategoriasAdmin(); Swal.fire('Excluído', 'O material foi removido.', 'success'); } });
 }
 
 function abrirHistoricoItem(idItem) {
@@ -1005,6 +1026,7 @@ function abrirEdicaoPedido(id) {
   document.getElementById('modalEditarPedido').style.display = 'flex';
 }
 
+// ITEM 2: Admin salvando pedido e barrando estoque negativo
 function salvarEdicaoPedido() {
   let id = document.getElementById('editPedidoIdAtual').value;
   let pedido = historicoGlobal.find(h => h.id == id); if(!pedido) return;
@@ -1022,7 +1044,6 @@ function salvarEdicaoPedido() {
       
       if(isNaN(novaQtd) || novaQtd < 0) novaQtd = 0;
 
-      // ITEM 2: Impede administrador de aceitar uma quantidade de itens maior do que a capacidade do estoque físico disponível
       if (!sendoCancelado && novaQtd !== item.qtd && dbM) {
           let maxPossivel = item.qtd + dbM.estoque; 
           if (novaQtd > maxPossivel) {
@@ -1051,7 +1072,6 @@ function salvarEdicaoPedido() {
   pedido.status = novoStatus;
   localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
   localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal));
-  salvarBackupNuvem(); 
   
   fecharModal('modalEditarPedido'); renderAdminPedidos(); renderAdminEstoque();
   Swal.fire({toast:true, position:'top-end', icon:'success', title:'Atualizado com sucesso!', showConfirmButton:false, timer:1500});
