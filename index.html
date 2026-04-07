@@ -15,11 +15,9 @@
     body { background-color: #F5F7FA; font-family: 'Inter', system-ui, sans-serif; color: #1E2A3E; padding-bottom: 90px; scroll-behavior: smooth; overflow-x: hidden; -webkit-user-select: none; user-select: none; }
     input, select, textarea { -webkit-user-select: auto; user-select: auto; }
     
-    /* Proteção do Cabeçalho: Desloca o popup "Adicionado" para baixo */
+    /* ITEM 3: Popups abaixo do cabeçalho */
     body.swal2-toast-shown .swal2-container.swal2-top-end, 
-    body.swal2-toast-shown .swal2-container.swal2-top-right {
-        top: 75px !important;
-    }
+    body.swal2-toast-shown .swal2-container.swal2-top-right { top: 80px !important; }
 
     .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #005BBB 0%, #003D7A 100%); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; transition: opacity 0.5s ease-out; opacity: 1; }
     .splash-content { animation: fadeInUpScale 0.8s ease-out; }
@@ -79,10 +77,14 @@
     .modal-modern { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(10px); justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
     .modal-container { background: white; width: 100%; max-width: 680px; border-radius: 32px; padding: 28px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
     .modal-container h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; color: #1E2A3E; }
+    .modal-sub { color: #5A6874; margin-bottom: 24px; font-size: 0.85rem; border-left: 3px solid #005BBB; padding-left: 12px; }
+    
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
     .input-group { display: flex; flex-direction: column; gap: 6px; }
-    .input-group label { font-size: 0.75rem; font-weight: 600; color: #334155; text-transform: uppercase; }
+    .input-group label { font-size: 0.75rem; font-weight: 600; color: #334155; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+    .input-group label i { font-size: 16px; color: #005BBB; }
     .input-group input, .input-group select, .input-group textarea { background: #F8FAFE; border: 1px solid #E2E8F0; border-radius: 14px; padding: 12px 14px; font-size: 0.9rem; font-family: inherit; resize: none;}
+    .input-group input:focus, .input-group select:focus { outline: none; border-color: #005BBB; background: white; }
     .full-width { grid-column: span 2; }
     @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } .modal-container { padding: 20px; } }
 
@@ -219,13 +221,14 @@
 
     <div id="aguaFormCard" style="background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
       <h2 style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><i class="material-icons" style="color: #005BBB;">local_drink</i> Solicitar Água</h2>
+      <p style="color: #5A6874; margin-bottom: 24px; font-size: 0.85rem; border-left: 3px solid #005BBB; padding-left: 12px;">Preencha seus dados para entrar na fila de atendimento</p>
       <div class="form-grid">
-        <div class="input-group full-width"><label>Setor/Unidade *</label><select id="aguaSetor" class="dynamic-sectors"></select></div>
-        <div class="input-group"><label>Nome *</label><input type="text" id="aguaNome"></div>
-        <div class="input-group"><label>WhatsApp *</label><input type="tel" inputmode="numeric" id="aguaContato" class="mask-whatsapp" placeholder="(83) 90000-0000"></div>
-        <div class="input-group"><label>E-mail *</label><input type="email" id="aguaEmail"></div>
-        <div class="input-group"><label>Perfil</label><select id="aguaPerfil"><option>Técnico-Administrativo</option><option>Docente</option><option>Discente</option></select></div>
-        <div class="input-group"><label>Lotação/Sala *</label><input type="text" id="aguaLotacao"></div>
+        <div class="input-group full-width"><label><i class="material-icons">business</i> Setor/Unidade *</label><select id="aguaSetor" class="dynamic-sectors"></select></div>
+        <div class="input-group"><label><i class="material-icons">person</i> Nome completo *</label><input type="text" id="aguaNome" placeholder="Ex: João da Silva"></div>
+        <div class="input-group"><label><i class="material-icons">phone</i> WhatsApp *</label><input type="tel" inputmode="numeric" id="aguaContato" class="mask-whatsapp" placeholder="(83) 90000-0000"></div>
+        <div class="input-group"><label><i class="material-icons">email</i> E-mail institucional *</label><input type="email" id="aguaEmail" placeholder="joao@ufpb.br"></div>
+        <div class="input-group"><label><i class="material-icons">badge</i> Perfil</label><select id="aguaPerfil"><option>Técnico-Administrativo</option><option>Docente</option><option>Discente</option></select></div>
+        <div class="input-group"><label><i class="material-icons">work</i> Lotação/Sala *</label><input type="text" id="aguaLotacao" placeholder="Ex: CT - Coordenação"></div>
       </div>
       <button class="btn-primary" onclick="submitAgua()"><i class="material-icons">check_circle</i> Entrar na fila</button>
     </div>
@@ -315,30 +318,36 @@
       <i class="material-icons" style="cursor:pointer;" onclick="fecharModal('modalCarrinho')">close</i>
     </div>
     <div id="carrinhoItensList" style="max-height: 40vh; overflow-y: auto; margin-bottom: 20px;"></div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-      <button class="btn-secondary" onclick="confirmarLimparCarrinho()">Limpar</button>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+      <button class="btn-secondary" onclick="confirmarLimparCarrinho()"><i class="material-icons">delete_outline</i> Limpar</button>
       <button class="btn-secondary" onclick="fecharModal('modalCarrinho')">Voltar</button>
-      <button class="btn-primary" style="grid-column: span 2;" onclick="abrirCheckout()"><i class="material-icons">assignment</i> Finalizar Pedido</button>
     </div>
+    <button class="btn-primary" style="width: 100%;" onclick="abrirCheckout()"><i class="material-icons">assignment</i> Finalizar Pedido</button>
   </div>
 </div>
 
 <div id="modalCheckout" class="modal-modern">
   <div class="modal-container">
-    <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
-      <h2><i class="material-icons">assignment</i> Finalizar Requisição</h2>
-      <i class="material-icons" style="cursor:pointer;" onclick="voltarParaCarrinho()">arrow_back</i>
+    <div style="margin-bottom: 16px;">
+      <h2><i class="material-icons" style="font-size:28px;">assignment</i> Dados da requisição</h2>
+      <div class="modal-sub">Preencha as informações abaixo para finalizar seu pedido</div>
     </div>
+    
     <div class="form-grid">
-      <div class="input-group full-width"><label>Setor/Unidade *</label><select id="reqSetor" class="dynamic-sectors"></select></div>
-      <div class="input-group"><label>Nome completo *</label><input type="text" id="reqNome"></div>
-      <div class="input-group"><label>WhatsApp *</label><input type="tel" inputmode="numeric" id="reqContato" class="mask-whatsapp" placeholder="(83) 90000-0000"></div>
-      <div class="input-group"><label>E-mail *</label><input type="email" id="reqEmail"></div>
-      <div class="input-group"><label>Perfil</label><select id="reqPerfil"><option>Discente</option><option>Docente</option><option>Técnico-Administrativo</option></select></div>
-      <div class="input-group"><label>Lotação/Sala *</label><input type="text" id="reqLotacao"></div>
-      <div class="input-group full-width"><label>Assunto</label><input type="text" id="reqAssunto" value="Solicitação de materiais"></div>
+      <div class="input-group full-width"><label><i class="material-icons">business</i> Setor/Unidade *</label><select id="reqSetor" class="dynamic-sectors"></select></div>
+      <div class="input-group"><label><i class="material-icons">person</i> Nome completo *</label><input type="text" id="reqNome" placeholder="Ex: João da Silva"></div>
+      <div class="input-group"><label><i class="material-icons">phone</i> WhatsApp *</label><input type="tel" inputmode="numeric" id="reqContato" class="mask-whatsapp" placeholder="(83) 90000-0000"></div>
+      <div class="input-group"><label><i class="material-icons">email</i> E-mail institucional *</label><input type="email" id="reqEmail" placeholder="joao@ufpb.br"></div>
+      <div class="input-group"><label><i class="material-icons">badge</i> Perfil</label><select id="reqPerfil"><option>Discente</option><option>Docente</option><option>Técnico-Administrativo</option></select></div>
+      <div class="input-group"><label><i class="material-icons">work</i> Lotação *</label><input type="text" id="reqLotacao" placeholder="Ex: CT - Coordenação"></div>
+      <div class="input-group full-width"><label><i class="material-icons">description</i> Assunto</label><input type="text" id="reqAssunto" value="Solicitação de materiais"></div>
     </div>
-    <button class="btn-primary" onclick="finalizarRequisicaoModal()"><i class="material-icons">send</i> Enviar Pedido</button>
+    
+    <div style="display:flex; gap:12px; margin-top:20px;">
+      <button class="btn-secondary" style="width: auto; padding: 14px 24px;" onclick="voltarParaCarrinho()">Voltar</button>
+      <button class="btn-primary" style="flex: 1;" onclick="finalizarRequisicaoModal()"><i class="material-icons">send</i> Enviar Pedido</button>
+    </div>
   </div>
 </div>
 
@@ -436,10 +445,10 @@
 </div>
 
 <script>
-// Auto-selecionar texto ao clicar (ITEM 1)
+// ITEM 1: Auto-selecionar texto ao clicar para facilitar edição rápida
 document.addEventListener('focusin', function(e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-    setTimeout(() => { e.target.select(); }, 10);
+    setTimeout(() => { e.target.select(); }, 50);
   }
 });
 
@@ -451,7 +460,7 @@ function enviarParaGoogleSheets(dados) {
     method: 'POST', mode: 'no-cors', 
     headers: { 'Content-Type': 'application/json' }, 
     body: JSON.stringify(dados) 
-  }).catch(e => console.log("Erro de rede ignorado na sincronização."));
+  }).catch(e => console.log("Nota: O envio foi tentado. Garanta que o AppScript esteja apto a receber o payload JSON."));
 }
 
 function salvarBackupNuvem() {
@@ -489,7 +498,6 @@ if(!historicoItens) {
 }
 
 let setoresDB = JSON.parse(localStorage.getItem(DB_SETORES)) || ["Almoxarifado", "Secretaria do CT", "DEM - Mecânica", "DEA - Alimentos", "DECA - Civil"];
-
 let carrinho = JSON.parse(localStorage.getItem(DB_CARRINHO)) || [];
 let historicoGlobal = JSON.parse(localStorage.getItem(DB_HISTORICO)) || []; 
 let filaAgua = JSON.parse(localStorage.getItem(DB_FILA_AGUA)) || [];
@@ -504,11 +512,8 @@ function registrarHistoricoItem(idItem, tipo, qtd, obs, saldo) {
 function renderSetoresSelects() {
   let html = '<option value="" disabled selected>Selecione o setor</option>' + setoresDB.map(s => `<option value="${s}">${s}</option>`).join('');
   document.querySelectorAll('.dynamic-sectors').forEach(select => select.innerHTML = html);
-  
   const listaCont = document.getElementById('listaSetoresCadastrados');
-  if(listaCont) {
-    listaCont.innerHTML = setoresDB.map(s => `<span style="background:#EFF3F8; color:#1E2A3E; padding:4px 10px; border-radius:20px; font-size:0.8rem;">${s}</span>`).join('');
-  }
+  if(listaCont) listaCont.innerHTML = setoresDB.map(s => `<span style="background:#EFF3F8; color:#1E2A3E; padding:4px 10px; border-radius:20px; font-size:0.8rem;">${s}</span>`).join('');
 }
 
 function importarSetores() {
@@ -558,8 +563,11 @@ document.querySelectorAll('.mask-whatsapp').forEach(input => {
 });
 function validaWhatsapp(val) { return val.replace(/\D/g, "").length >= 10; }
 
-// ---------- NAVEGAÇÃO SPA ----------
-function mudarView(viewId) {
+// ---------- ITEM 6: NAVEGAÇÃO SPA E BOTÃO VOLTAR NATIVO ----------
+let isProgrammaticStateChange = false;
+let backPressTime = 0;
+
+function mudarView(viewId, isPopState = false) {
   document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
   document.getElementById(`view-${viewId}`).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -570,7 +578,44 @@ function mudarView(viewId) {
   if(viewId === 'agua') { checkAguaStatus(); carregarDadosLocaisUsuario(); }
   if(viewId === 'admin') { renderAdminEstoque(); renderCategoriasAdmin(); renderAdminPedidos(); }
   window.scrollTo(0,0);
+
+  if(!isPopState) {
+    isProgrammaticStateChange = true;
+    history.pushState({ view: viewId }, "", `#${viewId}`);
+    setTimeout(() => { isProgrammaticStateChange = false; }, 50);
+  }
 }
+
+window.addEventListener('popstate', function(e) {
+  if (isProgrammaticStateChange) return;
+
+  // Fecha qualquer modal aberto antes de voltar a tela
+  let modaisAbertos = Array.from(document.querySelectorAll('.modal-modern')).filter(m => m.style.display === 'flex');
+  if (modaisAbertos.length > 0) {
+    fecharModal(modaisAbertos[modaisAbertos.length - 1].id, true);
+    let currentView = document.querySelector('.view-section.active').id.replace('view-', '');
+    history.pushState({ view: currentView }, "", `#${currentView}`);
+    return;
+  }
+
+  // Se tem estado (view), navega
+  if (e.state && e.state.view) {
+    mudarView(e.state.view, true);
+  } else {
+    // Tratamento para sair do app (2 toques)
+    let now = new Date().getTime();
+    if (now - backPressTime < 1000) {
+        history.back(); // Sai
+    } else {
+        backPressTime = now;
+        Swal.fire({toast:true, position:'bottom', title:'Toque voltar novamente para sair', showConfirmButton:false, timer:1500});
+        let currentView = document.querySelector('.view-section.active').id.replace('view-', '');
+        history.pushState({ view: currentView }, "", `#${currentView}`);
+    }
+  }
+});
+// Init History
+history.replaceState({ view: 'home' }, "", "#home");
 
 // ---------- MATERIAIS & CARRINHO ----------
 function renderChips() {
@@ -616,22 +661,11 @@ function renderCarrinho() {
   container.innerHTML = carrinho.map(c => `<div class="cart-item-row"><img src="${c.imagem}" style="width:40px;"><div style="flex:1; font-weight:600;">${c.nome}</div><div class="cart-qty-control"><button onclick="alterarQtd('${c.id}', -1)">-</button><span>${c.qtd}</span><button onclick="alterarQtd('${c.id}', 1)">+</button></div><button class="cart-remove-btn" onclick="alterarQtd('${c.id}', -999)"><i class="material-icons">delete</i></button></div>`).join('');
 }
 function abrirCarrinho() { renderCarrinho(); document.getElementById('modalCarrinho').style.display = 'flex'; }
-function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
+function fecharModal(id, bypassHistory = false) { document.getElementById(id).style.display = 'none'; }
 
 function confirmarLimparCarrinho() {
-  Swal.fire({
-    title: 'Você quer mesmo limpar o carrinho?',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#B91C1C',
-    cancelButtonColor: '#6B7A8A',
-    confirmButtonText: 'Sim',
-    cancelButtonText: 'Cancelar'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      limparCarrinho();
-      Swal.fire({toast:true, position:'top-end', icon:'success', title:'Carrinho limpo!', showConfirmButton:false, timer:1000});
-    }
+  Swal.fire({ title: 'Você quer mesmo limpar o carrinho?', icon: 'question', showCancelButton: true, confirmButtonColor: '#B91C1C', cancelButtonColor: '#6B7A8A', confirmButtonText: 'Sim', cancelButtonText: 'Cancelar' }).then((res) => {
+    if (res.isConfirmed) { limparCarrinho(); Swal.fire({toast:true, position:'top-end', icon:'success', title:'Carrinho limpo!', showConfirmButton:false, timer:1000}); }
   });
 }
 
@@ -652,7 +686,7 @@ function finalizarRequisicaoModal() {
     const perfil = document.getElementById('reqPerfil').value;
     const lotacao = document.getElementById('reqLotacao').value.trim();
 
-    if(!setor || !nome || !whatsapp || !email || !lotacao) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios', 'error');
+    if(!setor || !nome || !whatsapp || !email || !lotacao) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios (*)', 'error');
     if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido. Digite o DDD e os números.', 'error');
 
     salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
@@ -705,7 +739,7 @@ function submitAgua() {
     const perfil = document.getElementById('aguaPerfil').value;
     const lotacao = document.getElementById('aguaLotacao').value;
 
-    if(!setor || !nome || !whatsapp || !lotacao || !email) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios', 'error');
+    if(!setor || !nome || !whatsapp || !lotacao || !email) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios (*)', 'error');
     if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido.', 'error');
 
     salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
@@ -720,9 +754,7 @@ function submitAgua() {
     salvarBackupNuvem();
 
     Swal.fire('Entrou na fila!', 'Você está na fila da água.', 'success'); checkAguaStatus();
-  } catch(e) {
-    Swal.fire('Erro', 'Ocorreu um problema ao pedir água.', 'error');
-  }
+  } catch(e) { Swal.fire('Erro', 'Ocorreu um problema ao pedir água.', 'error'); }
 }
 
 function cancelarAgua() {
@@ -752,7 +784,9 @@ function renderHistoricoUsuario() {
       </div>
       ${h.tipo === 'Material' ? `<ul style="list-style:none; font-size:0.9rem;">${h.itens.map(i=> {
          let isRiscado = h.status === 'Cancelado/Rejeitado' ? `text-decoration: line-through; color: #B91C1C;` : ``;
-         return `<li style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="${isRiscado}">${i.nome}</span> <strong style="${isRiscado}">${i.qtd} un</strong></li>`;
+         // ITEM 5: Mostrar quantidade anterior caso tenha sido editada
+         let displayQtd = i.qtdOriginal !== undefined && i.qtdOriginal !== i.qtd ? `<span style="text-decoration:line-through; color:#94a3b8; font-size:0.8rem; margin-right:4px;">${i.qtdOriginal}</span> ${i.qtd} un` : `${i.qtd} un`;
+         return `<li style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="${isRiscado}">${i.nome}</span> <strong style="${isRiscado}">${displayQtd}</strong></li>`;
       }).join('')}</ul>` : ``}
     </div>`;
   }).join('');
@@ -766,24 +800,17 @@ function abrirAdmin() {
 function mudarSenha() { Swal.fire({ title: 'Nova Senha', input: 'password', showCancelButton:true }).then(res => { if(res.isConfirmed) localStorage.setItem('senhaAdminCT', res.value); }); }
 
 function switchAdminTab(tab) {
-  let btn = document.getElementById(`btn-tab-${tab}`);
-  let panel = document.getElementById(`admin-tab-${tab}`);
-  
-  if (btn.classList.contains('active')) {
-    btn.classList.remove('active');
-    panel.style.display = 'none';
-  } else {
+  let btn = document.getElementById(`btn-tab-${tab}`); let panel = document.getElementById(`admin-tab-${tab}`);
+  if (btn.classList.contains('active')) { btn.classList.remove('active'); panel.style.display = 'none'; } else {
     document.querySelectorAll('.admin-tab-btn').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.admin-card-tab').forEach(el => el.style.display = 'none');
-    btn.classList.add('active');
-    panel.style.display = 'block';
+    btn.classList.add('active'); panel.style.display = 'block';
   }
 }
 
 function renderCategoriasAdmin() {
   const cats = [...new Set(materiaisDB.map(m => m.categoria))];
-  const select = document.getElementById('adminNovaCatSelect');
-  select.innerHTML = '<option value="">Selecione...</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('') + '<option value="NOVA">➕ Criar Nova Categoria...</option>';
+  document.getElementById('adminNovaCatSelect').innerHTML = '<option value="">Selecione...</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('') + '<option value="NOVA">➕ Criar Nova Categoria...</option>';
 }
 function checkNovaCat() {
   const select = document.getElementById('adminNovaCatSelect'); const input = document.getElementById('adminNovaCatInput');
@@ -833,8 +860,7 @@ function registrarEntrada(id) {
   
   let item = materiaisDB.find(m => m.id === id);
   if(item) { 
-    item.estoque += qtd; 
-    localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); 
+    item.estoque += qtd; localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); 
     registrarHistoricoItem(id, 'Entrada Manual', qtd, obs, item.estoque);
     salvarBackupNuvem();
     inptQtd.value = ''; inptObs.value = ''; 
@@ -845,10 +871,8 @@ function registrarEntrada(id) {
 
 function abrirEdicaoMaterial(id) {
   let item = materiaisDB.find(m => m.id === id); if(!item) return;
-  document.getElementById('editMatIdAtual').value = id;
-  document.getElementById('editMatNome').value = item.nome;
-  document.getElementById('editMatCat').value = item.categoria;
-  document.getElementById('editMatImg').value = item.imagem;
+  document.getElementById('editMatIdAtual').value = id; document.getElementById('editMatNome').value = item.nome;
+  document.getElementById('editMatCat').value = item.categoria; document.getElementById('editMatImg').value = item.imagem;
   document.getElementById('editMatEstoque').value = item.estoque;
   document.getElementById('modalEditarMaterial').style.display = 'flex';
 }
@@ -858,20 +882,14 @@ function salvarEdicaoMaterial() {
   let item = materiaisDB.find(m => m.id === id); if(!item) return;
   
   let oldEst = item.estoque;
-  item.nome = document.getElementById('editMatNome').value.trim();
-  item.categoria = document.getElementById('editMatCat').value.trim();
-  item.imagem = document.getElementById('editMatImg').value.trim();
-  let novoEstoque = parseInt(document.getElementById('editMatEstoque').value);
+  item.nome = document.getElementById('editMatNome').value.trim(); item.categoria = document.getElementById('editMatCat').value.trim();
+  item.imagem = document.getElementById('editMatImg').value.trim(); let novoEstoque = parseInt(document.getElementById('editMatEstoque').value);
 
   if(novoEstoque >= 0 && novoEstoque !== oldEst) {
-    let dif = novoEstoque - oldEst;
-    let t = dif > 0 ? 'Entrada (Edição Admin)' : 'Saída (Edição Admin)';
-    item.estoque = novoEstoque;
-    registrarHistoricoItem(id, t, Math.abs(dif), 'Ajuste Absoluto via Edição', item.estoque);
+    let dif = novoEstoque - oldEst; let t = dif > 0 ? 'Entrada (Edição Admin)' : 'Saída (Edição Admin)';
+    item.estoque = novoEstoque; registrarHistoricoItem(id, t, Math.abs(dif), 'Ajuste Absoluto via Edição', item.estoque);
   }
-
-  localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
-  salvarBackupNuvem();
+  localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); salvarBackupNuvem();
   fecharModal('modalEditarMaterial'); renderAdminEstoque(); renderCategoriasAdmin();
   Swal.fire({toast:true, position:'top-end', icon:'success', title:'Material salvo!', showConfirmButton:false, timer:1500});
 }
@@ -879,15 +897,7 @@ function salvarEdicaoMaterial() {
 function excluirMaterialAdmin() {
   let id = document.getElementById('editMatIdAtual').value;
   Swal.fire({ title:'Tem certeza?', text:'Deseja excluir este material para sempre?', icon:'warning', showCancelButton:true, confirmButtonColor:'#d33' })
-  .then(res => {
-    if(res.isConfirmed) {
-      materiaisDB = materiaisDB.filter(m => m.id !== id);
-      localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
-      salvarBackupNuvem();
-      fecharModal('modalEditarMaterial'); renderAdminEstoque(); renderCategoriasAdmin();
-      Swal.fire('Excluído', '', 'success');
-    }
-  });
+  .then(res => { if(res.isConfirmed) { materiaisDB = materiaisDB.filter(m => m.id !== id); localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); salvarBackupNuvem(); fecharModal('modalEditarMaterial'); renderAdminEstoque(); renderCategoriasAdmin(); Swal.fire('Excluído', '', 'success'); } });
 }
 
 function abrirHistoricoItem(idItem) {
@@ -906,8 +916,7 @@ function abrirHistoricoItem(idItem) {
 function exportarHistoricoItemXLSX() {
   let idItem = document.getElementById('histItemIdAtual').value; let item = materiaisDB.find(m => m.id === idItem);
   let dados = historicoItens.filter(h => h.idItem === idItem).map(h => ({ Data: h.data, Tipo: h.tipo, Quantidade: h.qtd, Saldo: h.saldo, Observacao: h.obs }));
-  if(dados.length === 0) return;
-  let ws = XLSX.utils.json_to_sheet(dados); let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Hist"); XLSX.writeFile(wb, `Historico_${item.nome.replace(/\s/g,'_')}.xlsx`);
+  if(dados.length === 0) return; let ws = XLSX.utils.json_to_sheet(dados); let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Hist"); XLSX.writeFile(wb, `Historico_${item.nome.replace(/\s/g,'_')}.xlsx`);
 }
 function exportarHistoricoItemPDF() {
   let idItem = document.getElementById('histItemIdAtual').value; let item = materiaisDB.find(m => m.id === idItem);
@@ -926,15 +935,17 @@ function renderAdminPedidos() {
   if(pendentes.length === 0) listPend.innerHTML = '<p>Nenhum pedido pendente.</p>';
   else {
     listPend.innerHTML = pendentes.map(p => {
-      let isAgua = p.tipo === 'Água';
-      let cleanZ = p.whatsapp ? p.whatsapp.replace(/\D/g, '') : '';
+      let isAgua = p.tipo === 'Água'; let cleanZ = p.whatsapp ? p.whatsapp.replace(/\D/g, '') : '';
       let msgZap = encodeURIComponent(`Prezado(a) ${p.nome}. O Almoxarifado do CT informa que seu item está aguardando ser retirado.`);
       let badgeColor = p.status === 'Aguardando' ? 'background:#FEF08A; color:#854D0E;' : 'background:#DBEAFE; color:#1D4ED8;';
 
       let zapBtn = (p.status === 'Aguardando retirada' && cleanZ) ? `<a href="https://wa.me/55${cleanZ}?text=${msgZap}" target="_blank" class="btn-secondary" style="background:#25D366; color:white; border:none; width:auto; padding:6px 12px; text-decoration:none; display:flex; align-items:center; gap:6px;"><i class="material-icons" style="font-size:16px;">chat</i> Avisar WhatsApp</a>` : '';
       let acaoBtn = `<button class="btn-primary" style="padding:6px 12px; width:auto;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons" style="font-size:16px;">edit</i> Gerenciar</button>`;
 
-      return `<div class="pedido-admin-card" style="border-left: 4px solid ${isAgua ? '#005BBB' : '#F59E0B'};"><div class="pedido-admin-header"><div><strong>${isAgua ? '💧 Água' : '📦 Materiais'} - ${p.setor}</strong><br><span style="font-size:0.8rem;">Solict.: ${p.nome} | Whats: ${p.whatsapp||'N/A'}</span><br><span style="font-size:0.75rem; color:#64748B;">📅 Pedido: ${p.data}</span></div><span class="badge-status" style="${badgeColor}">${p.status}</span></div>${!isAgua ? `<div style="font-size:0.85rem; background:white; padding:8px; border-radius:8px; margin-top:8px;">${p.itens.map(i=>`${i.nome} (${i.qtd})`).join(', ')}</div>` : ''}<div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">${acaoBtn}${zapBtn}</div></div>`;
+      return `<div class="pedido-admin-card" style="border-left: 4px solid ${isAgua ? '#005BBB' : '#F59E0B'};"><div class="pedido-admin-header"><div><strong>${isAgua ? '💧 Água' : '📦 Materiais'} - ${p.setor}</strong><br><span style="font-size:0.8rem;">Solict.: ${p.nome} | Whats: ${p.whatsapp||'N/A'}</span><br><span style="font-size:0.75rem; color:#64748B;">📅 Pedido: ${p.data}</span></div><span class="badge-status" style="${badgeColor}">${p.status}</span></div>${!isAgua ? `<div style="font-size:0.85rem; background:white; padding:8px; border-radius:8px; margin-top:8px;">${p.itens.map(i=>{
+         let displayQtd = i.qtdOriginal !== undefined && i.qtdOriginal !== i.qtd ? `<span style="text-decoration:line-through; color:#94a3b8;">${i.qtdOriginal}</span> ${i.qtd}` : `${i.qtd}`;
+         return `${i.nome} (${displayQtd})`;
+      }).join(', ')}</div>` : ''}<div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">${acaoBtn}${zapBtn}</div></div>`;
     }).join('');
   }
 
@@ -972,22 +983,19 @@ function salvarEdicaoPedido() {
       let novaQtd = parseInt(document.getElementById(`editItemQtd_${idx}`).value);
       
       if(sendoCancelado && !jaEstavaCancelado && dbM) {
-        dbM.estoque += item.qtd;
-        registrarHistoricoItem(item.id, 'Pedido Rejeitado', item.qtd, `Devolvido - Pedido de ${pedido.nome}`, dbM.estoque);
+        dbM.estoque += item.qtd; registrarHistoricoItem(item.id, 'Pedido Rejeitado', item.qtd, `Devolvido - Pedido de ${pedido.nome}`, dbM.estoque);
       } else if (!sendoCancelado && novaQtd >= 0 && novaQtd !== item.qtd && dbM) {
-        let dif = item.qtd - novaQtd; 
-        dbM.estoque += dif;
+        let dif = item.qtd - novaQtd; dbM.estoque += dif;
         let t = dif > 0 ? 'Entrada (Ajuste Admin)' : 'Saída (Ajuste Admin)';
         registrarHistoricoItem(item.id, t, Math.abs(dif), `Ajuste Pedido de ${pedido.nome}`, dbM.estoque);
+        
+        if (item.qtdOriginal === undefined) item.qtdOriginal = item.qtd; // ITEM 5
         item.qtd = novaQtd;
       }
     });
   }
   
-  if (novoStatus === 'Entregue' && pedido.status !== 'Entregue') {
-    pedido.dataEntrega = new Date().toLocaleString();
-  }
-
+  if (novoStatus === 'Entregue' && pedido.status !== 'Entregue') { pedido.dataEntrega = new Date().toLocaleString(); }
   if(pedido.tipo === 'Água' && (novoStatus === 'Entregue' || novoStatus === 'Cancelado/Rejeitado')) {
     filaAgua = filaAgua.filter(f => f.id != id); localStorage.setItem(DB_FILA_AGUA, JSON.stringify(filaAgua));
   }
@@ -1019,11 +1027,7 @@ function exportarPDF() {
 }
 
 // INICIALIZAÇÃO E CARROSSEL
-let slideIndex = 0; 
-const track = document.getElementById('carouselTrack'); 
-const slides = document.querySelectorAll('.carousel-slide'); 
-const dotsContainer = document.getElementById('carouselDots');
-let autoInterval;
+let slideIndex = 0; const track = document.getElementById('carouselTrack'); const slides = document.querySelectorAll('.carousel-slide'); const dotsContainer = document.getElementById('carouselDots'); let autoInterval;
 
 function updateCarousel() { 
   if(track) track.style.transform = `translateX(-${slideIndex * 100}%)`; 
@@ -1031,12 +1035,7 @@ function updateCarousel() {
 }
 function createDots() { 
   if(!dotsContainer) return; 
-  slides.forEach((_, i) => { 
-    const dot = document.createElement('div'); dot.classList.add('dot'); 
-    if(i===0) dot.classList.add('active'); 
-    dot.addEventListener('click', () => { slideIndex = i; updateCarousel(); resetAutoPlay(); }); 
-    dotsContainer.appendChild(dot); 
-  }); 
+  slides.forEach((_, i) => { const dot = document.createElement('div'); dot.classList.add('dot'); if(i===0) dot.classList.add('active'); dot.addEventListener('click', () => { slideIndex = i; updateCarousel(); resetAutoPlay(); }); dotsContainer.appendChild(dot); }); 
 }
 function nextSlide() { slideIndex = (slideIndex + 1) % slides.length; updateCarousel(); }
 function prevSlide() { slideIndex = (slideIndex - 1 + slides.length) % slides.length; updateCarousel(); }
