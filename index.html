@@ -15,22 +15,21 @@
     body { background-color: #F5F7FA; font-family: 'Inter', system-ui, sans-serif; color: #1E2A3E; padding-bottom: 90px; scroll-behavior: smooth; overflow-x: hidden; -webkit-user-select: none; user-select: none; }
     input, select, textarea { -webkit-user-select: auto; user-select: auto; }
     
-    /* ITEM 3: Popups abaixo do cabeçalho */
+    /* Pop-ups (Toasts) de aviso abaixo do cabeçalho */
     body.swal2-toast-shown .swal2-container.swal2-top-end, 
     body.swal2-toast-shown .swal2-container.swal2-top-right { top: 80px !important; }
 
+    /* Splash Screen Centralizada */
     .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #005BBB 0%, #003D7A 100%); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; transition: opacity 0.5s ease-out; opacity: 1; }
-    .splash-content { animation: fadeInUpScale 0.8s ease-out; }
+    .splash-content { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; animation: fadeInUpScale 0.8s ease-out; }
     .splash-icon-img { width: min(30vw, 140px); max-width: 140px; margin-bottom: 24px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2)); animation: gentleFloat 2s infinite ease-in-out; }
     .splash-title { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.5px; background: white; background-clip: text; -webkit-background-clip: text; color: transparent; }
-    .modern-loader { margin-top: 32px; width: 200px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
+    .modern-loader { margin: 32px auto 0 auto; width: 200px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
     .modern-loader-bar { width: 0%; height: 100%; background: white; border-radius: 4px; animation: loadingProgress 2s ease-out forwards; }
+    
     @keyframes fadeInUpScale { from { opacity:0; transform: translateY(20px) scale(0.95); } to { opacity:1; transform: translateY(0) scale(1); } }
     @keyframes gentleFloat { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-6px); } }
     @keyframes loadingProgress { 0% { width: 0%; } 30% { width: 40%; } 70% { width: 75%; } 100% { width: 100%; } }
-
-    .refresh-btn-splash { position: absolute; bottom: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; color: rgba(255,255,255,0.8); background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
-    .refresh-btn-splash:hover { background: rgba(255,255,255,0.2); color: white; }
 
     .app-header { position: sticky; top: 0; z-index: 110; background: white; padding: 12px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
     .header-row { display: flex; align-items: center; gap: 12px; }
@@ -149,9 +148,6 @@
     <div class="modern-loader"><div class="modern-loader-bar"></div></div>
     <p id="splashStatus" style="margin-top:16px; font-size:0.8rem;">Sincronizando com a nuvem...</p>
   </div>
-  <button class="refresh-btn-splash" onclick="forcarAtualizacao()">
-    <i class="material-icons">refresh</i> Limpar Cache e Atualizar
-  </button>
 </div>
 
 <header class="app-header">
@@ -221,7 +217,6 @@
 
     <div id="aguaFormCard" style="background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
       <h2 style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><i class="material-icons" style="color: #005BBB;">local_drink</i> Solicitar Água</h2>
-      <p style="color: #5A6874; margin-bottom: 24px; font-size: 0.85rem; border-left: 3px solid #005BBB; padding-left: 12px;">Preencha seus dados para entrar na fila de atendimento</p>
       <div class="form-grid">
         <div class="input-group full-width"><label><i class="material-icons">business</i> Setor/Unidade *</label><select id="aguaSetor" class="dynamic-sectors"></select></div>
         <div class="input-group"><label><i class="material-icons">person</i> Nome completo *</label><input type="text" id="aguaNome" placeholder="Ex: João da Silva"></div>
@@ -340,7 +335,7 @@
       <div class="input-group"><label><i class="material-icons">phone</i> WhatsApp *</label><input type="tel" inputmode="numeric" id="reqContato" class="mask-whatsapp" placeholder="(83) 90000-0000"></div>
       <div class="input-group"><label><i class="material-icons">email</i> E-mail institucional *</label><input type="email" id="reqEmail" placeholder="joao@ufpb.br"></div>
       <div class="input-group"><label><i class="material-icons">badge</i> Perfil</label><select id="reqPerfil"><option>Discente</option><option>Docente</option><option>Técnico-Administrativo</option></select></div>
-      <div class="input-group"><label><i class="material-icons">work</i> Lotação *</label><input type="text" id="reqLotacao" placeholder="Ex: CT - Coordenação"></div>
+      <div class="input-group"><label><i class="material-icons">work</i> Lotação/Sala *</label><input type="text" id="reqLotacao" placeholder="Ex: CT - Coordenação"></div>
       <div class="input-group full-width"><label><i class="material-icons">description</i> Assunto</label><input type="text" id="reqAssunto" value="Solicitação de materiais"></div>
     </div>
     
@@ -445,7 +440,7 @@
 </div>
 
 <script>
-// ITEM 1: Auto-selecionar texto ao clicar para facilitar edição rápida
+// Auto-selecionar texto ao clicar para facilitar edição rápida
 document.addEventListener('focusin', function(e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
     setTimeout(() => { e.target.select(); }, 50);
@@ -453,6 +448,7 @@ document.addEventListener('focusin', function(e) {
 });
 
 // ---------- Integração App Script ----------
+// Para funcionar a nuvem, certifique-se de que seu "Código.gs" possua a função doPost(e) que decodifica o JSON abaixo.
 const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbynotzi-Mu68mNg3ZWbCgC2KTQp7xwaUxWYJEfLvX3i4M1G8J8qFCj_y8L67Jzj6KtWjg/exec";
 
 function enviarParaGoogleSheets(dados) {
@@ -460,7 +456,7 @@ function enviarParaGoogleSheets(dados) {
     method: 'POST', mode: 'no-cors', 
     headers: { 'Content-Type': 'application/json' }, 
     body: JSON.stringify(dados) 
-  }).catch(e => console.log("Nota: O envio foi tentado. Garanta que o AppScript esteja apto a receber o payload JSON."));
+  }).catch(e => console.log("Nuvem: Falha de rede ignorada no envio da requisição."));
 }
 
 function salvarBackupNuvem() {
@@ -589,33 +585,29 @@ function mudarView(viewId, isPopState = false) {
 window.addEventListener('popstate', function(e) {
   if (isProgrammaticStateChange) return;
 
-  // Fecha qualquer modal aberto antes de voltar a tela
+  history.pushState(null, null, location.href); // Intercepta para não sair do navegador
+
   let modaisAbertos = Array.from(document.querySelectorAll('.modal-modern')).filter(m => m.style.display === 'flex');
   if (modaisAbertos.length > 0) {
     fecharModal(modaisAbertos[modaisAbertos.length - 1].id, true);
-    let currentView = document.querySelector('.view-section.active').id.replace('view-', '');
-    history.pushState({ view: currentView }, "", `#${currentView}`);
     return;
   }
+  
+  if (Swal.isVisible()) { Swal.close(); return; }
 
-  // Se tem estado (view), navega
-  if (e.state && e.state.view) {
-    mudarView(e.state.view, true);
+  let currentView = document.querySelector('.view-section.active').id.replace('view-', '');
+  if (currentView !== 'home') {
+    mudarView('home', true);
   } else {
-    // Tratamento para sair do app (2 toques)
     let now = new Date().getTime();
-    if (now - backPressTime < 1000) {
-        history.back(); // Sai
-    } else {
-        backPressTime = now;
-        Swal.fire({toast:true, position:'bottom', title:'Toque voltar novamente para sair', showConfirmButton:false, timer:1500});
-        let currentView = document.querySelector('.view-section.active').id.replace('view-', '');
-        history.pushState({ view: currentView }, "", `#${currentView}`);
+    if (now - backPressTime < 1000) { history.go(-2); } // Sai do app real
+    else {
+      backPressTime = now;
+      Swal.fire({toast:true, position:'bottom', title:'Toque voltar novamente para sair do sistema', showConfirmButton:false, timer:1500});
     }
   }
 });
-// Init History
-history.replaceState({ view: 'home' }, "", "#home");
+history.pushState(null, null, location.href); // Push inicial
 
 // ---------- MATERIAIS & CARRINHO ----------
 function renderChips() {
@@ -644,7 +636,7 @@ function addAoCarrinho(id) {
   let itemDB = materiaisDB.find(m => m.id === id); let noCarrinho = carrinho.find(c => c.id === id);
   if(noCarrinho) {
     if(noCarrinho.qtd < itemDB.estoque) noCarrinho.qtd++;
-    else return Swal.fire({toast:true, position:'top-end', icon:'error', title:'Limite', showConfirmButton:false, timer:1500});
+    else return Swal.fire({toast:true, position:'top-end', icon:'error', title:'Limite do estoque atingido', showConfirmButton:false, timer:1500});
   } else { carrinho.push({ id: itemDB.id, nome: itemDB.nome, imagem: itemDB.imagem, qtd: 1 }); }
   salvarCarrinho(); Swal.fire({toast:true, position:'top-end', icon:'success', title:'Adicionado!', showConfirmButton:false, timer:1000});
 }
@@ -657,7 +649,7 @@ function alterarQtd(id, delta) {
 }
 function renderCarrinho() {
   const container = document.getElementById('carrinhoItensList');
-  if(carrinho.length === 0) return container.innerHTML = '<div style="text-align:center; color:#64748B;">Vazio.</div>';
+  if(carrinho.length === 0) return container.innerHTML = '<div style="text-align:center; color:#64748B;">Seu carrinho está vazio.</div>';
   container.innerHTML = carrinho.map(c => `<div class="cart-item-row"><img src="${c.imagem}" style="width:40px;"><div style="flex:1; font-weight:600;">${c.nome}</div><div class="cart-qty-control"><button onclick="alterarQtd('${c.id}', -1)">-</button><span>${c.qtd}</span><button onclick="alterarQtd('${c.id}', 1)">+</button></div><button class="cart-remove-btn" onclick="alterarQtd('${c.id}', -999)"><i class="material-icons">delete</i></button></div>`).join('');
 }
 function abrirCarrinho() { renderCarrinho(); document.getElementById('modalCarrinho').style.display = 'flex'; }
@@ -670,7 +662,7 @@ function confirmarLimparCarrinho() {
 }
 
 function abrirCheckout() { 
-  if(carrinho.length === 0) return Swal.fire('Vazio', 'Adicione itens.', 'warning'); 
+  if(carrinho.length === 0) return Swal.fire('Vazio', 'Adicione itens ao carrinho primeiro.', 'warning'); 
   carregarDadosLocaisUsuario(); 
   fecharModal('modalCarrinho'); 
   document.getElementById('modalCheckout').style.display = 'flex'; 
@@ -685,31 +677,53 @@ function finalizarRequisicaoModal() {
     const email = document.getElementById('reqEmail').value.trim();
     const perfil = document.getElementById('reqPerfil').value;
     const lotacao = document.getElementById('reqLotacao').value.trim();
+    const assunto = document.getElementById('reqAssunto').value; // Restabelecido
 
     if(!setor || !nome || !whatsapp || !email || !lotacao) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios (*)', 'error');
-    if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido. Digite o DDD e os números.', 'error');
+    if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido. Digite o DDD e os números corretamente.', 'error');
 
     salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
 
-    carrinho.forEach(c => { 
-      let dbM = materiaisDB.find(m => m.id === c.id); 
-      if(dbM) {
-        dbM.estoque -= c.qtd; 
-        registrarHistoricoItem(c.id, 'Saída (Pedido)', c.qtd, `Pedido: ${nome} (${setor})`, dbM.estoque);
-      }
-    });
+    // Abater Estoque e Registrar com bloqueio anti-negativo
+    for (let i = carrinho.length - 1; i >= 0; i--) {
+        let c = carrinho[i];
+        let dbM = materiaisDB.find(m => m.id === c.id);
+        if (dbM) {
+            if (c.qtd > dbM.estoque) c.qtd = dbM.estoque; // Impede estoque negativo no checkout
+            if (c.qtd === 0) { carrinho.splice(i, 1); continue; }
+            dbM.estoque -= c.qtd;
+            registrarHistoricoItem(c.id, 'Saída (Pedido)', c.qtd, `Pedido: ${nome} (${setor})`, dbM.estoque);
+        } else { carrinho.splice(i, 1); }
+    }
+    
+    if (carrinho.length === 0) return Swal.fire('Sem Estoque', 'Os itens solicitados esgotaram antes da finalização.', 'error');
+
     localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
 
     let pedido = { id: Date.now(), tipo: 'Material', data: new Date().toLocaleString(), setor, nome, whatsapp, email, perfil, lotacao, itens: [...carrinho], status: 'Aguardando' };
     historicoGlobal.unshift(pedido); localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal));
     
-    enviarParaGoogleSheets({ tipo: "requisicao", nome, setor, whatsapp, email, lotacao, itens: carrinho.map(i=>`${i.nome}(${i.qtd})`).join(', ') });
+    // Formato exato do envio original restaurado
+    enviarParaGoogleSheets({ 
+      tipo: "requisicao", 
+      id: pedido.id,
+      data: new Date().toISOString(),
+      solicitante: nome, 
+      setor: setor, 
+      email: email,
+      contato: whatsapp,
+      perfil: perfil, 
+      lotacao: lotacao, 
+      itens: carrinho.map(i=>`${i.nome} (${i.qtd})`).join(', '),
+      status: "Em análise"
+    });
     salvarBackupNuvem();
 
-    Swal.fire('✅ Enviada!', 'Acompanhe na aba Meus Pedidos.', 'success');
+    Swal.fire('✅ Solicitação Enviada!', 'Acompanhe na aba Meus Pedidos.', 'success');
     limparCarrinho(); fecharModal('modalCheckout'); mudarView('orders');
   } catch(e) {
-    Swal.fire('Erro', 'Ocorreu um problema ao enviar o pedido.', 'error');
+    console.error(e);
+    Swal.fire('Erro Interno', 'Ocorreu um problema ao enviar o pedido. Tente novamente.', 'error');
   }
 }
 
@@ -733,11 +747,11 @@ function checkAguaStatus() {
 function submitAgua() {
   try {
     const setor = document.getElementById('aguaSetor').value;
-    const nome = document.getElementById('aguaNome').value;
+    const nome = document.getElementById('aguaNome').value.trim();
     const whatsapp = document.getElementById('aguaContato').value;
-    const email = document.getElementById('aguaEmail').value;
+    const email = document.getElementById('aguaEmail').value.trim();
     const perfil = document.getElementById('aguaPerfil').value;
-    const lotacao = document.getElementById('aguaLotacao').value;
+    const lotacao = document.getElementById('aguaLotacao').value.trim();
 
     if(!setor || !nome || !whatsapp || !lotacao || !email) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios (*)', 'error');
     if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido.', 'error');
@@ -750,11 +764,26 @@ function submitAgua() {
     filaAgua.push(pAgua); historicoGlobal.unshift(pAgua);
     localStorage.setItem(DB_FILA_AGUA, JSON.stringify(filaAgua)); localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal)); localStorage.setItem(DB_PEDIDO_AG, id);
     
-    enviarParaGoogleSheets({ tipo: "filaAgua", nome, setor, whatsapp, lotacao });
+    // Formato exato do envio original restaurado
+    enviarParaGoogleSheets({ 
+      tipo: "filaAgua", 
+      id: id,
+      data: new Date().toISOString(),
+      nome: nome, 
+      setor: setor, 
+      email: email,
+      contato: whatsapp,
+      perfil: perfil, 
+      lotacao: lotacao,
+      status: "aguardando"
+    });
     salvarBackupNuvem();
 
-    Swal.fire('Entrou na fila!', 'Você está na fila da água.', 'success'); checkAguaStatus();
-  } catch(e) { Swal.fire('Erro', 'Ocorreu um problema ao pedir água.', 'error'); }
+    Swal.fire('Entrou na fila!', 'Sua solicitação de água mineral foi enviada.', 'success'); checkAguaStatus();
+  } catch(e) { 
+    console.error(e);
+    Swal.fire('Erro', 'Ocorreu um problema ao pedir água.', 'error'); 
+  }
 }
 
 function cancelarAgua() {
@@ -767,7 +796,7 @@ function cancelarAgua() {
 // ---------- HISTÓRICO USUÁRIO ----------
 function renderHistoricoUsuario() {
   const cont = document.getElementById('historicoContainer');
-  if(historicoGlobal.length === 0) return cont.innerHTML = '<div style="text-align:center;">Nenhum pedido feito.</div>';
+  if(historicoGlobal.length === 0) return cont.innerHTML = '<div style="text-align:center; padding: 20px;">Nenhum pedido realizado até o momento.</div>';
   cont.innerHTML = historicoGlobal.map(h => {
     let corStatus = '#F3F4F6', txtStatus = '#374151';
     if(h.status === 'Aguardando') { corStatus='#FEF08A'; txtStatus='#854D0E'; }
@@ -779,12 +808,12 @@ function renderHistoricoUsuario() {
 
     return `<div style="background:white; border-radius:20px; padding:20px; margin-bottom:16px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
       <div style="display:flex; justify-content:space-between; border-bottom:1px solid #edf2f7; padding-bottom:12px; margin-bottom:12px;">
-        <div><strong>${h.tipo === 'Água' ? '💧 Água' : '📦 Materiais'} - ${h.setor}</strong><br><span style="font-size:0.8rem; color:#64748B;">Pedido: ${h.data}</span>${dtEntregaStr}</div>
+        <div><strong>${h.tipo === 'Água' ? '💧 Água Mineral' : '📦 Materiais'} - ${h.setor}</strong><br><span style="font-size:0.8rem; color:#64748B;">Pedido: ${h.data}</span>${dtEntregaStr}</div>
         <span style="background:${corStatus}; color:${txtStatus}; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:700; height:fit-content;">${h.status}</span>
       </div>
       ${h.tipo === 'Material' ? `<ul style="list-style:none; font-size:0.9rem;">${h.itens.map(i=> {
          let isRiscado = h.status === 'Cancelado/Rejeitado' ? `text-decoration: line-through; color: #B91C1C;` : ``;
-         // ITEM 5: Mostrar quantidade anterior caso tenha sido editada
+         // Mostra a quantidade original se o admin editou
          let displayQtd = i.qtdOriginal !== undefined && i.qtdOriginal !== i.qtd ? `<span style="text-decoration:line-through; color:#94a3b8; font-size:0.8rem; margin-right:4px;">${i.qtdOriginal}</span> ${i.qtd} un` : `${i.qtd} un`;
          return `<li style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="${isRiscado}">${i.nome}</span> <strong style="${isRiscado}">${displayQtd}</strong></li>`;
       }).join('')}</ul>` : ``}
@@ -795,7 +824,7 @@ function renderHistoricoUsuario() {
 // ---------- ADMIN ----------
 function abrirAdmin() {
   let senha = localStorage.getItem('senhaAdminCT') || "";
-  Swal.fire({ title: 'Acesso Restrito', input: 'password', showCancelButton: true }).then(res => { if(res.isConfirmed && res.value === senha) mudarView('admin'); else if(res.isConfirmed) Swal.fire('Erro', 'Senha incorreta', 'error'); });
+  Swal.fire({ title: 'Acesso Restrito', input: 'password', showCancelButton: true, confirmButtonText: 'Entrar' }).then(res => { if(res.isConfirmed && res.value === senha) mudarView('admin'); else if(res.isConfirmed) Swal.fire('Erro', 'Senha incorreta', 'error'); });
 }
 function mudarSenha() { Swal.fire({ title: 'Nova Senha', input: 'password', showCancelButton:true }).then(res => { if(res.isConfirmed) localStorage.setItem('senhaAdminCT', res.value); }); }
 
@@ -832,7 +861,7 @@ function adminAdicionarItem() {
   salvarBackupNuvem();
   
   Swal.fire('Sucesso', 'Material cadastrado!', 'success');
-  document.getElementById('adminNovaCatSelect').value = ''; checkNovaCat(); document.getElementById('adminNovaCatInput').value = ''; document.getElementById('adminNovoNome').value = '';
+  document.getElementById('adminNovaCatSelect').value = ''; checkNovaCat(); document.getElementById('adminNovaCatInput').value = ''; document.getElementById('adminNovoNome').value = '0';
   renderCategoriasAdmin(); renderAdminEstoque();
 }
 
@@ -856,15 +885,16 @@ function renderAdminEstoque() {
 function registrarEntrada(id) {
   let inptQtd = document.getElementById(`entrada-${id}`); let qtd = parseInt(inptQtd.value);
   let inptObs = document.getElementById(`obs-${id}`); let obs = inptObs.value.trim() || 'Ajuste manual';
-  if(!qtd || qtd<=0) return Swal.fire('Atenção', 'Quantidade inválida.', 'warning');
+  if(!qtd || qtd<=0) return Swal.fire('Atenção', 'Quantidade inválida para entrada.', 'warning');
   
   let item = materiaisDB.find(m => m.id === id);
   if(item) { 
-    item.estoque += qtd; localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); 
+    item.estoque += qtd; 
+    localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); 
     registrarHistoricoItem(id, 'Entrada Manual', qtd, obs, item.estoque);
     salvarBackupNuvem();
     inptQtd.value = ''; inptObs.value = ''; 
-    Swal.fire({toast:true, position:'top-end', icon:'success', title:'Estoque somado', showConfirmButton:false, timer:1000}); 
+    Swal.fire({toast:true, position:'top-end', icon:'success', title:'Estoque adicionado', showConfirmButton:false, timer:1000}); 
     renderAdminEstoque(); 
   }
 }
@@ -891,13 +921,13 @@ function salvarEdicaoMaterial() {
   }
   localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); salvarBackupNuvem();
   fecharModal('modalEditarMaterial'); renderAdminEstoque(); renderCategoriasAdmin();
-  Swal.fire({toast:true, position:'top-end', icon:'success', title:'Material salvo!', showConfirmButton:false, timer:1500});
+  Swal.fire({toast:true, position:'top-end', icon:'success', title:'Material atualizado!', showConfirmButton:false, timer:1500});
 }
 
 function excluirMaterialAdmin() {
   let id = document.getElementById('editMatIdAtual').value;
-  Swal.fire({ title:'Tem certeza?', text:'Deseja excluir este material para sempre?', icon:'warning', showCancelButton:true, confirmButtonColor:'#d33' })
-  .then(res => { if(res.isConfirmed) { materiaisDB = materiaisDB.filter(m => m.id !== id); localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); salvarBackupNuvem(); fecharModal('modalEditarMaterial'); renderAdminEstoque(); renderCategoriasAdmin(); Swal.fire('Excluído', '', 'success'); } });
+  Swal.fire({ title:'Excluir Material?', text:'Deseja excluir este material do sistema?', icon:'warning', showCancelButton:true, confirmButtonColor:'#d33' })
+  .then(res => { if(res.isConfirmed) { materiaisDB = materiaisDB.filter(m => m.id !== id); localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); salvarBackupNuvem(); fecharModal('modalEditarMaterial'); renderAdminEstoque(); renderCategoriasAdmin(); Swal.fire('Excluído', 'O material foi removido.', 'success'); } });
 }
 
 function abrirHistoricoItem(idItem) {
@@ -906,7 +936,7 @@ function abrirHistoricoItem(idItem) {
   document.getElementById('histItemIdAtual').value = idItem;
   
   let hist = historicoItens.filter(h => h.idItem === idItem);
-  document.getElementById('tabelaHistoricoItemBody').innerHTML = hist.length === 0 ? '<tr><td colspan="5" style="text-align:center;">Sem histórico</td></tr>' : hist.map(h => {
+  document.getElementById('tabelaHistoricoItemBody').innerHTML = hist.length === 0 ? '<tr><td colspan="5" style="text-align:center;">Sem histórico de movimentações</td></tr>' : hist.map(h => {
     let styleRow = h.tipo === 'Pedido Rejeitado' ? `text-decoration: line-through; color: #B91C1C;` : ``;
     return `<tr><td style="font-size:0.8rem;">${h.data}</td><td><strong style="color:${(h.tipo.includes('Entrada')||h.tipo==='Saldo Inicial')?'#166534':'#B91C1C'}; font-size:0.85rem;">${h.tipo}</strong></td><td><span style="${styleRow}">${h.qtd}</span></td><td><strong>${h.saldo}</strong></td><td style="font-size:0.85rem;">${h.obs}</td></tr>`;
   }).join('');
@@ -916,23 +946,24 @@ function abrirHistoricoItem(idItem) {
 function exportarHistoricoItemXLSX() {
   let idItem = document.getElementById('histItemIdAtual').value; let item = materiaisDB.find(m => m.id === idItem);
   let dados = historicoItens.filter(h => h.idItem === idItem).map(h => ({ Data: h.data, Tipo: h.tipo, Quantidade: h.qtd, Saldo: h.saldo, Observacao: h.obs }));
-  if(dados.length === 0) return; let ws = XLSX.utils.json_to_sheet(dados); let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Hist"); XLSX.writeFile(wb, `Historico_${item.nome.replace(/\s/g,'_')}.xlsx`);
+  if(dados.length === 0) return;
+  let ws = XLSX.utils.json_to_sheet(dados); let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Hist"); XLSX.writeFile(wb, `Historico_${item.nome.replace(/\s/g,'_')}.xlsx`);
 }
 function exportarHistoricoItemPDF() {
   let idItem = document.getElementById('histItemIdAtual').value; let item = materiaisDB.find(m => m.id === idItem);
   let hist = historicoItens.filter(h => h.idItem === idItem); if(hist.length === 0) return;
-  const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.text(`Histórico: ${item.nome}`, 14, 15);
+  const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.text(`Histórico Almox: ${item.nome}`, 14, 15);
   doc.autoTable({ startY: 25, head: [['Data', 'Tipo', 'Qtd', 'Saldo', 'Observação']], body: hist.map(h => [h.data, h.tipo, h.qtd, h.saldo, h.obs]) });
   doc.save(`Historico_${item.nome.replace(/\s/g,'_')}.pdf`);
 }
 
-// Gestão de Pedidos
+// Gestão de Pedidos (Admin)
 function renderAdminPedidos() {
   let pendentes = historicoGlobal.filter(h => h.status === 'Aguardando' || h.status === 'Aguardando retirada');
   let ultimos10 = historicoGlobal.filter(h => h.status !== 'Aguardando' && h.status !== 'Aguardando retirada').slice(0, 10);
 
   const listPend = document.getElementById('adminPendentesList');
-  if(pendentes.length === 0) listPend.innerHTML = '<p>Nenhum pedido pendente.</p>';
+  if(pendentes.length === 0) listPend.innerHTML = '<p>Nenhum pedido pendente na fila.</p>';
   else {
     listPend.innerHTML = pendentes.map(p => {
       let isAgua = p.tipo === 'Água'; let cleanZ = p.whatsapp ? p.whatsapp.replace(/\D/g, '') : '';
@@ -940,7 +971,7 @@ function renderAdminPedidos() {
       let badgeColor = p.status === 'Aguardando' ? 'background:#FEF08A; color:#854D0E;' : 'background:#DBEAFE; color:#1D4ED8;';
 
       let zapBtn = (p.status === 'Aguardando retirada' && cleanZ) ? `<a href="https://wa.me/55${cleanZ}?text=${msgZap}" target="_blank" class="btn-secondary" style="background:#25D366; color:white; border:none; width:auto; padding:6px 12px; text-decoration:none; display:flex; align-items:center; gap:6px;"><i class="material-icons" style="font-size:16px;">chat</i> Avisar WhatsApp</a>` : '';
-      let acaoBtn = `<button class="btn-primary" style="padding:6px 12px; width:auto;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons" style="font-size:16px;">edit</i> Gerenciar</button>`;
+      let acaoBtn = `<button class="btn-primary" style="padding:6px 12px; width:auto;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons" style="font-size:16px;">edit</i> Gerenciar Pedido</button>`;
 
       return `<div class="pedido-admin-card" style="border-left: 4px solid ${isAgua ? '#005BBB' : '#F59E0B'};"><div class="pedido-admin-header"><div><strong>${isAgua ? '💧 Água' : '📦 Materiais'} - ${p.setor}</strong><br><span style="font-size:0.8rem;">Solict.: ${p.nome} | Whats: ${p.whatsapp||'N/A'}</span><br><span style="font-size:0.75rem; color:#64748B;">📅 Pedido: ${p.data}</span></div><span class="badge-status" style="${badgeColor}">${p.status}</span></div>${!isAgua ? `<div style="font-size:0.85rem; background:white; padding:8px; border-radius:8px; margin-top:8px;">${p.itens.map(i=>{
          let displayQtd = i.qtdOriginal !== undefined && i.qtdOriginal !== i.qtd ? `<span style="text-decoration:line-through; color:#94a3b8;">${i.qtdOriginal}</span> ${i.qtd}` : `${i.qtd}`;
@@ -949,7 +980,7 @@ function renderAdminPedidos() {
     }).join('');
   }
 
-  document.getElementById('adminUltimosList').innerHTML = ultimos10.length === 0 ? '<p>Nenhum concluído.</p>' : ultimos10.map(p => {
+  document.getElementById('adminUltimosList').innerHTML = ultimos10.length === 0 ? '<p>Nenhum concluído ainda.</p>' : ultimos10.map(p => {
     let dtEntregaStr = p.dataEntrega ? `<br><span style="font-size:0.75rem; color:#166534;">Entregue: ${p.dataEntrega}</span>` : '';
     return `<div style="padding:10px; border-bottom:1px solid #EDF2F7; display:flex; justify-content:space-between; align-items:center;"><div style="font-size:0.85rem;"><strong>${p.tipo}</strong> - ${p.setor} (${p.nome})${dtEntregaStr}</div><div style="display:flex; gap:8px; align-items:center;"><span style="font-weight:bold; font-size:0.8rem; color:${p.status==='Cancelado/Rejeitado'?'#B91C1C':'#166534'}">${p.status}</span><button class="btn-secondary" style="padding:4px; border:none;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons" style="font-size:18px;">edit</i></button></div></div>`;
   }).join('');
@@ -980,17 +1011,28 @@ function salvarEdicaoPedido() {
 
     pedido.itens.forEach((item, idx) => {
       let dbM = materiaisDB.find(m => m.id === item.id);
-      let novaQtd = parseInt(document.getElementById(`editItemQtd_${idx}`).value);
+      let inptNovaQtd = document.getElementById(`editItemQtd_${idx}`);
+      let novaQtd = inptNovaQtd ? parseInt(inptNovaQtd.value) : item.qtd;
       
-      if(sendoCancelado && !jaEstavaCancelado && dbM) {
-        dbM.estoque += item.qtd; registrarHistoricoItem(item.id, 'Pedido Rejeitado', item.qtd, `Devolvido - Pedido de ${pedido.nome}`, dbM.estoque);
-      } else if (!sendoCancelado && novaQtd >= 0 && novaQtd !== item.qtd && dbM) {
-        let dif = item.qtd - novaQtd; dbM.estoque += dif;
-        let t = dif > 0 ? 'Entrada (Ajuste Admin)' : 'Saída (Ajuste Admin)';
-        registrarHistoricoItem(item.id, t, Math.abs(dif), `Ajuste Pedido de ${pedido.nome}`, dbM.estoque);
-        
-        if (item.qtdOriginal === undefined) item.qtdOriginal = item.qtd; // ITEM 5
-        item.qtd = novaQtd;
+      if(isNaN(novaQtd) || novaQtd < 0) novaQtd = 0;
+
+      // Protege contra Admin aprovar mais do que tem no estoque físico
+      if (!sendoCancelado && novaQtd !== item.qtd && dbM) {
+          let maxPossivel = item.qtd + dbM.estoque;
+          if (novaQtd > maxPossivel) {
+              novaQtd = maxPossivel;
+              Swal.fire({toast:true, position:'top-end', icon:'info', title:`Quantidade reajustada para o estoque (${maxPossivel})`, showConfirmButton:false, timer:3000});
+          }
+          let dif = item.qtd - novaQtd; 
+          dbM.estoque += dif;
+          let t = dif > 0 ? 'Entrada (Ajuste Admin)' : 'Saída (Ajuste Admin)';
+          registrarHistoricoItem(item.id, t, Math.abs(dif), `Ajuste Pedido de ${pedido.nome}`, dbM.estoque);
+          
+          if (item.qtdOriginal === undefined) item.qtdOriginal = item.qtd;
+          item.qtd = novaQtd;
+      } else if (sendoCancelado && !jaEstavaCancelado && dbM) {
+        dbM.estoque += item.qtd;
+        registrarHistoricoItem(item.id, 'Pedido Rejeitado', item.qtd, `Devolvido - Pedido de ${pedido.nome}`, dbM.estoque);
       }
     });
   }
@@ -1006,7 +1048,7 @@ function salvarEdicaoPedido() {
   salvarBackupNuvem(); 
   
   fecharModal('modalEditarPedido'); renderAdminPedidos(); renderAdminEstoque();
-  Swal.fire({toast:true, position:'top-end', icon:'success', title:'Atualizado!', showConfirmButton:false, timer:1500});
+  Swal.fire({toast:true, position:'top-end', icon:'success', title:'Atualizado com sucesso!', showConfirmButton:false, timer:1500});
 }
 
 function abrirTodosPedidosModal() {
@@ -1018,7 +1060,7 @@ function abrirTodosPedidosModal() {
 }
 function exportarXLSX() {
   let dados = historicoGlobal.map(p => ({ DataPedido: p.data, DataEntrega: p.dataEntrega||'', Tipo: p.tipo, Setor: p.setor, Solicitante: p.nome, WhatsApp: p.whatsapp, Lotacao: p.lotacao, Status: p.status, Itens: p.itens ? p.itens.map(i=>`${i.nome} (${i.qtd})`).join(', ') : '' }));
-  let ws = XLSX.utils.json_to_sheet(dados); let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Pedidos"); XLSX.writeFile(wb, "Pedidos_Almox_UFPB.xlsx");
+  let ws = XLSX.utils.json_to_sheet(dados); let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Pedidos Almoxarifado"); XLSX.writeFile(wb, "Pedidos_Almox_UFPB.xlsx");
 }
 function exportarPDF() {
   const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.text("Relatório de Pedidos - Smart Almox CT", 14, 15);
@@ -1027,7 +1069,11 @@ function exportarPDF() {
 }
 
 // INICIALIZAÇÃO E CARROSSEL
-let slideIndex = 0; const track = document.getElementById('carouselTrack'); const slides = document.querySelectorAll('.carousel-slide'); const dotsContainer = document.getElementById('carouselDots'); let autoInterval;
+let slideIndex = 0; 
+const track = document.getElementById('carouselTrack'); 
+const slides = document.querySelectorAll('.carousel-slide'); 
+const dotsContainer = document.getElementById('carouselDots');
+let autoInterval;
 
 function updateCarousel() { 
   if(track) track.style.transform = `translateX(-${slideIndex * 100}%)`; 
@@ -1035,7 +1081,12 @@ function updateCarousel() {
 }
 function createDots() { 
   if(!dotsContainer) return; 
-  slides.forEach((_, i) => { const dot = document.createElement('div'); dot.classList.add('dot'); if(i===0) dot.classList.add('active'); dot.addEventListener('click', () => { slideIndex = i; updateCarousel(); resetAutoPlay(); }); dotsContainer.appendChild(dot); }); 
+  slides.forEach((_, i) => { 
+    const dot = document.createElement('div'); dot.classList.add('dot'); 
+    if(i===0) dot.classList.add('active'); 
+    dot.addEventListener('click', () => { slideIndex = i; updateCarousel(); resetAutoPlay(); }); 
+    dotsContainer.appendChild(dot); 
+  }); 
 }
 function nextSlide() { slideIndex = (slideIndex + 1) % slides.length; updateCarousel(); }
 function prevSlide() { slideIndex = (slideIndex - 1 + slides.length) % slides.length; updateCarousel(); }
@@ -1052,6 +1103,7 @@ renderSetoresSelects();
 carregarDadosLocaisUsuario();
 atualizarBadges();
 
+// Tira o Splash depois do tempo
 setTimeout(() => { const s = document.getElementById('splashScreen'); if(s) { s.style.opacity='0'; setTimeout(()=>s.remove(),500); } }, 3500);
 </script>
 </body>
