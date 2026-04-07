@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-  <title>Smart Almox | Almoxarifado CT UFPB + Fila Água Mineral</title>
+  <title>Smart Almox | Almoxarifado CT UFPB</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background-color: #F5F7FA; font-family: 'Inter', system-ui, sans-serif; color: #1E2A3E; padding-bottom: 90px; scroll-behavior: smooth; overflow-x: hidden; }
     
     .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #005BBB 0%, #003D7A 100%); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; transition: opacity 0.5s ease-out; opacity: 1; }
     .splash-content { animation: fadeInUpScale 0.8s ease-out; }
-    .splash-icon-img { width: min(30vw, 140px); max-width: 140px; min-width: 80px; margin-bottom: 24px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2)); animation: gentleFloat 2s infinite ease-in-out; }
-    .splash-title { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.5px; background: white; background-clip: text; -webkit-background-clip: text; color: transparent; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-    .splash-sub { font-size: 0.9rem; opacity: 0.9; margin-top: 8px; }
+    .splash-icon-img { width: min(30vw, 140px); max-width: 140px; margin-bottom: 24px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2)); animation: gentleFloat 2s infinite ease-in-out; }
+    .splash-title { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.5px; background: white; background-clip: text; -webkit-background-clip: text; color: transparent; }
     .modern-loader { margin-top: 32px; width: 200px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
     .modern-loader-bar { width: 0%; height: 100%; background: white; border-radius: 4px; animation: loadingProgress 2s ease-out forwards; }
     @keyframes fadeInUpScale { from { opacity:0; transform: translateY(20px) scale(0.95); } to { opacity:1; transform: translateY(0) scale(1); } }
@@ -28,7 +28,6 @@
     .brand { cursor: pointer; }
     .brand h2 { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #005BBB 0%, #003D7A 100%); background-clip: text; -webkit-background-clip: text; color: transparent; }
     .brand span { font-size: 0.7rem; font-weight: 500; color: #5A6874; }
-    
     .cart-icon-header { position: relative; cursor: pointer; background: #F0F2F5; border-radius: 30px; padding: 8px; display: flex; align-items: center; justify-content: center; margin-left: auto; }
     .cart-count-badge { position: absolute; top: -4px; right: -6px; background: #005BBB; color: white; font-size: 0.7rem; font-weight: 700; border-radius: 30px; padding: 2px 7px; min-width: 20px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
@@ -36,7 +35,6 @@
     .chip-cat { background: #F0F2F5; padding: 8px 18px; border-radius: 40px; font-size: 0.8rem; font-weight: 600; color: #1E2A3E; transition: all 0.2s ease; cursor: pointer; }
     .chip-cat.active { background: #005BBB; color: white; }
 
-    /* Carrossel */
     .carousel-section { max-width: 1400px; margin: 16px auto 0; padding: 0 16px; }
     .carousel-container { position: relative; border-radius: 28px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.08); background: #fff; }
     .carousel-track { display: flex; transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1); }
@@ -45,14 +43,7 @@
     .slide-text h3 { font-size: 1.3rem; font-weight: 800; color: #005BBB; margin-bottom: 8px; }
     .slide-text p { color: #2c3e50; font-weight: 500; }
     .slide-icon { font-size: 48px; background: #005BBB10; border-radius: 60px; padding: 12px; }
-    .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: white; border: none; width: 40px; height: 40px; border-radius: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
-    .carousel-btn.prev { left: 12px; }
-    .carousel-btn.next { right: 12px; }
-    .carousel-dots { display: flex; justify-content: center; gap: 8px; padding: 12px; background: white; }
-    .dot { width: 8px; height: 8px; background: #ccc; border-radius: 10px; cursor: pointer; }
-    .dot.active { width: 24px; background: #005BBB; }
 
-    /* Produtos */
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 18px; padding: 16px; }
     .product-card { background: white; border-radius: 24px; padding: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: all 0.25s; border: 1px solid #edf2f7; display: flex; flex-direction: column; }
     .product-img { background: #F8FAFE; border-radius: 20px; height: 130px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
@@ -62,19 +53,15 @@
     .badge-available { background: #E3F7EC; color: #1E7E34; }
     .badge-low { background: #FFF1E0; color: #B45F06; }
     .badge-out { background: #FFEBEE; color: #B91C1C; }
-    .btn-add-cart { background: #005BBB; width: 100%; border: none; padding: 10px 0; border-radius: 40px; color: white; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-top: auto; transition: 0.2s; }
-    .btn-add-cart:hover { background: #003D7A; }
+    .btn-add-cart { background: #005BBB; width: 100%; border: none; padding: 10px 0; border-radius: 40px; color: white; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-top: auto; }
     .btn-add-cart:disabled { background: #B9CFDF; cursor: not-allowed; }
 
-    /* Modais e Formulários */
     .modal-modern { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(10px); justify-content: center; align-items: center; z-index: 1000; }
     .modal-container { background: white; width: 90%; max-width: 680px; border-radius: 32px; padding: 28px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
     .modal-container h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; color: #1E2A3E; }
-    .modal-sub { color: #5A6874; margin-bottom: 24px; font-size: 0.85rem; border-left: 3px solid #005BBB; padding-left: 12px; }
-    
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
     .input-group { display: flex; flex-direction: column; gap: 6px; }
-    .input-group label { font-size: 0.75rem; font-weight: 600; color: #334155; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+    .input-group label { font-size: 0.75rem; font-weight: 600; color: #334155; text-transform: uppercase; }
     .input-group input, .input-group select { background: #F8FAFE; border: 1px solid #E2E8F0; border-radius: 14px; padding: 12px 14px; font-size: 0.9rem; font-family: inherit; }
     .full-width { grid-column: span 2; }
     @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } .modal-container { padding: 20px; } }
@@ -84,31 +71,22 @@
     .btn-secondary { background: #F1F5F9; color: #334155; border: 1px solid #E2E8F0; padding: 12px; border-radius: 14px; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; width: 100%; transition: 0.2s; }
     .btn-secondary:hover { background: #E2E8F0; }
 
-    /* Bottom Nav */
     .bottom-nav { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); width: calc(100% - 24px); max-width: 500px; background: rgba(255,255,255,0.96); backdrop-filter: blur(20px); display: flex; justify-content: space-around; align-items: center; padding: 8px 16px 12px; border-radius: 48px; box-shadow: 0 8px 28px rgba(0,0,0,0.12); z-index: 105; border: 1px solid rgba(0,91,187,0.1); }
     .nav-item { display: flex; flex-direction: column; align-items: center; background: transparent; border: none; font-weight: 600; font-size: 0.7rem; color: #6C7A8A; gap: 4px; cursor: pointer; border-radius: 40px; padding: 6px 12px; position: relative; }
     .nav-item.active { background: rgba(0,91,187,0.12); color: #005BBB; }
     .nav-item.active::after { content: ''; position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); width: 24px; height: 3px; background: #005BBB; border-radius: 4px; }
 
-    /* Views (SPA) */
     .view-section { display: none; animation: fadeIn 0.3s ease; }
     .view-section.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Botões Grandes Home */
     .home-buttons-container { padding: 16px; max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     @media (max-width: 600px) { .home-buttons-container { grid-template-columns: 1fr; } }
     .big-shortcut { background: white; border-radius: 28px; padding: 24px; display: flex; align-items: center; gap: 20px; box-shadow: 0 8px 20px rgba(0,91,187,0.08); cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
-    .big-shortcut:hover { border-color: #005BBB; transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,91,187,0.15); }
+    .big-shortcut:hover { border-color: #005BBB; transform: translateY(-4px); }
     .big-shortcut-icon { width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; background: #F0F7FF; color: #005BBB; font-size: 32px; }
     .big-shortcut-text h3 { font-size: 1.2rem; font-weight: 800; color: #1E2A3E; margin-bottom: 4px; }
     .big-shortcut-text p { font-size: 0.85rem; color: #6B7A8A; font-weight: 500; }
-
-    /* Carrinho */
-    .cart-item-row { display: flex; align-items: center; gap: 12px; background: #F9FBFD; border-radius: 20px; padding: 12px; margin-bottom: 10px; border: 1px solid #EDF2F7; }
-    .cart-qty-control { display: flex; align-items: center; gap: 8px; margin-left: auto; }
-    .cart-qty-control button { background: #EFF3F8; border: none; width: 32px; height: 32px; border-radius: 30px; font-weight: bold; cursor: pointer; }
-    .cart-remove-btn { background: transparent; color: #ef4444; border: none; cursor: pointer; padding: 8px; margin-left: 8px; }
 
     /* Admin CSS */
     .admin-card { background: white; border-radius: 24px; padding: 24px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow-x: auto; }
@@ -120,16 +98,27 @@
     .admin-tab-btn { background: white; border: 2px solid #E2E8F0; color: #5A6874; padding: 16px; border-radius: 16px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .admin-tab-btn.active { border-color: #005BBB; color: #005BBB; background: #F8FAFE; }
     
-    /* Pedidos Admin Cards */
-    .pedido-admin-card { background: #F8FAFE; border: 1px solid #E2E8F0; border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px; }
+    .pedido-admin-card { background: #F8FAFE; border: 1px solid #E2E8F0; border-radius: 16px; padding: 16px; margin-bottom: 12px; }
     .pedido-admin-header { display: flex; justify-content: space-between; align-items: flex-start; }
     .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; }
-    .status-aguardando { background: #FEF08A; color: #854D0E; }
-    .status-concluido { background: #BBF7D0; color: #166534; }
     
     .search-wrapper { padding: 16px; max-width: 1400px; margin: 0 auto; }
     .search-bar { background: #F0F2F5; border-radius: 32px; display: flex; align-items: center; padding: 12px 16px; gap: 8px; }
-    .search-bar input { background: transparent; border: none; font-size: 0.9rem; width: 100%; outline: none; font-weight: 500; }
+    .search-bar input { background: transparent; border: none; font-size: 0.9rem; width: 100%; outline: none; }
+
+    /* Float WhatsApp */
+    .whatsapp-float { position: fixed; bottom: 90px; right: 20px; background: #25D366; border-radius: 40px; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); cursor: pointer; transition: 0.2s; z-index: 100; text-decoration: none; }
+    .whatsapp-float:hover { transform: scale(1.1); }
+    .whatsapp-float img { width: 32px; height: 32px; filter: brightness(0) invert(1); }
+
+    /* Carrinho Row */
+    .cart-item-row { display: flex; align-items: center; gap: 12px; background: #F9FBFD; border-radius: 20px; padding: 12px; margin-bottom: 10px; border: 1px solid #EDF2F7; }
+    .cart-qty-control { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+    .cart-qty-control button { background: #EFF3F8; border: none; width: 32px; height: 32px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+    .cart-remove-btn { background: transparent; color: #ef4444; border: none; cursor: pointer; padding: 8px; margin-left: 8px; }
+    
+    .refresh-btn-footer { display: flex; align-items: center; justify-content: center; gap: 8px; color: #64748B; background: transparent; border: 1px solid #CBD5E1; padding: 10px 20px; border-radius: 30px; margin: 20px auto; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .refresh-btn-footer:hover { background: #F1F5F9; color: #1E2A3E; }
   </style>
 </head>
 <body>
@@ -138,9 +127,8 @@
   <div class="splash-content">
     <img src="https://cdn-icons-png.flaticon.com/512/3050/3050392.png" alt="Logo" class="splash-icon-img" style="filter: brightness(0) invert(1);">
     <div class="splash-title">Smart Almox</div>
-    <div class="splash-sub">Almoxarifado CT UFPB</div>
+    <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 8px;">Almoxarifado CT UFPB</div>
     <div class="modern-loader"><div class="modern-loader-bar"></div></div>
-    <div class="progress-message" style="margin-top: 16px; font-size: 0.8rem;">Carregando sistema...</div>
   </div>
 </div>
 
@@ -165,41 +153,27 @@
           <div class="slide-text"><h3>📦 Smart Almox</h3><p>Consulte o status antes de se deslocar até o almoxarifado</p></div>
           <div class="slide-icon">🚀</div>
         </div>
-        <div class="carousel-slide">
-          <div class="slide-text"><h3>⚡ Entregas ágeis</h3><p>Materiais separados em até 2h úteis</p></div>
-          <div class="slide-icon">📋</div>
-        </div>
       </div>
-      <button class="carousel-btn prev" id="prevSlideBtn"><i class="material-icons">chevron_left</i></button>
-      <button class="carousel-btn next" id="nextSlideBtn"><i class="material-icons">chevron_right</i></button>
-      <div class="carousel-dots" id="carouselDots"></div>
     </div>
   </div>
 
   <div class="home-buttons-container">
     <div class="big-shortcut" onclick="mudarView('agua')">
       <div class="big-shortcut-icon"><i class="material-icons">local_drink</i></div>
-      <div class="big-shortcut-text">
-        <h3>Água Mineral</h3>
-        <p>Solicitar garrafão de 20L para sua unidade</p>
-      </div>
+      <div class="big-shortcut-text"><h3>Água Mineral</h3><p>Solicitar garrafão de 20L para sua unidade</p></div>
     </div>
     <div class="big-shortcut" onclick="mudarView('materiais')">
       <div class="big-shortcut-icon"><i class="material-icons">inventory_2</i></div>
-      <div class="big-shortcut-text">
-        <h3>Materiais</h3>
-        <p>Expediente, Informática, Limpeza e outros</p>
-      </div>
+      <div class="big-shortcut-text"><h3>Materiais</h3><p>Expediente, Informática, Limpeza e outros</p></div>
     </div>
   </div>
+
+  <button class="refresh-btn-footer" onclick="forcarAtualizacao()"><i class="material-icons">refresh</i> Limpar Cache e Atualizar App</button>
 </div>
 
 <div id="view-materiais" class="view-section">
   <div class="search-wrapper">
-    <div class="search-bar">
-      <i class="material-icons">search</i>
-      <input type="text" id="searchInput" placeholder="Buscar material...">
-    </div>
+    <div class="search-bar"><i class="material-icons">search</i><input type="text" id="searchInput" placeholder="Buscar material..."></div>
   </div>
   <div class="categories-scroll" id="categoryChips"></div>
   <div class="product-grid" id="catalogoContainer"></div>
@@ -211,29 +185,19 @@
     <div id="aguaStatusCard" style="display: none; background: white; border-radius: 24px; padding: 30px; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.08);">
       <i class="material-icons" style="font-size: 64px; color: #005BBB;">hourglass_top</i>
       <h2 style="margin: 16px 0;">Sua Posição: <span id="aguaPosicao">#1</span></h2>
-      <p style="color: #6B7A8A; margin-bottom: 24px;">Seu pedido de água está na fila. Aguarde a entrega no seu setor.</p>
+      <p style="color: #6B7A8A; margin-bottom: 24px;">Seu pedido de água está na fila real. Aguarde a entrega no seu setor.</p>
       <button class="btn-secondary" onclick="cancelarAgua()">Cancelar Solicitação</button>
     </div>
 
     <div id="aguaFormCard" style="background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-      <h2 style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px; color: #1E2A3E;">
-        <i class="material-icons" style="color: #005BBB; font-size: 28px;">local_drink</i> Solicitar Água Mineral
-      </h2>
-      <p style="color: #5A6874; margin-bottom: 24px; font-size: 0.85rem; border-left: 3px solid #005BBB; padding-left: 12px;">Preencha seus dados para entrar na fila de atendimento</p>
-      
+      <h2 style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><i class="material-icons" style="color: #005BBB;">local_drink</i> Solicitar Água</h2>
       <div class="form-grid">
-        <div class="input-group full-width">
-          <label><i class="material-icons">business</i> Setor/Unidade *</label>
-          <select id="aguaSetor">
-            <option disabled selected value="">Selecione o setor</option>
-            <option>Almoxarifado</option><option>Secretaria do CT</option><option>DEM - Mecânica</option><option>DEA - Alimentos</option><option>DECA - Civil</option>
-          </select>
-        </div>
-        <div class="input-group"><label><i class="material-icons">person</i> Nome completo *</label><input type="text" id="aguaNome"></div>
-        <div class="input-group"><label><i class="material-icons">email</i> E-mail institucional *</label><input type="email" id="aguaEmail"></div>
-        <div class="input-group"><label><i class="material-icons">phone</i> WhatsApp *</label><input type="text" id="aguaContato"></div>
-        <div class="input-group"><label><i class="material-icons">badge</i> Perfil</label><select id="aguaPerfil"><option>Discente</option><option>Docente</option><option>Técnico-Administrativo</option></select></div>
-        <div class="input-group"><label><i class="material-icons">work</i> Lotação/Sala *</label><input type="text" id="aguaLotacao"></div>
+        <div class="input-group full-width"><label>Setor/Unidade *</label><select id="aguaSetor"><option value="">Selecione...</option><option>Almoxarifado</option><option>Secretaria</option><option>DEM - Mecânica</option><option>DEA - Alimentos</option><option>DECA - Civil</option></select></div>
+        <div class="input-group"><label>Nome *</label><input type="text" id="aguaNome"></div>
+        <div class="input-group"><label>WhatsApp *</label><input type="text" id="aguaContato" class="mask-whatsapp" placeholder="(83) 90000-0000"></div>
+        <div class="input-group"><label>E-mail *</label><input type="email" id="aguaEmail"></div>
+        <div class="input-group"><label>Perfil</label><select id="aguaPerfil"><option>Técnico-Administrativo</option><option>Docente</option><option>Discente</option></select></div>
+        <div class="input-group"><label>Lotação/Sala *</label><input type="text" id="aguaLotacao"></div>
       </div>
       <button class="btn-primary" onclick="submitAgua()"><i class="material-icons">check_circle</i> Entrar na fila</button>
     </div>
@@ -247,89 +211,138 @@
 <div id="view-admin" class="view-section">
   <div style="max-width: 1400px; margin: 16px auto; padding: 0 16px;">
     
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
       <h2><i class="material-icons" style="vertical-align: middle;">admin_panel_settings</i> Painel Gestor</h2>
-      <button class="btn-secondary" style="width: auto; padding: 8px 16px;" onclick="mudarSenha()">Trocar Senha</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-secondary" style="width: auto; padding: 8px 16px;" onclick="forcarAtualizacao()"><i class="material-icons">refresh</i> Cache</button>
+        <button class="btn-secondary" style="width: auto; padding: 8px 16px;" onclick="mudarSenha()">Trocar Senha</button>
+      </div>
     </div>
 
     <div class="admin-tabs">
-      <button class="admin-tab-btn active" id="btn-tab-cadastrar" onclick="switchAdminTab('cadastrar')"><i class="material-icons">add_box</i> Cadastrar Material</button>
+      <button class="admin-tab-btn" id="btn-tab-cadastrar" onclick="switchAdminTab('cadastrar')"><i class="material-icons">add_box</i> Cadastrar Material</button>
       <button class="admin-tab-btn" id="btn-tab-estoque" onclick="switchAdminTab('estoque')"><i class="material-icons">inventory</i> Gerenciar Estoque</button>
     </div>
 
-    <div id="admin-tab-cadastrar" class="admin-card">
-      <h3 style="margin-bottom: 16px; color: #1E2A3E;">Novo Material / Categoria</h3>
-      <div class="form-grid" style="margin-bottom: 16px;">
+    <div id="admin-tab-cadastrar" class="admin-card" style="display: none;">
+      <h3 style="margin-bottom: 16px;">Novo Material</h3>
+      <div class="form-grid">
         <div class="input-group">
-          <label>Categoria (Selecione ou digite nova)</label>
-          <input type="text" id="adminNovaCat" placeholder="Ex: Ferramentas" list="catList">
-          <datalist id="catList"></datalist>
+          <label>Categoria *</label>
+          <select id="adminNovaCatSelect" onchange="checkNovaCat()">
+             </select>
+          <input type="text" id="adminNovaCatInput" placeholder="Digite a nova categoria..." style="display:none; margin-top:8px;">
         </div>
-        <div class="input-group"><label>Nome do Item</label><input type="text" id="adminNovoNome" placeholder="Ex: Grampeador"></div>
-        <div class="input-group"><label>URL da Imagem</label><input type="text" id="adminNovaImg" placeholder="https://link-da-imagem.jpg"></div>
+        <div class="input-group"><label>Nome do Item *</label><input type="text" id="adminNovoNome"></div>
+        <div class="input-group"><label>URL da Imagem</label><input type="text" id="adminNovaImg" placeholder="https://..."></div>
         <div class="input-group"><label>Estoque Inicial</label><input type="number" id="adminNovoEstoque" value="0"></div>
       </div>
-      <button class="btn-primary" style="width: auto; padding: 12px 24px;" onclick="adminAdicionarItem()">Cadastrar no Sistema</button>
+      <button class="btn-primary" style="width: auto; padding: 12px 24px;" onclick="adminAdicionarItem()">Salvar Material</button>
     </div>
 
     <div id="admin-tab-estoque" class="admin-card" style="display: none;">
-      <h3 style="margin-bottom: 16px; color: #1E2A3E;">Registrar Entradas de Estoque</h3>
+      <h3 style="margin-bottom: 16px;">Entradas de Estoque</h3>
       <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Material</th>
-            <th>Estoque Atual</th>
-            <th>Qtd. Entrada</th>
-            <th>Ação</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Material</th><th>Estoque Atual</th><th>Nova Entrada</th><th>Ação</th></tr></thead>
         <tbody id="adminTableBody"></tbody>
       </table>
     </div>
 
     <div class="admin-card" style="margin-top: 24px;">
-      <h3 style="margin-bottom: 16px; color: #B91C1C; display:flex; align-items:center; gap:8px;"><i class="material-icons">pending_actions</i> Pedidos Pendentes / Fila de Água</h3>
+      <h3 style="margin-bottom: 16px; color: #B91C1C;"><i class="material-icons">pending_actions</i> Pendentes / Fila de Água</h3>
       <div id="adminPendentesList"></div>
     </div>
 
     <div class="admin-card">
-      <h3 style="margin-bottom: 16px; color: #1E7E34; display:flex; align-items:center; gap:8px;"><i class="material-icons">history</i> Últimos 10 Pedidos Concluídos</h3>
+      <h3 style="margin-bottom: 16px; color: #1E7E34;"><i class="material-icons">history</i> Últimos 10 Atualizados</h3>
       <div id="adminUltimosList"></div>
-      <button class="btn-secondary" style="margin-top: 16px;" onclick="Swal.fire('Histórico Completo', 'Esta função abrirá um relatório PDF ou CSV nas próximas atualizações.', 'info')">Consultar Todos os Pedidos Anteriores</button>
+      <button class="btn-secondary" style="margin-top: 16px;" onclick="abrirTodosPedidosModal()"><i class="material-icons">list_alt</i> Consultar e Exportar Todos os Pedidos</button>
     </div>
-
   </div>
 </div>
 
 <div id="modalCarrinho" class="modal-modern">
   <div class="modal-container">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
-      <h2><i class="material-icons" style="font-size:28px;">shopping_cart</i> Seu Carrinho</h2>
-      <i class="material-icons" style="cursor:pointer; color:#94a3b8;" onclick="fecharModal('modalCarrinho')">close</i>
+      <h2><i class="material-icons">shopping_cart</i> Carrinho</h2>
+      <i class="material-icons" style="cursor:pointer;" onclick="fecharModal('modalCarrinho')">close</i>
     </div>
     <div id="carrinhoItensList" style="max-height: 40vh; overflow-y: auto; margin-bottom: 20px;"></div>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-      <button class="btn-secondary" onclick="limparCarrinho()"><i class="material-icons">delete_outline</i> Limpar</button>
-      <button class="btn-secondary" onclick="fecharModal('modalCarrinho')">Continuar Pedindo</button>
-      <button class="btn-primary full-width" onclick="abrirCheckout()"><i class="material-icons">assignment</i> Finalizar Pedido</button>
+      <button class="btn-secondary" onclick="limparCarrinho()">Limpar</button>
+      <button class="btn-secondary" onclick="fecharModal('modalCarrinho')">Continuar</button>
+      <button class="btn-primary full-width" onclick="abrirCheckout()"><i class="material-icons">assignment</i> Finalizar</button>
     </div>
   </div>
 </div>
 
 <div id="modalCheckout" class="modal-modern">
   <div class="modal-container">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-      <h2><i class="material-icons" style="font-size:28px;">assignment</i> Finalizar</h2>
-      <i class="material-icons" style="cursor:pointer; color:#94a3b8;" onclick="voltarParaCarrinho()">arrow_back</i>
+    <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
+      <h2><i class="material-icons">assignment</i> Finalizar Requisição</h2>
+      <i class="material-icons" style="cursor:pointer;" onclick="voltarParaCarrinho()">arrow_back</i>
     </div>
     <div class="form-grid">
-      <div class="input-group full-width"><label>Setor/Unidade *</label><select id="reqSetor"><option value="">Selecione...</option><option>Almoxarifado</option><option>Secretaria</option><option>Mecânica</option></select></div>
-      <div class="input-group"><label>Nome *</label><input type="text" id="reqNome"></div>
-      <div class="input-group"><label>WhatsApp *</label><input type="text" id="reqContato"></div>
+      <div class="input-group full-width"><label>Setor/Unidade *</label><select id="reqSetor"><option value="">Selecione...</option><option>Almoxarifado</option><option>Secretaria do CT</option><option>DEM - Mecânica</option><option>DEA - Alimentos</option><option>DECA - Civil</option></select></div>
+      <div class="input-group"><label>Nome completo *</label><input type="text" id="reqNome"></div>
+      <div class="input-group"><label>WhatsApp *</label><input type="text" id="reqContato" class="mask-whatsapp" placeholder="(83) 90000-0000"></div>
+      <div class="input-group"><label>E-mail *</label><input type="email" id="reqEmail"></div>
+      <div class="input-group"><label>Perfil</label><select id="reqPerfil"><option>Discente</option><option>Docente</option><option>Técnico-Administrativo</option></select></div>
+      <div class="input-group"><label>Lotação/Sala *</label><input type="text" id="reqLotacao"></div>
+      <div class="input-group full-width"><label>Assunto</label><input type="text" id="reqAssunto" value="Solicitação de materiais"></div>
     </div>
-    <button class="btn-primary" onclick="finalizarRequisicaoModal()"><i class="material-icons">check_circle</i> Enviar Pedido</button>
+    <button class="btn-primary" onclick="finalizarRequisicaoModal()"><i class="material-icons">send</i> Enviar Pedido</button>
   </div>
 </div>
+
+<div id="modalTodosPedidos" class="modal-modern">
+  <div class="modal-container" style="max-width: 900px;">
+    <div style="display:flex; justify-content:space-between; margin-bottom: 16px;">
+      <h2><i class="material-icons">format_list_bulleted</i> Todos os Pedidos</h2>
+      <i class="material-icons" style="cursor:pointer;" onclick="fecharModal('modalTodosPedidos')">close</i>
+    </div>
+    <div style="display:flex; gap:12px; margin-bottom:16px;">
+      <button class="btn-primary" style="width:auto; padding:8px 16px; background:#1E7E34;" onclick="exportarXLSX()"><i class="material-icons">table_view</i> Gerar XLSX (Excel)</button>
+      <button class="btn-primary" style="width:auto; padding:8px 16px; background:#B91C1C;" onclick="exportarPDF()"><i class="material-icons">picture_as_pdf</i> Gerar PDF</button>
+    </div>
+    <div style="overflow-x: auto; max-height: 50vh;">
+      <table class="admin-table">
+        <thead><tr><th>Data</th><th>Tipo</th><th>Setor</th><th>Solicitante</th><th>Status</th></tr></thead>
+        <tbody id="tabelaTodosPedidosBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="modalEditarPedido" class="modal-modern">
+  <div class="modal-container">
+    <div style="display:flex; justify-content:space-between; margin-bottom: 16px;">
+      <h2><i class="material-icons">edit_note</i> Editar Pedido</h2>
+      <i class="material-icons" style="cursor:pointer;" onclick="fecharModal('modalEditarPedido')">close</i>
+    </div>
+    <div id="editarPedidoHeader" style="margin-bottom:16px; font-size:0.9rem; color:#5A6874;"></div>
+    
+    <div class="input-group full-width" style="margin-bottom: 16px;">
+      <label>Status do Pedido</label>
+      <select id="editPedidoStatus" style="font-weight:bold;">
+        <option value="Aguardando">Aguardando</option>
+        <option value="Aguardando retirada">Aguardando retirada</option>
+        <option value="Entregue">Entregue</option>
+        <option value="Rejeitado">Rejeitado</option>
+        <option value="Cancelado">Cancelado</option>
+      </select>
+    </div>
+
+    <div id="editarPedidoItensContainer"></div>
+    <input type="hidden" id="editPedidoIdAtual">
+    
+    <button class="btn-primary" style="margin-top:20px;" onclick="salvarEdicaoPedido()"><i class="material-icons">save</i> Salvar Alterações</button>
+  </div>
+</div>
+
+<a href="https://wa.me/558332167082" target="_blank" class="whatsapp-float">
+  <img src="https://cdn-icons-png.flaticon.com/512/124/124034.png" alt="WhatsApp">
+</a>
 
 <div class="bottom-nav">
   <button class="nav-item active" data-target="home" onclick="mudarView('home')"><i class="material-icons">home</i><span>Início</span></button>
@@ -339,19 +352,43 @@
 </div>
 
 <script>
+// ---------- Integração App Script ----------
+const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbynotzi-Mu68mNg3ZWbCgC2KTQp7xwaUxWYJEfLvX3i4M1G8J8qFCj_y8L67Jzj6KtWjg/exec";
+function enviarParaGoogleSheets(dados) {
+  fetch(GOOGLE_SHEETS_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dados)
+  }).catch(e => console.error("Erro Planilha:", e));
+}
+
+// ---------- Máscara WhatsApp ----------
+document.querySelectorAll('.mask-whatsapp').forEach(input => {
+  input.addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g, "");
+    if(v.length > 11) v = v.slice(0,11); // Max 11 digitos (DDD + 9)
+    if(v.length > 2) v = `(${v.substring(0,2)}) ${v.substring(2)}`;
+    if(v.length > 10) v = `${v.substring(0,10)}-${v.substring(10)}`;
+    e.target.value = v;
+  });
+});
+function validaWhatsapp(val) { return val.replace(/\D/g, "").length >= 10; }
+
+function forcarAtualizacao() {
+  window.location.href = window.location.pathname + '?t=' + new Date().getTime();
+}
+
 // ---------- BD INICIAL ----------
-let materiaisDB = JSON.parse(localStorage.getItem('dbMateriais_v3')) || [
+let materiaisDB = JSON.parse(localStorage.getItem('dbMateriais_v4')) || [
   { id: '1a', categoria: 'Expediente', nome: 'Caneta azul', imagem: 'https://cdn-icons-png.flaticon.com/512/103/103554.png', estoque: 50 },
   { id: '2b', categoria: 'Expediente', nome: 'Papel A4 (resma)', imagem: 'https://cdn-icons-png.flaticon.com/512/2965/2965311.png', estoque: 20 },
   { id: '3c', categoria: 'Limpeza', nome: 'Copo descartável', imagem: 'https://cdn-icons-png.flaticon.com/512/3024/3024502.png', estoque: 0 }
 ];
-if(!localStorage.getItem('dbMateriais_v3')) localStorage.setItem('dbMateriais_v3', JSON.stringify(materiaisDB));
+if(!localStorage.getItem('dbMateriais_v4')) localStorage.setItem('dbMateriais_v4', JSON.stringify(materiaisDB));
 
-let carrinho = JSON.parse(localStorage.getItem('cartAlmox_v3')) || [];
-// Historico agora atua como BD global de pedidos para simplificar
-let historicoGlobal = JSON.parse(localStorage.getItem('histGlobal_v3')) || []; 
-let filaAgua = JSON.parse(localStorage.getItem('filaAgua_v3')) || [];
-
+let carrinho = JSON.parse(localStorage.getItem('cartAlmox_v4')) || [];
+let historicoGlobal = JSON.parse(localStorage.getItem('histGlobal_v4')) || []; 
+let filaAgua = JSON.parse(localStorage.getItem('filaAgua_v4')) || [];
 let currentFilter = ""; let currentSearch = "";
 
 // ---------- NAVEGAÇÃO SPA ----------
@@ -364,7 +401,7 @@ function mudarView(viewId) {
   if(viewId === 'materiais') { renderChips(); renderCatalogo(); }
   if(viewId === 'orders') renderHistoricoUsuario();
   if(viewId === 'agua') checkAguaStatus();
-  if(viewId === 'admin') { renderAdminEstoque(); renderDatalistCat(); renderAdminPedidos(); }
+  if(viewId === 'admin') { renderAdminEstoque(); renderCategoriasAdmin(); renderAdminPedidos(); }
   window.scrollTo(0,0);
 }
 
@@ -381,25 +418,17 @@ document.getElementById('searchInput').addEventListener('input', (e) => { curren
 function renderCatalogo() {
   const container = document.getElementById('catalogoContainer');
   let filtered = materiaisDB.filter(m => (currentFilter === "" || m.categoria === currentFilter) && (currentSearch === "" || m.nome.toLowerCase().includes(currentSearch.toLowerCase())));
-
   container.innerHTML = filtered.map(item => {
     let badgeClass = item.estoque <= 0 ? 'badge-out' : (item.estoque <= 5 ? 'badge-low' : 'badge-available');
     let badgeText = item.estoque <= 0 ? '❌ Indisponível' : (item.estoque <= 5 ? `⚠️ Baixo (${item.estoque})` : `✅ Disp. (${item.estoque})`);
-    return `<div class="product-card">
-        <div class="product-img"><img src="${item.imagem}" alt="img"></div>
-        <div class="product-title">${item.nome}</div>
-        <div class="badge-stock ${badgeClass}">${badgeText}</div>
-        <button class="btn-add-cart" onclick="addAoCarrinho('${item.id}')" ${item.estoque <= 0 ? 'disabled' : ''}><i class="material-icons">add_shopping_cart</i> Adicionar</button>
-      </div>`;
+    return `<div class="product-card"><div class="product-img"><img src="${item.imagem}"></div><div class="product-title">${item.nome}</div><div class="badge-stock ${badgeClass}">${badgeText}</div><button class="btn-add-cart" onclick="addAoCarrinho('${item.id}')" ${item.estoque <= 0 ? 'disabled' : ''}><i class="material-icons">add_shopping_cart</i> Adicionar</button></div>`;
   }).join('');
 }
 
 function atualizarBadges() { document.getElementById('headerCartBadge').innerText = carrinho.reduce((a,c) => a + c.qtd, 0); }
-function salvarCarrinho() { localStorage.setItem('cartAlmox_v3', JSON.stringify(carrinho)); atualizarBadges(); renderCarrinho(); }
-
+function salvarCarrinho() { localStorage.setItem('cartAlmox_v4', JSON.stringify(carrinho)); atualizarBadges(); renderCarrinho(); }
 function addAoCarrinho(id) {
-  let itemDB = materiaisDB.find(m => m.id === id);
-  let noCarrinho = carrinho.find(c => c.id === id);
+  let itemDB = materiaisDB.find(m => m.id === id); let noCarrinho = carrinho.find(c => c.id === id);
   if(noCarrinho) {
     if(noCarrinho.qtd < itemDB.estoque) noCarrinho.qtd++;
     else return Swal.fire({toast:true, position:'top-end', icon:'error', title:'Limite de estoque', showConfirmButton:false, timer:1500});
@@ -407,18 +436,16 @@ function addAoCarrinho(id) {
   salvarCarrinho(); Swal.fire({toast:true, position:'top-end', icon:'success', title:'Adicionado!', showConfirmButton:false, timer:1000});
 }
 function alterarQtd(id, delta) {
-  let cItem = carrinho.find(c => c.id === id);
-  let dbItem = materiaisDB.find(m => m.id === id);
-  if(!cItem) return;
-  cItem.qtd += delta;
+  let cItem = carrinho.find(c => c.id === id); let dbItem = materiaisDB.find(m => m.id === id);
+  if(!cItem) return; cItem.qtd += delta;
   if(cItem.qtd > dbItem.estoque) cItem.qtd = dbItem.estoque;
   if(cItem.qtd <= 0) carrinho = carrinho.filter(c => c.id !== id);
   salvarCarrinho();
 }
 function renderCarrinho() {
   const container = document.getElementById('carrinhoItensList');
-  if(carrinho.length === 0) return container.innerHTML = '<div style="text-align:center; color:#64748B;">Nenhum item adicionado.</div>';
-  container.innerHTML = carrinho.map(c => `<div class="cart-item-row"><img src="${c.imagem}" style="width:40px; height:40px;"><div style="flex:1; font-weight:600;">${c.nome}</div><div class="cart-qty-control"><button onclick="alterarQtd('${c.id}', -1)">-</button><span>${c.qtd}</span><button onclick="alterarQtd('${c.id}', 1)">+</button></div><button class="cart-remove-btn" onclick="alterarQtd('${c.id}', -999)"><i class="material-icons">delete</i></button></div>`).join('');
+  if(carrinho.length === 0) return container.innerHTML = '<div style="text-align:center; color:#64748B;">Vazio.</div>';
+  container.innerHTML = carrinho.map(c => `<div class="cart-item-row"><img src="${c.imagem}" style="width:40px;"><div style="flex:1; font-weight:600;">${c.nome}</div><div class="cart-qty-control"><button onclick="alterarQtd('${c.id}', -1)">-</button><span>${c.qtd}</span><button onclick="alterarQtd('${c.id}', 1)">+</button></div><button class="cart-remove-btn" onclick="alterarQtd('${c.id}', -999)"><i class="material-icons">delete</i></button></div>`).join('');
 }
 function abrirCarrinho() { renderCarrinho(); document.getElementById('modalCarrinho').style.display = 'flex'; }
 function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
@@ -429,22 +456,29 @@ function voltarParaCarrinho() { fecharModal('modalCheckout'); abrirCarrinho(); }
 function finalizarRequisicaoModal() {
   const setor = document.getElementById('reqSetor').value;
   const nome = document.getElementById('reqNome').value.trim();
-  if(!setor || !nome) return Swal.fire('Atenção', 'Preencha Setor e Nome', 'error');
+  const whatsapp = document.getElementById('reqContato').value;
+  const email = document.getElementById('reqEmail').value.trim();
+  const perfil = document.getElementById('reqPerfil').value;
+  const lotacao = document.getElementById('reqLotacao').value.trim();
 
-  // Abater do estoque provisoriamente
+  if(!setor || !nome || !whatsapp || !email || !lotacao) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios (*)', 'error');
+  if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido. Digite o DDD e os números.', 'error');
+
   carrinho.forEach(c => { let dbM = materiaisDB.find(m => m.id === c.id); if(dbM) dbM.estoque -= c.qtd; });
-  localStorage.setItem('dbMateriais_v3', JSON.stringify(materiaisDB));
+  localStorage.setItem('dbMateriais_v4', JSON.stringify(materiaisDB));
 
-  let pedido = { id: Date.now(), tipo: 'Material', data: new Date().toLocaleString(), setor, nome, itens: [...carrinho], status: 'Aguardando' };
-  historicoGlobal.unshift(pedido); localStorage.setItem('histGlobal_v3', JSON.stringify(historicoGlobal));
+  let pedido = { id: Date.now(), tipo: 'Material', data: new Date().toLocaleString(), setor, nome, whatsapp, email, perfil, lotacao, itens: [...carrinho], status: 'Aguardando' };
+  historicoGlobal.unshift(pedido); localStorage.setItem('histGlobal_v4', JSON.stringify(historicoGlobal));
+
+  enviarParaGoogleSheets({ tipo: "requisicao", nome, setor, whatsapp, email, lotacao, itens: carrinho.map(i=>`${i.nome}(${i.qtd})`).join(', ') });
 
   Swal.fire('✅ Enviada!', 'Acompanhe na aba Meus Pedidos.', 'success');
   limparCarrinho(); fecharModal('modalCheckout'); mudarView('orders');
 }
 
-// ---------- ÁGUA MINERAL (FILA REAL) ----------
+// ---------- ÁGUA MINERAL ----------
 function checkAguaStatus() {
-  let meuId = localStorage.getItem('meuPedidoAguaId_v3');
+  let meuId = localStorage.getItem('meuPedidoAguaId_v4');
   if(meuId) {
     let posIndex = filaAgua.findIndex(p => p.id == meuId);
     if(posIndex !== -1) {
@@ -452,58 +486,51 @@ function checkAguaStatus() {
       document.getElementById('aguaStatusCard').style.display = 'block';
       document.getElementById('aguaPosicao').innerText = `#${posIndex + 1}`;
     } else {
-      // Admin já despachou ou rejeitou
-      localStorage.removeItem('meuPedidoAguaId_v3');
+      localStorage.removeItem('meuPedidoAguaId_v4');
       document.getElementById('aguaFormCard').style.display = 'block';
       document.getElementById('aguaStatusCard').style.display = 'none';
     }
-  } else {
-    document.getElementById('aguaFormCard').style.display = 'block';
-    document.getElementById('aguaStatusCard').style.display = 'none';
-  }
+  } else { document.getElementById('aguaFormCard').style.display = 'block'; document.getElementById('aguaStatusCard').style.display = 'none'; }
 }
 
 function submitAgua() {
   const setor = document.getElementById('aguaSetor').value;
   const nome = document.getElementById('aguaNome').value;
-  if(!setor || !nome) return Swal.fire('Atenção', 'Preencha Setor e Nome', 'error');
+  const whatsapp = document.getElementById('aguaContato').value;
+  const lotacao = document.getElementById('aguaLotacao').value;
+
+  if(!setor || !nome || !whatsapp || !lotacao) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios', 'error');
+  if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido.', 'error');
 
   let id = Date.now();
-  let pedidoAgua = { id, tipo: 'Água', data: new Date().toLocaleString(), setor, nome, status: 'Aguardando' };
+  let pAgua = { id, tipo: 'Água', data: new Date().toLocaleString(), setor, nome, whatsapp, lotacao, status: 'Aguardando' };
   
-  filaAgua.push(pedidoAgua); // Vai para o fim da fila real
-  historicoGlobal.unshift(pedidoAgua); // Registro global
+  filaAgua.push(pAgua); historicoGlobal.unshift(pAgua);
+  localStorage.setItem('filaAgua_v4', JSON.stringify(filaAgua)); localStorage.setItem('histGlobal_v4', JSON.stringify(historicoGlobal)); localStorage.setItem('meuPedidoAguaId_v4', id);
 
-  localStorage.setItem('filaAgua_v3', JSON.stringify(filaAgua));
-  localStorage.setItem('histGlobal_v3', JSON.stringify(historicoGlobal));
-  localStorage.setItem('meuPedidoAguaId_v3', id);
+  enviarParaGoogleSheets({ tipo: "filaAgua", nome, setor, whatsapp, lotacao });
 
-  Swal.fire('Entrou na fila!', 'Você está na fila de entrega da água.', 'success');
-  checkAguaStatus();
+  Swal.fire('Entrou na fila!', 'Você está na fila da água.', 'success'); checkAguaStatus();
 }
 
 function cancelarAgua() {
-  let meuId = localStorage.getItem('meuPedidoAguaId_v3');
-  filaAgua = filaAgua.filter(f => f.id != meuId);
-  localStorage.setItem('filaAgua_v3', JSON.stringify(filaAgua));
-  localStorage.removeItem('meuPedidoAguaId_v3');
-  
-  // Atualiza no historico global para "Cancelado"
-  let h = historicoGlobal.find(x => x.id == meuId);
-  if(h) h.status = 'Cancelado';
-  localStorage.setItem('histGlobal_v3', JSON.stringify(historicoGlobal));
-  
+  let meuId = localStorage.getItem('meuPedidoAguaId_v4');
+  filaAgua = filaAgua.filter(f => f.id != meuId); localStorage.setItem('filaAgua_v4', JSON.stringify(filaAgua)); localStorage.removeItem('meuPedidoAguaId_v4');
+  let h = historicoGlobal.find(x => x.id == meuId); if(h) h.status = 'Cancelado'; localStorage.setItem('histGlobal_v4', JSON.stringify(historicoGlobal));
   checkAguaStatus();
 }
 
 // ---------- HISTÓRICO USUÁRIO ----------
 function renderHistoricoUsuario() {
   const cont = document.getElementById('historicoContainer');
-  if(historicoGlobal.length === 0) return cont.innerHTML = '<div style="text-align:center; padding:20px;">Nenhum pedido feito.</div>';
-  
+  if(historicoGlobal.length === 0) return cont.innerHTML = '<div style="text-align:center;">Nenhum pedido feito.</div>';
   cont.innerHTML = historicoGlobal.map(h => {
-    let corStatus = h.status === 'Aguardando' ? '#FEF08A' : (h.status === 'Despachado' || h.status === 'Aceito' ? '#BBF7D0' : '#F3F4F6');
-    let txtStatus = h.status === 'Aguardando' ? '#854D0E' : (h.status === 'Despachado' || h.status === 'Aceito' ? '#166534' : '#374151');
+    let corStatus = '#F3F4F6', txtStatus = '#374151';
+    if(h.status === 'Aguardando') { corStatus='#FEF08A'; txtStatus='#854D0E'; }
+    else if(h.status === 'Aguardando retirada') { corStatus='#DBEAFE'; txtStatus='#1D4ED8'; }
+    else if(h.status === 'Entregue') { corStatus='#BBF7D0'; txtStatus='#166534'; }
+    else if(h.status === 'Cancelado' || h.status === 'Rejeitado') { corStatus='#FEE2E2'; txtStatus='#991B1B'; }
+
     return `<div style="background:white; border-radius:20px; padding:20px; margin-bottom:16px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
       <div style="display:flex; justify-content:space-between; border-bottom:1px solid #edf2f7; padding-bottom:12px; margin-bottom:12px;">
         <div><strong>${h.tipo === 'Água' ? '💧 Água' : '📦 Materiais'} - ${h.setor}</strong><br><span style="font-size:0.8rem; color:#64748B;">${h.data}</span></div>
@@ -516,136 +543,160 @@ function renderHistoricoUsuario() {
 
 // ---------- ADMIN ----------
 function abrirAdmin() {
-  let senhaAtual = localStorage.getItem('senhaAdmin_v3') || "";
-  Swal.fire({ title: 'Acesso Restrito', input: 'password', showCancelButton: true, confirmButtonText: 'Entrar' }).then(res => {
-    if(res.isConfirmed && res.value === senhaAtual) mudarView('admin');
-    else if(res.isConfirmed) Swal.fire('Erro', 'Senha incorreta', 'error');
-  });
+  let senha = localStorage.getItem('senhaAdmin_v4') || "";
+  Swal.fire({ title: 'Acesso Restrito', input: 'password', showCancelButton: true }).then(res => { if(res.isConfirmed && res.value === senha) mudarView('admin'); else if(res.isConfirmed) Swal.fire('Erro', 'Senha incorreta', 'error'); });
 }
-function mudarSenha() { Swal.fire({ title: 'Nova Senha', input: 'password', showCancelButton: true }).then(res => { if(res.isConfirmed) { localStorage.setItem('senhaAdmin_v3', res.value); Swal.fire('Salvo', '', 'success'); } }); }
+function mudarSenha() { Swal.fire({ title: 'Nova Senha', input: 'password', showCancelButton:true }).then(res => { if(res.isConfirmed) localStorage.setItem('senhaAdmin_v4', res.value); }); }
 
 function switchAdminTab(tab) {
-  document.getElementById('btn-tab-cadastrar').classList.remove('active');
-  document.getElementById('btn-tab-estoque').classList.remove('active');
-  document.getElementById('admin-tab-cadastrar').style.display = 'none';
-  document.getElementById('admin-tab-estoque').style.display = 'none';
-  
-  document.getElementById(`btn-tab-${tab}`).classList.add('active');
-  document.getElementById(`admin-tab-${tab}`).style.display = 'block';
+  document.getElementById('btn-tab-cadastrar').classList.remove('active'); document.getElementById('btn-tab-estoque').classList.remove('active');
+  document.getElementById('admin-tab-cadastrar').style.display = 'none'; document.getElementById('admin-tab-estoque').style.display = 'none';
+  document.getElementById(`btn-tab-${tab}`).classList.add('active'); document.getElementById(`admin-tab-${tab}`).style.display = 'block';
 }
 
-// Cadastrar novo item/cat
-function renderDatalistCat() {
+function renderCategoriasAdmin() {
   const cats = [...new Set(materiaisDB.map(m => m.categoria))];
-  document.getElementById('catList').innerHTML = cats.map(c => `<option value="${c}">`).join('');
+  const select = document.getElementById('adminNovaCatSelect');
+  select.innerHTML = '<option value="">Selecione...</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('') + '<option value="NOVA">➕ Criar Nova Categoria...</option>';
 }
+function checkNovaCat() {
+  const select = document.getElementById('adminNovaCatSelect');
+  const input = document.getElementById('adminNovaCatInput');
+  if(select.value === 'NOVA') { input.style.display = 'block'; input.focus(); } else { input.style.display = 'none'; }
+}
+
 function adminAdicionarItem() {
-  const cat = document.getElementById('adminNovaCat').value.trim();
+  let cat = document.getElementById('adminNovaCatSelect').value;
+  if(cat === 'NOVA') cat = document.getElementById('adminNovaCatInput').value.trim();
   const nome = document.getElementById('adminNovoNome').value.trim();
   const img = document.getElementById('adminNovaImg').value.trim() || 'https://cdn-icons-png.flaticon.com/512/3050/3050392.png';
   const est = parseInt(document.getElementById('adminNovoEstoque').value) || 0;
   
   if(!cat || !nome) return Swal.fire('Erro', 'Categoria e Nome obrigatórios', 'error');
-  
   materiaisDB.push({ id: Date.now().toString(), categoria: cat, nome, imagem: img, estoque: est });
-  localStorage.setItem('dbMateriais_v3', JSON.stringify(materiaisDB));
-  
+  localStorage.setItem('dbMateriais_v4', JSON.stringify(materiaisDB));
   Swal.fire('Sucesso', 'Material cadastrado!', 'success');
-  document.getElementById('adminNovaCat').value = ''; document.getElementById('adminNovoNome').value = ''; document.getElementById('adminNovoEstoque').value = '0';
-  renderDatalistCat(); renderAdminEstoque();
+  
+  document.getElementById('adminNovaCatSelect').value = ''; checkNovaCat(); document.getElementById('adminNovaCatInput').value = ''; document.getElementById('adminNovoNome').value = '';
+  renderCategoriasAdmin(); renderAdminEstoque();
 }
 
-// Estoque (Entradas)
 function renderAdminEstoque() {
-  const tbody = document.getElementById('adminTableBody');
-  tbody.innerHTML = materiaisDB.map(m => `
-    <tr>
-      <td style="font-weight:600;">${m.nome} <br><span style="font-size:0.75rem; color:#6B7A8A;">${m.categoria}</span></td>
-      <td style="font-size:1.1rem; font-weight:800; color:#005BBB;">${m.estoque} un</td>
-      <td><input type="number" class="admin-input" id="entrada-${m.id}" placeholder="+ Qtd"></td>
-      <td><button class="btn-primary" style="padding:6px 12px; font-size:0.8rem; width:auto;" onclick="registrarEntrada('${m.id}')">Add Entrada</button></td>
-    </tr>
-  `).join('');
+  document.getElementById('adminTableBody').innerHTML = materiaisDB.map(m => `<tr><td style="font-weight:600;">${m.nome} <br><span style="font-size:0.75rem; color:#6B7A8A;">${m.categoria}</span></td><td style="font-weight:800; color:#005BBB;">${m.estoque} un</td><td><input type="number" class="admin-input" id="entrada-${m.id}" placeholder="+ Qtd"></td><td><button class="btn-primary" style="padding:6px 12px;" onclick="registrarEntrada('${m.id}')">Add</button></td></tr>`).join('');
 }
 function registrarEntrada(id) {
-  let input = document.getElementById(`entrada-${id}`);
-  let qtd = parseInt(input.value);
-  if(!qtd || qtd <= 0) return Swal.fire('Erro', 'Digite um valor válido de entrada.', 'warning');
-  
+  let inpt = document.getElementById(`entrada-${id}`); let qtd = parseInt(inpt.value);
+  if(!qtd || qtd<=0) return;
   let item = materiaisDB.find(m => m.id === id);
-  if(item) {
-    item.estoque += qtd;
-    localStorage.setItem('dbMateriais_v3', JSON.stringify(materiaisDB));
-    input.value = '';
-    Swal.fire({toast:true, position:'top-end', icon:'success', title:'Estoque somado!', showConfirmButton:false, timer:1500});
-    renderAdminEstoque();
-  }
+  if(item) { item.estoque += qtd; localStorage.setItem('dbMateriais_v4', JSON.stringify(materiaisDB)); inpt.value = ''; Swal.fire({toast:true, position:'top-end', icon:'success', title:'Salvo', showConfirmButton:false, timer:1000}); renderAdminEstoque(); }
 }
 
-// Gestão de Pedidos Pendentes e Últimos
 function renderAdminPedidos() {
   let pendentes = historicoGlobal.filter(h => h.status === 'Aguardando');
   let ultimos10 = historicoGlobal.filter(h => h.status !== 'Aguardando').slice(0, 10);
 
   const listPend = document.getElementById('adminPendentesList');
-  if(pendentes.length === 0) listPend.innerHTML = '<p style="color:#6B7A8A;">Nenhum pedido pendente.</p>';
+  if(pendentes.length === 0) listPend.innerHTML = '<p>Nenhum pedido pendente.</p>';
   else {
     listPend.innerHTML = pendentes.map(p => {
       let isAgua = p.tipo === 'Água';
-      // Se for água, mostrar botão furafila "Despachar Urgente"
-      let acoes = isAgua 
-        ? `<button class="btn-primary" style="width:auto; padding:6px 12px; background:#005BBB;" onclick="adminMudarStatusPedido('${p.id}', 'Despachado')"><i class="material-icons" style="font-size:16px;">local_shipping</i> Despachar Furafila</button>`
-        : `<button class="btn-primary" style="width:auto; padding:6px 12px; background:#166534;" onclick="adminMudarStatusPedido('${p.id}', 'Aceito')">Aceitar</button>
-           <button class="btn-secondary" style="width:auto; padding:6px 12px; color:#B91C1C;" onclick="adminMudarStatusPedido('${p.id}', 'Rejeitado')">Rejeitar</button>`;
-      
-      return `
-      <div class="pedido-admin-card" style="border-left: 4px solid ${isAgua ? '#005BBB' : '#F59E0B'};">
-        <div class="pedido-admin-header">
-          <div><strong>${isAgua ? '💧 Água Mineral' : '📦 Materiais'} - ${p.setor}</strong><br><span style="font-size:0.8rem; color:#64748B;">Solicitante: ${p.nome} | ${p.data}</span></div>
-          <span class="badge-status status-aguardando">Aguardando</span>
-        </div>
-        ${!isAgua ? `<div style="font-size:0.85rem; background:white; padding:8px; border-radius:8px;">${p.itens.map(i=>`${i.nome} (${i.qtd})`).join(', ')}</div>` : ''}
-        <div style="display:flex; gap:8px; margin-top:8px;">${acoes}</div>
-      </div>`;
+      let acoes = isAgua ? `<button class="btn-primary" style="padding:6px; background:#005BBB; width:auto;" onclick="despacharAgua('${p.id}')"><i class="material-icons">local_shipping</i> Despachar</button>` 
+                         : `<button class="btn-primary" style="padding:6px; background:#166534; width:auto;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons">edit</i> Editar & Gerenciar</button>`;
+      return `<div class="pedido-admin-card" style="border-left: 4px solid ${isAgua ? '#005BBB' : '#F59E0B'};"><div class="pedido-admin-header"><div><strong>${isAgua ? '💧 Água' : '📦 Materiais'} - ${p.setor}</strong><br><span style="font-size:0.8rem;">${p.nome} | Whats: ${p.whatsapp||'N/A'}</span></div><span class="badge-status status-aguardando">Aguardando</span></div><div style="margin-top:8px;">${acoes}</div></div>`;
     }).join('');
   }
 
-  const listUlt = document.getElementById('adminUltimosList');
-  if(ultimos10.length === 0) listUlt.innerHTML = '<p style="color:#6B7A8A;">Nenhum pedido concluído.</p>';
-  else {
-    listUlt.innerHTML = ultimos10.map(p => `
-      <div style="padding:10px; border-bottom:1px solid #EDF2F7; display:flex; justify-content:space-between;">
-        <div style="font-size:0.85rem;"><strong>${p.tipo}</strong> - ${p.setor} (${p.nome})<br><span style="color:#94a3b8;">${p.data}</span></div>
-        <div style="font-weight:bold; font-size:0.8rem; color:${p.status==='Rejeitado'?'#B91C1C':'#166534'};">${p.status}</div>
+  document.getElementById('adminUltimosList').innerHTML = ultimos10.length === 0 ? '<p>Nenhum atualizado.</p>' : ultimos10.map(p => `
+    <div style="padding:10px; border-bottom:1px solid #EDF2F7; display:flex; justify-content:space-between; align-items:center;">
+      <div style="font-size:0.85rem;"><strong>${p.tipo}</strong> - ${p.setor} (${p.nome})</div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span style="font-weight:bold; font-size:0.8rem;">${p.status}</span>
+        <button class="btn-secondary" style="padding:4px; border:none;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons" style="font-size:18px;">edit</i></button>
+      </div>
+    </div>`).join('');
+}
+
+function despacharAgua(id) {
+  let p = historicoGlobal.find(h => h.id == id);
+  if(p) { p.status = 'Entregue'; filaAgua = filaAgua.filter(f => f.id != id); localStorage.setItem('filaAgua_v4', JSON.stringify(filaAgua)); localStorage.setItem('histGlobal_v4', JSON.stringify(historicoGlobal)); renderAdminPedidos(); }
+}
+
+// ---------- Edição de Pedidos ----------
+function abrirEdicaoPedido(id) {
+  let pedido = historicoGlobal.find(h => h.id == id);
+  if(!pedido) return;
+  document.getElementById('editPedidoIdAtual').value = id;
+  document.getElementById('editarPedidoHeader').innerHTML = `<strong>Solicitante:</strong> ${pedido.nome}<br><strong>Setor:</strong> ${pedido.setor}<br><strong>Whats:</strong> ${pedido.whatsapp||'N/A'}`;
+  document.getElementById('editPedidoStatus').value = pedido.status;
+
+  const contItens = document.getElementById('editarPedidoItensContainer');
+  if(pedido.tipo === 'Material' && pedido.itens) {
+    contItens.innerHTML = '<h4 style="margin-bottom:8px;">Itens Solicitados:</h4>' + pedido.itens.map((item, idx) => `
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; background:#F8FAFE; padding:8px; border-radius:8px;">
+        <span style="flex:1; font-size:0.9rem;">${item.nome}</span>
+        <input type="number" id="editItemQtd_${idx}" value="${item.qtd}" style="width:60px; padding:4px; text-align:center; border:1px solid #cbd5e1; border-radius:4px;"> un
       </div>
     `).join('');
-  }
+  } else { contItens.innerHTML = ''; }
+  document.getElementById('modalEditarPedido').style.display = 'flex';
 }
 
-function adminMudarStatusPedido(id, novoStatus) {
+function salvarEdicaoPedido() {
+  let id = document.getElementById('editPedidoIdAtual').value;
   let pedido = historicoGlobal.find(h => h.id == id);
-  if(pedido) {
-    pedido.status = novoStatus;
-    // Se for água, remove da filaAgua real (independente da posição)
-    if(pedido.tipo === 'Água') {
-      filaAgua = filaAgua.filter(f => f.id != id);
-      localStorage.setItem('filaAgua_v3', JSON.stringify(filaAgua));
-    }
-    // Se for material rejeitado, poderia devolver estoque aqui (simplificado: não devolve por enquanto)
-    localStorage.setItem('histGlobal_v3', JSON.stringify(historicoGlobal));
-    renderAdminPedidos();
-    Swal.fire({toast:true, position:'top-end', icon:'success', title:'Status atualizado!', showConfirmButton:false, timer:1500});
+  if(!pedido) return;
+
+  pedido.status = document.getElementById('editPedidoStatus').value;
+  
+  if(pedido.tipo === 'Material' && pedido.itens) {
+    pedido.itens.forEach((item, idx) => {
+      let novaQtd = parseInt(document.getElementById(`editItemQtd_${idx}`).value);
+      if(novaQtd >= 0) item.qtd = novaQtd;
+    });
   }
+  
+  if(pedido.tipo === 'Água' && pedido.status !== 'Aguardando') {
+    filaAgua = filaAgua.filter(f => f.id != id);
+    localStorage.setItem('filaAgua_v4', JSON.stringify(filaAgua));
+  }
+
+  localStorage.setItem('histGlobal_v4', JSON.stringify(historicoGlobal));
+  fecharModal('modalEditarPedido');
+  renderAdminPedidos();
+  Swal.fire({toast:true, position:'top-end', icon:'success', title:'Pedido atualizado!', showConfirmButton:false, timer:1500});
 }
 
-// INICIALIZAÇÃO E CARROSSEL
-let slideIndex = 0; const track = document.getElementById('carouselTrack'); const slides = document.querySelectorAll('.carousel-slide'); const dotsContainer = document.getElementById('carouselDots');
-function updateCarousel() { if(track) track.style.transform = `translateX(-${slideIndex * 100}%)`; document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === slideIndex)); }
-function nextSlide() { slideIndex = (slideIndex + 1) % slides.length; updateCarousel(); }
-function prevSlide() { slideIndex = (slideIndex - 1 + slides.length) % slides.length; updateCarousel(); }
-document.getElementById('prevSlideBtn')?.addEventListener('click', prevSlide); document.getElementById('nextSlideBtn')?.addEventListener('click', nextSlide);
-setInterval(nextSlide, 5000);
+// ---------- Consultar Todos ----------
+function abrirTodosPedidosModal() {
+  document.getElementById('tabelaTodosPedidosBody').innerHTML = historicoGlobal.map(p => `<tr><td>${p.data.split(' ')[0]}</td><td>${p.tipo}</td><td>${p.setor}</td><td>${p.nome}</td><td><strong>${p.status}</strong></td></tr>`).join('');
+  document.getElementById('modalTodosPedidos').style.display = 'flex';
+}
 
+function exportarXLSX() {
+  let dados = historicoGlobal.map(p => ({
+    Data: p.data, Tipo: p.tipo, Setor: p.setor, Solicitante: p.nome,
+    WhatsApp: p.whatsapp, Lotação: p.lotacao, Status: p.status,
+    Itens: p.itens ? p.itens.map(i=>`${i.nome} (${i.qtd})`).join(', ') : ''
+  }));
+  let ws = XLSX.utils.json_to_sheet(dados);
+  let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Pedidos Almox");
+  XLSX.writeFile(wb, "Pedidos_Almox_UFPB.xlsx");
+}
+
+function exportarPDF() {
+  const { jsPDF } = window.jspdf; const doc = new jsPDF();
+  doc.text("Relatório de Pedidos - Smart Almox CT", 15, 15);
+  let y = 25;
+  historicoGlobal.forEach((p, idx) => {
+    if(y > 280) { doc.addPage(); y = 20; }
+    doc.setFontSize(10);
+    doc.text(`${p.data} | ${p.tipo} | ${p.setor} | ${p.nome} | Status: ${p.status}`, 15, y);
+    y += 7;
+  });
+  doc.save("Relatorio_Pedidos.pdf");
+}
+
+// INICIALIZAÇÃO
 setTimeout(() => { const s = document.getElementById('splashScreen'); if(s) { s.style.opacity='0'; setTimeout(()=>s.remove(),500); } }, 1500);
 atualizarBadges();
 </script>
