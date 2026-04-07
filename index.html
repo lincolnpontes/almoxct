@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+  <title>Smart Almox | Almoxarifado CT UFPB</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background-color: #F5F7FA; font-family: 'Inter', system-ui, sans-serif; color: #1E2A3E; padding-bottom: 90px; overflow-x: hidden; }
+    
+    /* Splash Screen */
+    .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #005BBB 0%, #003D7A 100%); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; transition: opacity 0.5s ease-out; }
+    .splash-content { animation: fadeInUpScale 0.8s ease-out; }
+    .splash-title { font-size: 2.5rem; font-weight: 800; margin-top: 16px; }
+    .modern-loader { margin-top: 32px; width: 200px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
+    .modern-loader-bar { width: 0%; height: 100%; background: white; border-radius: 4px; animation: loadingProgress 2s ease-out forwards; }
+    @keyframes fadeInUpScale { from { opacity:0; transform: translateY(20px) scale(0.95); } to { opacity:1; transform: translateY(0) scale(1); } }
+    @keyframes loadingProgress { 0% { width: 0%; } 30% { width: 40%; } 70% { width: 75%; } 100% { width: 100%; } }
+
+    /* Header */
+    .app-header { position: sticky; top: 0; z-index: 110; background: white; padding: 12px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+    .header-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .brand { cursor: pointer; }
+    .brand h2 { font-size: 1.4rem; font-weight: 800; color: #005BBB; }
+    .brand span { font-size: 0.7rem; font-weight: 500; color: #5A6874; }
+    .cart-icon-header { position: relative; cursor: pointer; background: #F0F2F5; border-radius: 30px; padding: 10px; display: flex; align-items: center; justify-content: center; }
+    .cart-count-badge { position: absolute; top: -4px; right: -4px; background: #E63946; color: white; font-size: 0.7rem; font-weight: 700; border-radius: 30px; padding: 2px 6px; min-width: 20px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+    /* Navegação por Views (SPA) */
+    .view-section { display: none; max-width: 1400px; margin: 0 auto; padding: 16px; animation: fadeInView 0.3s ease-out; }
+    .view-section.active { display: block; }
+    @keyframes fadeInView { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Tela Inicial (Home) */
+    .home-hero { text-align: center; padding: 20px 0; }
+    .home-hero h1 { font-size: 1.8rem; color: #1E2A3E; margin-bottom: 8px; }
+    .home-hero p { color: #6C7A8A; font-size: 0.95rem; margin-bottom: 30px; }
+    .big-btn-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .big-btn { background: white; border: 2px solid transparent; border-radius: 24px; padding: 32px 24px; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.06); cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .big-btn:hover { transform: translateY(-5px); border-color: #005BBB; box-shadow: 0 12px 32px rgba(0,91,187,0.15); }
+    .big-btn .icon-wrapper { background: #F0F7FF; color: #005BBB; width: 80px; height: 80px; border-radius: 40px; display: flex; align-items: center; justify-content: center; }
+    .big-btn .icon-wrapper i { font-size: 40px; }
+    .big-btn h3 { font-size: 1.4rem; font-weight: 700; color: #1E2A3E; }
+    .big-btn p { color: #6C7A8A; font-size: 0.9rem; }
+
+    /* Tela de Materiais */
+    .search-bar { background: white; border-radius: 16px; display: flex; align-items: center; padding: 12px 16px; gap: 8px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .search-bar input { background: transparent; border: none; font-size: 1rem; width: 100%; outline: none; font-weight: 500; }
+    .categories-scroll { overflow-x: auto; display: flex; gap: 10px; padding-bottom: 12px; scrollbar-width: none; margin-bottom: 16px; }
+    .chip-cat { background: white; padding: 10px 20px; border-radius: 40px; font-size: 0.9rem; font-weight: 600; color: #5A6874; transition: all 0.2s ease; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.04); white-space: nowrap; }
+    .chip-cat.active { background: #005BBB; color: white; }
+    
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+    .product-card { background: white; border-radius: 20px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: all 0.2s; border: 1px solid #edf2f7; text-align: center; display: flex; flex-direction: column; }
+    .product-img { background: #F8FAFE; border-radius: 16px; height: 120px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; padding: 10px; }
+    .product-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .product-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; flex-grow: 1; }
+    .badge-stock { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 40px; margin-bottom: 12px; }
+    .badge-available { background: #E3F7EC; color: #1E7E34; }
+    .badge-out { background: #FFEBEE; color: #B91C1C; }
+    .btn-add-cart { background: #005BBB; width: 100%; border: none; padding: 10px 0; border-radius: 12px; color: white; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: 0.2s; }
+    .btn-add-cart:hover { background: #004499; }
+    .btn-add-cart:disabled { background: #CBD5E1; cursor: not-allowed; }
+
+    /* Bottom Nav */
+    .bottom-nav { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 600px; background: white; display: flex; justify-content: space-around; align-items: center; padding: 12px 8px; border-radius: 30px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); z-index: 105; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; background: transparent; border: none; font-weight: 600; font-size: 0.75rem; color: #94A3B8; gap: 4px; cursor: pointer; transition: all 0.2s; padding: 4px 12px; border-radius: 20px; }
+    .nav-item i { font-size: 24px; transition: 0.2s; }
+    .nav-item.active { color: #005BBB; background: #F0F7FF; }
+    .nav-item.active i { transform: scale(1.1); }
+
+    /* Modais */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
+    .modal-container { background: white; width: 100%; max-width: 600px; border-radius: 24px; padding: 24px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h2 { font-size: 1.4rem; display: flex; align-items: center; gap: 8px; }
+    .close-modal { background: #F1F5F9; border: none; width: 36px; height: 36px; border-radius: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    
+    /* Carrinho Modal */
+    .cart-item { display: flex; align-items: center; gap: 12px; background: #F8FAFE; border-radius: 16px; padding: 12px; margin-bottom: 12px; }
+    .cart-item-img { width: 50px; height: 50px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .cart-item-img img { max-width: 40px; max-height: 40px; }
+    .cart-item-info { flex: 1; }
+    .cart-item-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+    .cart-qty-control { display: flex; align-items: center; gap: 12px; }
+    .cart-qty-control button { background: white; border: 1px solid #E2E8F0; width: 28px; height: 28px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .cart-remove { background: #FEF2F2; color: #DC2626; border: none; width: 36px; height: 36px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .cart-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+    .btn-primary { background: #005BBB; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; font-size: 1rem; }
+    .btn-secondary { background: #F1F5F9; color: #475569; border: none; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; font-size: 1rem; }
+
+    /* Formulários */
+    .input-group { margin-bottom: 16px; }
+    .input-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+    .input-group input, .input-group select { width: 100%; background: #F8FAFE; border: 1px solid #E2E8F0; border-radius: 12px; padding: 12px 16px; font-size: 1rem; font-family: inherit; }
+    .input-group input:focus, .input-group select:focus { outline: none; border-color: #005BBB; background: white; }
+
+    /* Status / Requisições */
+    .req-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #E2E8F0; }
+    .req-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #F1F5F9; }
+    .req-date { font-size: 0.85rem; color: #64748B; font-weight: 500; }
+    .req-status { background: #EFF6FF; color: #1D4ED8; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+    .req-items { list-style: none; }
+    .req-items li { display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 6px; padding: 4px 0; border-bottom: 1px dashed #F1F5F9; }
+    
+    /* Água Mineral View */
+    .water-status-card { background: linear-gradient(135deg, #005BBB, #003D7A); color: white; border-radius: 24px; padding: 32px 24px; text-align: center; margin-bottom: 24px; box-shadow: 0 12px 24px rgba(0,91,187,0.2); }
+    .water-status-card i { font-size: 48px; margin-bottom: 16px; opacity: 0.9; }
+    .pos-fila { font-size: 3rem; font-weight: 800; margin: 10px 0; line-height: 1; }
+
+    /* Admin View */
+    .admin-table { width: 100%; border-collapse: collapse; margin-top: 16px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .admin-table th, .admin-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #F1F5F9; }
+    .admin-table th { background: #F8FAFE; font-weight: 600; color: #475569; }
+    .admin-input-stock { width: 80px; padding: 6px; border: 1px solid #CBD5E1; border-radius: 8px; text-align: center; }
+  </style>
+</head>
+<body>
+
+<div class="splash-screen" id="splashScreen">
+  <div class="splash-content">
+    <i class="material-icons" style="font-size: 80px;">inventory_2</i>
+    <div class="splash-title">Smart Almox</div>
+    <div style="opacity: 0.9;">CT UFPB</div>
+    <div class="modern-loader"><div class="modern-loader-bar"></div></div>
+  </div>
+</div>
+
+<header class="app-header">
+  <div class="header-row">
+    <div class="brand" onclick="abrirAdmin()">
+      <h2>Smart Almox</h2>
+      <span>Almoxarifado CT UFPB</span>
+    </div>
+    <div class="cart-icon-header" onclick="abrirCarrinho()">
+      <i class="material-icons">shopping_cart</i>
+      <span id="headerCartBadge" class="cart-count-badge">0</span>
+    </div>
+  </div>
+</header>
+
+<div id="view-home" class="view-section active">
+  <div class="home-hero">
+    <h1>Olá, bem-vindo!</h1>
+    <p>O que você precisa do almoxarifado hoje?</p>
+  </div>
+  <div class="big-btn-grid">
+    <div class="big-btn" onclick="mudarView('agua')">
+      <div class="icon-wrapper"><i class="material-icons">local_drink</i></div>
+      <div>
+        <h3>Água Mineral</h3>
+        <p>Solicite garrafões de 20L para o seu setor</p>
+      </div>
+    </div>
+    <div class="big-btn" onclick="mudarView('materiais')">
+      <div class="icon-wrapper"><i class="material-icons">inventory</i></div>
+      <div>
+        <h3>Materiais</h3>
+        <p>Expediente, informática, limpeza e outros</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="view-materiais" class="view-section">
+  <div class="search-bar">
+    <i class="material-icons" style="color: #94A3B8;">search</i>
+    <input type="text" id="searchInput" placeholder="Buscar material...">
+  </div>
+  <div class="categories-scroll" id="categoryChips"></div>
+  <div class="product-grid" id="catalogoContainer"></div>
+</div>
+
+<div id="view-agua" class="view-section">
+  <div id="waterRequestedState" style="display: none;">
+    <div class="water-status-card">
+      <i class="material-icons">hourglass_empty</i>
+      <h3>Sua posição na fila</h3>
+      <div class="pos-fila" id="waterPositionDisplay">#1</div>
+      <p>Aguarde, seu garrafão de 20L será entregue em breve.</p>
+    </div>
+    <button class="btn-secondary" onclick="cancelarAgua()">Cancelar Pedido</button>
+  </div>
+
+  <div id="waterFormState">
+    <h2 style="margin-bottom: 16px; display:flex; align-items:center; gap:8px;">
+      <i class="material-icons" style="color:#005BBB;">local_drink</i> Solicitar Água
+    </h2>
+    <div style="background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+      <div class="input-group">
+        <label>Setor/Unidade *</label>
+        <select id="aguaSetor">
+          <option value="">Selecione...</option>
+          <option>Secretaria do CT</option>
+          <option>DEM - Mecânica</option>
+          <option>DEA - Alimentos</option>
+          <option>DECA - Civil</option>
+        </select>
+      </div>
+      <div class="input-group"><label>Nome completo *</label><input type="text" id="aguaNome"></div>
+      <div class="input-group"><label>Lotação / Sala *</label><input type="text" id="aguaLotacao" placeholder="Ex: Sala 204"></div>
+      <button class="btn-primary" onclick="pedirAgua()">Entrar na fila de entrega</button>
+    </div>
+  </div>
+</div>
+
+<div id="view-orders" class="view-section">
+  <h2 style="margin-bottom: 16px; display:flex; align-items:center; gap:8px;">
+    <i class="material-icons" style="color:#005BBB;">receipt_long</i> Meus Pedidos
+  </h2>
+  <div id="historicoContainer"></div>
+</div>
+
+<div id="view-admin" class="view-section">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+    <h2>Painel do Administrador</h2>
+    <button class="btn-secondary" style="width: auto; padding: 8px 16px;" onclick="mudarSenha()">Trocar Senha</button>
+  </div>
+  <div style="overflow-x: auto;">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Material</th>
+          <th>Categoria</th>
+          <th>Estoque</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody id="adminTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalCarrinho">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2><i class="material-icons">shopping_bag</i> Carrinho</h2>
+      <button class="close-modal" onclick="fecharCarrinho()"><i class="material-icons">close</i></button>
+    </div>
+    <div id="carrinhoLista" style="max-height: 40vh; overflow-y: auto; margin-bottom: 16px;"></div>
+    
+    <div id="carrinhoVazioMsg" style="text-align: center; color: #64748B; padding: 20px; display: none;">
+      Seu carrinho está vazio.
+    </div>
+
+    <div class="cart-actions-grid" id="carrinhoAcoes">
+      <button class="btn-secondary" onclick="limparCarrinho()"><i class="material-icons">delete</i> Limpar</button>
+      <button class="btn-secondary" onclick="fecharCarrinho()"><i class="material-icons">add_shopping_cart</i> Continuar</button>
+      <button class="btn-primary" style="grid-column: span 2;" onclick="abrirCheckout()"><i class="material-icons">check_circle</i> Finalizar Pedido</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalCheckout">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2><i class="material-icons">assignment</i> Dados da Requisição</h2>
+      <button class="close-modal" onclick="document.getElementById('modalCheckout').style.display='none'"><i class="material-icons">arrow_back</i></button>
+    </div>
+    <div class="input-group">
+      <label>Setor/Unidade *</label>
+      <select id="reqSetor">
+        <option value="">Selecione...</option>
+        <option>Secretaria do CT</option>
+        <option>DEM - Mecânica</option>
+        <option>DEA - Alimentos</option>
+        <option>DECA - Civil</option>
+      </select>
+    </div>
+    <div class="input-group"><label>Nome completo *</label><input type="text" id="reqNome"></div>
+    <div class="input-group"><label>WhatsApp *</label><input type="text" id="reqContato"></div>
+    <button class="btn-primary" onclick="finalizarRequisicao()"><i class="material-icons">send</i> Enviar Solicitação</button>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <button class="nav-item active" data-target="home" onclick="mudarView('home')">
+    <i class="material-icons">home</i><span>Início</span>
+  </button>
+  <button class="nav-item" data-target="materiais" onclick="mudarView('materiais')">
+    <i class="material-icons">inventory</i><span>Materiais</span>
+  </button>
+  <button class="nav-item" data-target="agua" onclick="mudarView('agua')">
+    <i class="material-icons">local_drink</i><span>Água</span>
+  </button>
+  <button class="nav-item" data-target="orders" onclick="mudarView('orders')">
+    <i class="material-icons">receipt_long</i><span>Pedidos</span>
+  </button>
+</div>
+
+<script>
+// --- BANCO DE DADOS INICIAL ---
+let materiaisDB = [
+  { id: 1, categoria: "Expediente", nome: "Caneta azul", estoque: 50, img: "https://cdn-icons-png.flaticon.com/512/103/103554.png" },
+  { id: 2, categoria: "Expediente", nome: "Papel A4 (resma)", estoque: 20, img: "https://cdn-icons-png.flaticon.com/512/2965/2965311.png" },
+  { id: 3, categoria: "Informática", nome: "Mouse óptico", estoque: 5, img: "https://cdn-icons-png.flaticon.com/512/3082/3082352.png" },
+  { id: 4, categoria: "Limpeza", nome: "Copo descartável", estoque: 0, img: "https://cdn-icons-png.flaticon.com/512/3024/3024502.png" }
+];
+
+// Se tiver salvo no localStorage (edições do admin), recupera
+if(localStorage.getItem('dbMateriais')) {
+  materiaisDB = JSON.parse(localStorage.getItem('dbMateriais'));
+}
+
+let carrinho = JSON.parse(localStorage.getItem('smartCarrinho')) || [];
+let historico = JSON.parse(localStorage.getItem('smartHistorico')) || [];
+let currentFilter = "";
+let currentSearch = "";
+
+// --- NAVEGAÇÃO SPA ---
+function mudarView(viewId) {
+  document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+  document.getElementById(`view-${viewId}`).classList.add('active');
+  
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const btn = document.querySelector(`.nav-item[data-target="${viewId}"]`);
+  if(btn) btn.classList.add('active');
+
+  if(viewId === 'materiais') { renderCatalogo(); renderChips(); }
+  if(viewId === 'orders') renderHistorico();
+  if(viewId === 'agua') checkAguaStatus();
+  if(viewId === 'admin') renderAdmin();
+  
+  window.scrollTo(0,0);
+}
+
+// --- LÓGICA DE MATERIAIS ---
+function renderChips() {
+  const cats = [...new Set(materiaisDB.map(m => m.categoria))];
+  let html = `<div class="chip-cat ${currentFilter === '' ? 'active' : ''}" onclick="filtrarCat('')">Todos</div>`;
+  cats.forEach(c => {
+    html += `<div class="chip-cat ${currentFilter === c ? 'active' : ''}" onclick="filtrarCat('${c}')">${c}</div>`;
+  });
+  document.getElementById('categoryChips').innerHTML = html;
+}
+
+function filtrarCat(cat) { currentFilter = cat; renderChips(); renderCatalogo(); }
+document.getElementById('searchInput').addEventListener('input', (e) => { currentSearch = e.target.value; renderCatalogo(); });
+
+function renderCatalogo() {
+  const container = document.getElementById('catalogoContainer');
+  let filtered = materiaisDB.filter(m => 
+    (currentFilter === "" || m.categoria === currentFilter) &&
+    (currentSearch === "" || m.nome.toLowerCase().includes(currentSearch.toLowerCase()))
+  );
+
+  container.innerHTML = filtered.map(item => {
+    let badge = item.estoque > 0 ? `<div class="badge-stock badge-available">Disponível (${item.estoque})</div>` : `<div class="badge-stock badge-out">Esgotado</div>`;
+    let btnState = item.estoque > 0 ? `onclick="addCarrinho(${item.id})"` : `disabled`;
+    return `
+      <div class="product-card">
+        <div class="product-img"><img src="${item.img}" alt="img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1212/1212289.png'"></div>
+        <div class="product-title">${item.nome}</div>
+        ${badge}
+        <button class="btn-add-cart" ${btnState}><i class="material-icons">add</i> Adicionar</button>
+      </div>
+    `;
+  }).join('');
+}
+
+// --- CARRINHO ---
+function addCarrinho(id) {
+  let item = materiaisDB.find(m => m.id === id);
+  let noCarrinho = carrinho.find(c => c.id === id);
+  
+  if(noCarrinho) {
+    if(noCarrinho.qtd < item.estoque) noCarrinho.qtd++;
+    else return Swal.fire({toast:true, position:'top-end', icon:'warning', title:'Estoque limite', showConfirmButton:false, timer:1500});
+  } else {
+    carrinho.push({ id: item.id, nome: item.nome, qtd: 1, img: item.img });
+  }
+  salvarCarrinho();
+  Swal.fire({toast:true, position:'top-end', icon:'success', title:'Adicionado!', showConfirmButton:false, timer:1000});
+}
+
+function salvarCarrinho() {
+  localStorage.setItem('smartCarrinho', JSON.stringify(carrinho));
+  let total = carrinho.reduce((acc, c) => acc + c.qtd, 0);
+  document.getElementById('headerCartBadge').innerText = total;
+  renderCarrinho();
+}
+
+function alterarQtd(id, delta) {
+  let item = carrinho.find(c => c.id === id);
+  let dbItem = materiaisDB.find(m => m.id === id);
+  if(!item) return;
+  item.qtd += delta;
+  if(item.qtd > dbItem.estoque) item.qtd = dbItem.estoque;
+  if(item.qtd <= 0) carrinho = carrinho.filter(c => c.id !== id);
+  salvarCarrinho();
+}
+
+function renderCarrinho() {
+  const lista = document.getElementById('carrinhoLista');
+  const vazioMsg = document.getElementById('carrinhoVazioMsg');
+  const acoes = document.getElementById('carrinhoAcoes');
+
+  if(carrinho.length === 0) {
+    lista.innerHTML = '';
+    vazioMsg.style.display = 'block';
+    acoes.style.display = 'none';
+  } else {
+    vazioMsg.style.display = 'none';
+    acoes.style.display = 'grid';
+    lista.innerHTML = carrinho.map(c => `
+      <div class="cart-item">
+        <div class="cart-item-img"><img src="${c.img}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1212/1212289.png'"></div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${c.nome}</div>
+          <div class="cart-qty-control">
+            <button onclick="alterarQtd(${c.id}, -1)">-</button>
+            <span>${c.qtd}</span>
+            <button onclick="alterarQtd(${c.id}, 1)">+</button>
+          </div>
+        </div>
+        <button class="cart-remove" onclick="alterarQtd(${c.id}, -999)"><i class="material-icons">delete</i></button>
+      </div>
+    `).join('');
+  }
+}
+
+function abrirCarrinho() { document.getElementById('modalCarrinho').style.display = 'flex'; renderCarrinho(); }
+function fecharCarrinho() { document.getElementById('modalCarrinho').style.display = 'none'; }
+function limparCarrinho() { carrinho = []; salvarCarrinho(); }
+function abrirCheckout() { fecharCarrinho(); document.getElementById('modalCheckout').style.display = 'flex'; }
+
+function finalizarRequisicao() {
+  const setor = document.getElementById('reqSetor').value;
+  const nome = document.getElementById('reqNome').value;
+  if(!setor || !nome) return Swal.fire('Atenção', 'Preencha setor e nome', 'warning');
+
+  // Baixa no estoque
+  carrinho.forEach(c => {
+    let m = materiaisDB.find(x => x.id === c.id);
+    if(m) m.estoque -= c.qtd;
+  });
+  localStorage.setItem('dbMateriais', JSON.stringify(materiaisDB));
+
+  let pedido = {
+    id: Date.now(),
+    data: new Date().toLocaleString(),
+    setor, nome,
+    itens: [...carrinho],
+    status: 'Em separação'
+  };
+  
+  historico.unshift(pedido);
+  localStorage.setItem('smartHistorico', JSON.stringify(historico));
+  
+  limparCarrinho();
+  document.getElementById('modalCheckout').style.display = 'none';
+  Swal.fire('Sucesso!', 'Requisição enviada ao almoxarifado.', 'success').then(() => mudarView('orders'));
+}
+
+// --- HISTÓRICO DE REQUISIÇÕES ---
+function renderHistorico() {
+  const cont = document.getElementById('historicoContainer');
+  if(historico.length === 0) return cont.innerHTML = '<div style="text-align:center; padding:20px; color:#64748B;">Nenhum pedido feito ainda.</div>';
+  
+  cont.innerHTML = historico.map(h => `
+    <div class="req-card">
+      <div class="req-header">
+        <div>
+          <div style="font-weight:700;">${h.setor}</div>
+          <div class="req-date">${h.data}</div>
+        </div>
+        <div class="req-status">${h.status}</div>
+      </div>
+      <ul class="req-items">
+        ${h.itens.map(i => `<li><span>${i.nome}</span> <strong>${i.qtd} un</strong></li>`).join('')}
+      </ul>
+    </div>
+  `).join('');
+}
+
+// --- LÓGICA DE ÁGUA MINERAL ---
+function checkAguaStatus() {
+  let fila = JSON.parse(localStorage.getItem('smartFilaAgua')) || [];
+  let meuPedidoId = localStorage.getItem('smartMeuPedidoAgua');
+  
+  if(meuPedidoId) {
+    let meuPedido = fila.find(f => f.id == meuPedidoId);
+    if(meuPedido) {
+      document.getElementById('waterFormState').style.display = 'none';
+      document.getElementById('waterRequestedState').style.display = 'block';
+      let posicao = fila.findIndex(f => f.id == meuPedidoId) + 1;
+      document.getElementById('waterPositionDisplay').innerText = `#${posicao}`;
+      return;
+    } else {
+      localStorage.removeItem('smartMeuPedidoAgua'); // Foi finalizado pelo admin
+    }
+  }
+  
+  document.getElementById('waterFormState').style.display = 'block';
+  document.getElementById('waterRequestedState').style.display = 'none';
+}
+
+function pedirAgua() {
+  const setor = document.getElementById('aguaSetor').value;
+  const nome = document.getElementById('aguaNome').value;
+  if(!setor || !nome) return Swal.fire('Atenção', 'Preencha todos os campos.', 'warning');
+
+  let fila = JSON.parse(localStorage.getItem('smartFilaAgua')) || [];
+  let id = Date.now();
+  fila.push({ id, setor, nome, data: new Date().toISOString() });
+  localStorage.setItem('smartFilaAgua', JSON.stringify(fila));
+  localStorage.setItem('smartMeuPedidoAgua', id);
+  
+  Swal.fire('Registrado', 'Você entrou na fila da água!', 'success');
+  checkAguaStatus();
+}
+
+function cancelarAgua() {
+  let fila = JSON.parse(localStorage.getItem('smartFilaAgua')) || [];
+  let meuPedidoId = localStorage.getItem('smartMeuPedidoAgua');
+  fila = fila.filter(f => f.id != meuPedidoId);
+  localStorage.setItem('smartFilaAgua', JSON.stringify(fila));
+  localStorage.removeItem('smartMeuPedidoAgua');
+  checkAguaStatus();
+}
+
+// --- ADMIN ---
+function abrirAdmin() {
+  let senhaAtual = localStorage.getItem('adminSenha') || "";
+  Swal.fire({
+    title: 'Acesso Restrito',
+    input: 'password',
+    inputPlaceholder: 'Digite a senha do admin',
+    showCancelButton: true,
+    confirmButtonText: 'Entrar'
+  }).then(result => {
+    if(result.isConfirmed) {
+      if(result.value === senhaAtual) {
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        mudarView('admin');
+      } else {
+        Swal.fire('Erro', 'Senha incorreta', 'error');
+      }
+    }
+  });
+}
+
+function mudarSenha() {
+  Swal.fire({
+    title: 'Nova Senha', input: 'password', showCancelButton: true
+  }).then(res => {
+    if(res.isConfirmed) {
+      localStorage.setItem('adminSenha', res.value);
+      Swal.fire('Sucesso', 'Senha alterada!', 'success');
+    }
+  });
+}
+
+function renderAdmin() {
+  const tbody = document.getElementById('adminTableBody');
+  tbody.innerHTML = materiaisDB.map(m => `
+    <tr>
+      <td style="font-weight:600;">${m.nome}</td>
+      <td>${m.categoria}</td>
+      <td>
+        <input type="number" class="admin-input-stock" value="${m.estoque}" id="estoque-${m.id}">
+      </td>
+      <td>
+        <button class="btn-primary" style="padding: 6px 12px; border-radius:8px;" onclick="salvarEstoque(${m.id})">Salvar</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function salvarEstoque(id) {
+  let novoEstoque = parseInt(document.getElementById(`estoque-${id}`).value);
+  let item = materiaisDB.find(m => m.id === id);
+  if(item) {
+    item.estoque = novoEstoque;
+    localStorage.setItem('dbMateriais', JSON.stringify(materiaisDB));
+    Swal.fire({toast:true, position:'top-end', icon:'success', title:'Estoque atualizado', showConfirmButton:false, timer:1500});
+  }
+}
+
+// Inicialização
+setTimeout(() => { 
+  document.getElementById('splashScreen').style.opacity = '0';
+  setTimeout(() => document.getElementById('splashScreen').remove(), 500);
+}, 2000);
+
+salvarCarrinho();
+
+</script>
+</body>
+</html>
