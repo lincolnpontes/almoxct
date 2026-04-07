@@ -3,131 +3,142 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-  <title>Smart Almox | Almoxarifado CT UFPB</title>
+  <title>Smart Almox | Almoxarifado CT UFPB + Fila Água Mineral</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
+    /* CSS ORIGINAL PRESERVADO */
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background-color: #F5F7FA; font-family: 'Inter', system-ui, sans-serif; color: #1E2A3E; padding-bottom: 90px; overflow-x: hidden; }
+    body { background-color: #F5F7FA; font-family: 'Inter', system-ui, sans-serif; color: #1E2A3E; padding-bottom: 90px; scroll-behavior: smooth; overflow-x: hidden; }
     
-    /* Splash Screen */
-    .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #005BBB 0%, #003D7A 100%); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; transition: opacity 0.5s ease-out; }
+    .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #005BBB 0%, #003D7A 100%); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; transition: opacity 0.5s ease-out; opacity: 1; }
     .splash-content { animation: fadeInUpScale 0.8s ease-out; }
-    .splash-title { font-size: 2.5rem; font-weight: 800; margin-top: 16px; }
+    .splash-icon-img { width: min(30vw, 140px); max-width: 140px; min-width: 80px; margin-bottom: 24px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2)); animation: gentleFloat 2s infinite ease-in-out; }
+    .splash-title { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.5px; background: white; background-clip: text; -webkit-background-clip: text; color: transparent; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    .splash-sub { font-size: 0.9rem; opacity: 0.9; margin-top: 8px; }
     .modern-loader { margin-top: 32px; width: 200px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
     .modern-loader-bar { width: 0%; height: 100%; background: white; border-radius: 4px; animation: loadingProgress 2s ease-out forwards; }
     @keyframes fadeInUpScale { from { opacity:0; transform: translateY(20px) scale(0.95); } to { opacity:1; transform: translateY(0) scale(1); } }
+    @keyframes gentleFloat { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-6px); } }
     @keyframes loadingProgress { 0% { width: 0%; } 30% { width: 40%; } 70% { width: 75%; } 100% { width: 100%; } }
 
-    /* Header */
     .app-header { position: sticky; top: 0; z-index: 110; background: white; padding: 12px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
-    .header-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .header-row { display: flex; align-items: center; gap: 12px; }
     .brand { cursor: pointer; }
-    .brand h2 { font-size: 1.4rem; font-weight: 800; color: #005BBB; }
+    .brand h2 { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #005BBB 0%, #003D7A 100%); background-clip: text; -webkit-background-clip: text; color: transparent; }
     .brand span { font-size: 0.7rem; font-weight: 500; color: #5A6874; }
-    .cart-icon-header { position: relative; cursor: pointer; background: #F0F2F5; border-radius: 30px; padding: 10px; display: flex; align-items: center; justify-content: center; }
-    .cart-count-badge { position: absolute; top: -4px; right: -4px; background: #E63946; color: white; font-size: 0.7rem; font-weight: 700; border-radius: 30px; padding: 2px 6px; min-width: 20px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    
+    .cart-icon-header { position: relative; cursor: pointer; background: #F0F2F5; border-radius: 30px; padding: 8px; display: flex; align-items: center; justify-content: center; margin-left: auto; }
+    .cart-count-badge { position: absolute; top: -4px; right: -6px; background: #005BBB; color: white; font-size: 0.7rem; font-weight: 700; border-radius: 30px; padding: 2px 7px; min-width: 20px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-    /* Navegação por Views (SPA) */
-    .view-section { display: none; max-width: 1400px; margin: 0 auto; padding: 16px; animation: fadeInView 0.3s ease-out; }
-    .view-section.active { display: block; }
-    @keyframes fadeInView { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Tela Inicial (Home) */
-    .home-hero { text-align: center; padding: 20px 0; }
-    .home-hero h1 { font-size: 1.8rem; color: #1E2A3E; margin-bottom: 8px; }
-    .home-hero p { color: #6C7A8A; font-size: 0.95rem; margin-bottom: 30px; }
-    .big-btn-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-    .big-btn { background: white; border: 2px solid transparent; border-radius: 24px; padding: 32px 24px; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.06); cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 16px; }
-    .big-btn:hover { transform: translateY(-5px); border-color: #005BBB; box-shadow: 0 12px 32px rgba(0,91,187,0.15); }
-    .big-btn .icon-wrapper { background: #F0F7FF; color: #005BBB; width: 80px; height: 80px; border-radius: 40px; display: flex; align-items: center; justify-content: center; }
-    .big-btn .icon-wrapper i { font-size: 40px; }
-    .big-btn h3 { font-size: 1.4rem; font-weight: 700; color: #1E2A3E; }
-    .big-btn p { color: #6C7A8A; font-size: 0.9rem; }
-
-    /* Tela de Materiais */
-    .search-bar { background: white; border-radius: 16px; display: flex; align-items: center; padding: 12px 16px; gap: 8px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-    .search-bar input { background: transparent; border: none; font-size: 1rem; width: 100%; outline: none; font-weight: 500; }
-    .categories-scroll { overflow-x: auto; display: flex; gap: 10px; padding-bottom: 12px; scrollbar-width: none; margin-bottom: 16px; }
-    .chip-cat { background: white; padding: 10px 20px; border-radius: 40px; font-size: 0.9rem; font-weight: 600; color: #5A6874; transition: all 0.2s ease; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.04); white-space: nowrap; }
+    .categories-scroll { overflow-x: auto; display: flex; gap: 12px; padding: 12px 16px; scrollbar-width: thin; white-space: nowrap; background: white; border-bottom: 1px solid #EDF2F7; }
+    .chip-cat { background: #F0F2F5; padding: 8px 18px; border-radius: 40px; font-size: 0.8rem; font-weight: 600; color: #1E2A3E; transition: all 0.2s ease; cursor: pointer; }
     .chip-cat.active { background: #005BBB; color: white; }
-    
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
-    .product-card { background: white; border-radius: 20px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: all 0.2s; border: 1px solid #edf2f7; text-align: center; display: flex; flex-direction: column; }
-    .product-img { background: #F8FAFE; border-radius: 16px; height: 120px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; padding: 10px; }
-    .product-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
-    .product-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; flex-grow: 1; }
-    .badge-stock { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 40px; margin-bottom: 12px; }
+
+    /* Carrossel Original */
+    .carousel-section { max-width: 1400px; margin: 16px auto 0; padding: 0 16px; }
+    .carousel-container { position: relative; border-radius: 28px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.08); background: #fff; }
+    .carousel-track { display: flex; transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1); }
+    .carousel-slide { min-width: 100%; background: linear-gradient(120deg, #F0F7FF 0%, #FFFFFF 100%); padding: 24px 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; justify-content: space-between; }
+    .slide-text { flex: 2; }
+    .slide-text h3 { font-size: 1.3rem; font-weight: 800; color: #005BBB; margin-bottom: 8px; }
+    .slide-text p { color: #2c3e50; font-weight: 500; }
+    .slide-icon { font-size: 48px; background: #005BBB10; border-radius: 60px; padding: 12px; }
+    .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: white; border: none; width: 40px; height: 40px; border-radius: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
+    .carousel-btn.prev { left: 12px; }
+    .carousel-btn.next { right: 12px; }
+    .carousel-dots { display: flex; justify-content: center; gap: 8px; padding: 12px; background: white; }
+    .dot { width: 8px; height: 8px; background: #ccc; border-radius: 10px; cursor: pointer; }
+    .dot.active { width: 24px; background: #005BBB; }
+
+    /* Logistics */
+    .logistics-status { background: white; border-radius: 24px; padding: 12px 20px; margin: 16px auto; max-width: 1400px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #edf2f7; }
+    .indicator { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600; }
+    .led { width: 12px; height: 12px; border-radius: 50%; }
+    .led-green { background: #1E7E34; box-shadow: 0 0 4px #1E7E34; }
+    .led-yellow { background: #F4B942; }
+    .led-red { background: #B91C1C; }
+
+    /* Produtos Original */
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 18px; padding: 16px; }
+    .product-card { background: white; border-radius: 24px; padding: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: all 0.25s; border: 1px solid #edf2f7; display: flex; flex-direction: column; }
+    .product-img { background: #F8FAFE; border-radius: 20px; height: 130px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+    .product-img img { max-width: 100px; max-height: 100px; object-fit: contain; }
+    .product-title { font-weight: 700; font-size: 0.9rem; margin: 8px 0 2px; }
+    .badge-stock { display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 40px; margin: 6px 0; align-self: flex-start; }
     .badge-available { background: #E3F7EC; color: #1E7E34; }
+    .badge-low { background: #FFF1E0; color: #B45F06; }
     .badge-out { background: #FFEBEE; color: #B91C1C; }
-    .btn-add-cart { background: #005BBB; width: 100%; border: none; padding: 10px 0; border-radius: 12px; color: white; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: 0.2s; }
-    .btn-add-cart:hover { background: #004499; }
-    .btn-add-cart:disabled { background: #CBD5E1; cursor: not-allowed; }
+    .btn-add-cart { background: #005BBB; width: 100%; border: none; padding: 10px 0; border-radius: 40px; color: white; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-top: auto; }
+    .btn-add-cart:disabled { background: #B9CFDF; cursor: not-allowed; }
 
-    /* Bottom Nav */
-    .bottom-nav { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 600px; background: white; display: flex; justify-content: space-around; align-items: center; padding: 12px 8px; border-radius: 30px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); z-index: 105; }
-    .nav-item { display: flex; flex-direction: column; align-items: center; background: transparent; border: none; font-weight: 600; font-size: 0.75rem; color: #94A3B8; gap: 4px; cursor: pointer; transition: all 0.2s; padding: 4px 12px; border-radius: 20px; }
-    .nav-item i { font-size: 24px; transition: 0.2s; }
-    .nav-item.active { color: #005BBB; background: #F0F7FF; }
-    .nav-item.active i { transform: scale(1.1); }
-
-    /* Modais */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
-    .modal-container { background: white; width: 100%; max-width: 600px; border-radius: 24px; padding: 24px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: slideUp 0.3s ease-out; }
-    @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .modal-header h2 { font-size: 1.4rem; display: flex; align-items: center; gap: 8px; }
-    .close-modal { background: #F1F5F9; border: none; width: 36px; height: 36px; border-radius: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    /* Modais Originais */
+    .modal-modern { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(10px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-container { background: white; width: 90%; max-width: 680px; border-radius: 32px; padding: 28px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+    .modal-container h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; color: #1E2A3E; }
+    .modal-sub { color: #5A6874; margin-bottom: 24px; font-size: 0.85rem; border-left: 3px solid #005BBB; padding-left: 12px; }
     
-    /* Carrinho Modal */
-    .cart-item { display: flex; align-items: center; gap: 12px; background: #F8FAFE; border-radius: 16px; padding: 12px; margin-bottom: 12px; }
-    .cart-item-img { width: 50px; height: 50px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-    .cart-item-img img { max-width: 40px; max-height: 40px; }
-    .cart-item-info { flex: 1; }
-    .cart-item-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
-    .cart-qty-control { display: flex; align-items: center; gap: 12px; }
-    .cart-qty-control button { background: white; border: 1px solid #E2E8F0; width: 28px; height: 28px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-    .cart-remove { background: #FEF2F2; color: #DC2626; border: none; width: 36px; height: 36px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .cart-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-    .btn-primary { background: #005BBB; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; font-size: 1rem; }
-    .btn-secondary { background: #F1F5F9; color: #475569; border: none; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; font-size: 1rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .input-group { display: flex; flex-direction: column; gap: 6px; }
+    .input-group label { font-size: 0.75rem; font-weight: 600; color: #334155; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+    .input-group label i { font-size: 16px; color: #005BBB; }
+    .input-group input, .input-group select { background: #F8FAFE; border: 1px solid #E2E8F0; border-radius: 14px; padding: 12px 14px; font-size: 0.9rem; font-family: inherit; }
+    .full-width { grid-column: span 2; }
+    @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } .modal-container { padding: 20px; } }
 
-    /* Formulários */
-    .input-group { margin-bottom: 16px; }
-    .input-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
-    .input-group input, .input-group select { width: 100%; background: #F8FAFE; border: 1px solid #E2E8F0; border-radius: 12px; padding: 12px 16px; font-size: 1rem; font-family: inherit; }
-    .input-group input:focus, .input-group select:focus { outline: none; border-color: #005BBB; background: white; }
+    .btn-primary { background: linear-gradient(135deg, #005BBB, #003D7A); color: white; border: none; padding: 14px; border-radius: 16px; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; width: 100%; box-shadow: 0 8px 18px rgba(0,91,187,0.25); }
+    .btn-secondary { background: #F1F5F9; color: #334155; border: 1px solid #E2E8F0; padding: 12px; border-radius: 14px; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; width: 100%; }
 
-    /* Status / Requisições */
-    .req-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #E2E8F0; }
-    .req-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #F1F5F9; }
-    .req-date { font-size: 0.85rem; color: #64748B; font-weight: 500; }
-    .req-status { background: #EFF6FF; color: #1D4ED8; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
-    .req-items { list-style: none; }
-    .req-items li { display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 6px; padding: 4px 0; border-bottom: 1px dashed #F1F5F9; }
-    
-    /* Água Mineral View */
-    .water-status-card { background: linear-gradient(135deg, #005BBB, #003D7A); color: white; border-radius: 24px; padding: 32px 24px; text-align: center; margin-bottom: 24px; box-shadow: 0 12px 24px rgba(0,91,187,0.2); }
-    .water-status-card i { font-size: 48px; margin-bottom: 16px; opacity: 0.9; }
-    .pos-fila { font-size: 3rem; font-weight: 800; margin: 10px 0; line-height: 1; }
+    /* Bottom Nav Original Atualizado */
+    .bottom-nav { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); width: calc(100% - 24px); max-width: 500px; background: rgba(255,255,255,0.96); backdrop-filter: blur(20px); display: flex; justify-content: space-around; align-items: center; padding: 8px 16px 12px; border-radius: 48px; box-shadow: 0 8px 28px rgba(0,0,0,0.12); z-index: 105; border: 1px solid rgba(0,91,187,0.1); }
+    .nav-item { display: flex; flex-direction: column; align-items: center; background: transparent; border: none; font-weight: 600; font-size: 0.7rem; color: #6C7A8A; gap: 4px; cursor: pointer; border-radius: 40px; padding: 6px 12px; position: relative; }
+    .nav-item.active { background: rgba(0,91,187,0.12); color: #005BBB; }
+    .nav-item.active::after { content: ''; position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); width: 24px; height: 3px; background: #005BBB; border-radius: 4px; }
 
-    /* Admin View */
-    .admin-table { width: 100%; border-collapse: collapse; margin-top: 16px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .admin-table th, .admin-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #F1F5F9; }
-    .admin-table th { background: #F8FAFE; font-weight: 600; color: #475569; }
-    .admin-input-stock { width: 80px; padding: 6px; border: 1px solid #CBD5E1; border-radius: 8px; text-align: center; }
+    /* NOVO: SPA Views */
+    .view-section { display: none; animation: fadeIn 0.3s ease; }
+    .view-section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* NOVO: Botões Grandes Home */
+    .home-buttons-container { padding: 16px; max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .home-buttons-container { grid-template-columns: 1fr; } }
+    .big-shortcut { background: white; border-radius: 28px; padding: 24px; display: flex; align-items: center; gap: 20px; box-shadow: 0 8px 20px rgba(0,91,187,0.08); cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+    .big-shortcut:hover { border-color: #005BBB; transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,91,187,0.15); }
+    .big-shortcut-icon { width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; background: #F0F7FF; color: #005BBB; font-size: 32px; }
+    .big-shortcut-text h3 { font-size: 1.2rem; font-weight: 800; color: #1E2A3E; margin-bottom: 4px; }
+    .big-shortcut-text p { font-size: 0.85rem; color: #6B7A8A; font-weight: 500; }
+
+    /* NOVO: Lista do Carrinho no Modal */
+    .cart-item-row { display: flex; align-items: center; gap: 12px; background: #F9FBFD; border-radius: 20px; padding: 12px; margin-bottom: 10px; border: 1px solid #EDF2F7; }
+    .cart-qty-control { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+    .cart-qty-control button { background: #EFF3F8; border: none; width: 32px; height: 32px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+    .cart-remove-btn { background: transparent; color: #ef4444; border: none; cursor: pointer; padding: 8px; margin-left: 8px; }
+
+    /* NOVO: Tabela Admin */
+    .admin-card { background: white; border-radius: 24px; padding: 20px; margin: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow-x: auto; }
+    .admin-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    .admin-table th { background: #F0F2F5; padding: 12px; text-align: left; font-size: 0.85rem; color: #5A6874; }
+    .admin-table td { padding: 12px; border-bottom: 1px solid #EDF2F7; font-size: 0.9rem; }
+    .admin-input { border: 1px solid #CBD5E1; border-radius: 8px; padding: 6px; width: 80px; text-align: center; }
+
+    /* Pesquisa Materiais */
+    .search-wrapper { padding: 16px; max-width: 1400px; margin: 0 auto; }
+    .search-bar { background: #F0F2F5; border-radius: 32px; display: flex; align-items: center; padding: 12px 16px; gap: 8px; }
+    .search-bar input { background: transparent; border: none; font-size: 0.9rem; width: 100%; outline: none; font-weight: 500; }
   </style>
 </head>
 <body>
 
 <div class="splash-screen" id="splashScreen">
   <div class="splash-content">
-    <i class="material-icons" style="font-size: 80px;">inventory_2</i>
+    <img src="https://cdn-icons-png.flaticon.com/512/3050/3050392.png" alt="Logo" class="splash-icon-img" style="filter: brightness(0) invert(1);">
     <div class="splash-title">Smart Almox</div>
-    <div style="opacity: 0.9;">CT UFPB</div>
+    <div class="splash-sub">Almoxarifado CT UFPB</div>
     <div class="modern-loader"><div class="modern-loader-bar"></div></div>
+    <div class="progress-message" style="margin-top: 16px; font-size: 0.8rem;">Carregando sistema...</div>
   </div>
 </div>
 
@@ -145,183 +156,237 @@
 </header>
 
 <div id="view-home" class="view-section active">
-  <div class="home-hero">
-    <h1>Olá, bem-vindo!</h1>
-    <p>O que você precisa do almoxarifado hoje?</p>
+  <div class="carousel-section">
+    <div class="carousel-container">
+      <div class="carousel-track" id="carouselTrack">
+        <div class="carousel-slide">
+          <div class="slide-text"><h3>📦 Smart Almox</h3><p>Consulte o status antes de se deslocar até o almoxarifado</p></div>
+          <div class="slide-icon">🚀</div>
+        </div>
+        <div class="carousel-slide">
+          <div class="slide-text"><h3>⚡ Entregas ágeis</h3><p>Materiais separados em até 2h úteis</p></div>
+          <div class="slide-icon">📋</div>
+        </div>
+        <div class="carousel-slide">
+          <div class="slide-text"><h3>🔔 Estoque em tempo real</h3><p>Indicadores de disponibilidade atualizados</p></div>
+          <div class="slide-icon">📊</div>
+        </div>
+      </div>
+      <button class="carousel-btn prev" id="prevSlideBtn"><i class="material-icons">chevron_left</i></button>
+      <button class="carousel-btn next" id="nextSlideBtn"><i class="material-icons">chevron_right</i></button>
+      <div class="carousel-dots" id="carouselDots"></div>
+    </div>
   </div>
-  <div class="big-btn-grid">
-    <div class="big-btn" onclick="mudarView('agua')">
-      <div class="icon-wrapper"><i class="material-icons">local_drink</i></div>
-      <div>
+
+  <div class="logistics-status">
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+      <div class="indicator"><span class="led led-green"></span> Normal (>5 un.)</div>
+      <div class="indicator"><span class="led led-yellow"></span> Atenção (1-5 un.)</div>
+      <div class="indicator"><span class="led led-red"></span> Crítico (esgotado)</div>
+    </div>
+  </div>
+
+  <div class="home-buttons-container">
+    <div class="big-shortcut" onclick="mudarView('agua')">
+      <div class="big-shortcut-icon"><i class="material-icons">local_drink</i></div>
+      <div class="big-shortcut-text">
         <h3>Água Mineral</h3>
-        <p>Solicite garrafões de 20L para o seu setor</p>
+        <p>Solicitar garrafão de 20L para sua unidade</p>
       </div>
     </div>
-    <div class="big-btn" onclick="mudarView('materiais')">
-      <div class="icon-wrapper"><i class="material-icons">inventory</i></div>
-      <div>
+    <div class="big-shortcut" onclick="mudarView('materiais')">
+      <div class="big-shortcut-icon"><i class="material-icons">inventory_2</i></div>
+      <div class="big-shortcut-text">
         <h3>Materiais</h3>
-        <p>Expediente, informática, limpeza e outros</p>
+        <p>Expediente, Informática, Limpeza e outros</p>
       </div>
     </div>
   </div>
 </div>
 
 <div id="view-materiais" class="view-section">
-  <div class="search-bar">
-    <i class="material-icons" style="color: #94A3B8;">search</i>
-    <input type="text" id="searchInput" placeholder="Buscar material...">
+  <div class="search-wrapper">
+    <div class="search-bar">
+      <i class="material-icons">search</i>
+      <input type="text" id="searchInput" placeholder="Buscar material...">
+    </div>
   </div>
   <div class="categories-scroll" id="categoryChips"></div>
   <div class="product-grid" id="catalogoContainer"></div>
 </div>
 
 <div id="view-agua" class="view-section">
-  <div id="waterRequestedState" style="display: none;">
-    <div class="water-status-card">
-      <i class="material-icons">hourglass_empty</i>
-      <h3>Sua posição na fila</h3>
-      <div class="pos-fila" id="waterPositionDisplay">#1</div>
-      <p>Aguarde, seu garrafão de 20L será entregue em breve.</p>
+  <div style="max-width: 800px; margin: 16px auto; padding: 0 16px;">
+    
+    <div id="aguaStatusCard" style="display: none; background: white; border-radius: 24px; padding: 30px; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.08);">
+      <i class="material-icons" style="font-size: 64px; color: #005BBB;">hourglass_top</i>
+      <h2 style="margin: 16px 0;">Sua Posição: <span id="aguaPosicao">#1</span></h2>
+      <p style="color: #6B7A8A; margin-bottom: 24px;">Seu pedido de água foi registrado. Aguarde a entrega no seu setor.</p>
+      <button class="btn-secondary" onclick="cancelarAgua()">Cancelar Solicitação</button>
     </div>
-    <button class="btn-secondary" onclick="cancelarAgua()">Cancelar Pedido</button>
-  </div>
 
-  <div id="waterFormState">
-    <h2 style="margin-bottom: 16px; display:flex; align-items:center; gap:8px;">
-      <i class="material-icons" style="color:#005BBB;">local_drink</i> Solicitar Água
-    </h2>
-    <div style="background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-      <div class="input-group">
-        <label>Setor/Unidade *</label>
-        <select id="aguaSetor">
-          <option value="">Selecione...</option>
-          <option>Secretaria do CT</option>
-          <option>DEM - Mecânica</option>
-          <option>DEA - Alimentos</option>
-          <option>DECA - Civil</option>
-        </select>
+    <div id="aguaFormCard" style="background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+      <h2 style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px; color: #1E2A3E;">
+        <i class="material-icons" style="color: #005BBB; font-size: 28px;">local_drink</i> Solicitar Água Mineral
+      </h2>
+      <p style="color: #5A6874; margin-bottom: 24px; font-size: 0.85rem; border-left: 3px solid #005BBB; padding-left: 12px;">Preencha seus dados para entrar na fila de atendimento</p>
+      
+      <div class="form-grid">
+        <div class="input-group full-width">
+          <label><i class="material-icons">business</i> Setor/Unidade *</label>
+          <select id="aguaSetor">
+            <option disabled selected value="">Selecione o setor</option>
+            <optgroup label="Setores"><option>Almoxarifado</option><option>Secretaria do CT</option></optgroup>
+            <optgroup label="Departamentos"><option>DEM - Mecânica</option><option>DEA - Alimentos</option><option>DECA - Civil</option></optgroup>
+          </select>
+        </div>
+        <div class="input-group"><label><i class="material-icons">person</i> Nome completo *</label><input type="text" id="aguaNome" placeholder="Ex: João da Silva"></div>
+        <div class="input-group"><label><i class="material-icons">email</i> E-mail institucional *</label><input type="email" id="aguaEmail" placeholder="joao@ufpb.br"></div>
+        <div class="input-group"><label><i class="material-icons">phone</i> WhatsApp *</label><input type="text" id="aguaContato" placeholder="(83) 99999-9999"></div>
+        <div class="input-group"><label><i class="material-icons">badge</i> Perfil</label><select id="aguaPerfil"><option>Discente</option><option>Docente</option><option>Técnico-Administrativo</option></select></div>
+        <div class="input-group"><label><i class="material-icons">work</i> Lotação *</label><input type="text" id="aguaLotacao" placeholder="Ex: CT - Coordenação"></div>
       </div>
-      <div class="input-group"><label>Nome completo *</label><input type="text" id="aguaNome"></div>
-      <div class="input-group"><label>Lotação / Sala *</label><input type="text" id="aguaLotacao" placeholder="Ex: Sala 204"></div>
-      <button class="btn-primary" onclick="pedirAgua()">Entrar na fila de entrega</button>
+      <button class="btn-primary" onclick="submitAgua()"><i class="material-icons">check_circle</i> Entrar na fila</button>
     </div>
   </div>
 </div>
 
 <div id="view-orders" class="view-section">
-  <h2 style="margin-bottom: 16px; display:flex; align-items:center; gap:8px;">
-    <i class="material-icons" style="color:#005BBB;">receipt_long</i> Meus Pedidos
-  </h2>
-  <div id="historicoContainer"></div>
+  <div style="max-width: 800px; margin: 16px auto; padding: 0 16px;" id="historicoContainer">
+    </div>
 </div>
 
 <div id="view-admin" class="view-section">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
-    <h2>Painel do Administrador</h2>
-    <button class="btn-secondary" style="width: auto; padding: 8px 16px;" onclick="mudarSenha()">Trocar Senha</button>
-  </div>
-  <div style="overflow-x: auto;">
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>Material</th>
-          <th>Categoria</th>
-          <th>Estoque</th>
-          <th>Ação</th>
-        </tr>
-      </thead>
-      <tbody id="adminTableBody"></tbody>
-    </table>
-  </div>
-</div>
-
-<div class="modal-overlay" id="modalCarrinho">
-  <div class="modal-container">
-    <div class="modal-header">
-      <h2><i class="material-icons">shopping_bag</i> Carrinho</h2>
-      <button class="close-modal" onclick="fecharCarrinho()"><i class="material-icons">close</i></button>
-    </div>
-    <div id="carrinhoLista" style="max-height: 40vh; overflow-y: auto; margin-bottom: 16px;"></div>
+  <div style="max-width: 1400px; margin: 0 auto;">
     
-    <div id="carrinhoVazioMsg" style="text-align: center; color: #64748B; padding: 20px; display: none;">
-      Seu carrinho está vazio.
+    <div class="admin-card">
+      <h3 style="margin-bottom: 16px; color: #005BBB; display: flex; align-items: center; gap: 8px;">
+        <i class="material-icons">add_box</i> Adicionar Novo Material
+      </h3>
+      <div class="form-grid" style="margin-bottom: 16px;">
+        <div class="input-group"><label>Nome do Item</label><input type="text" id="adminNovoNome" placeholder="Ex: Grampeador"></div>
+        <div class="input-group"><label>Categoria</label><input type="text" id="adminNovaCat" placeholder="Ex: Expediente" list="catList">
+          <datalist id="catList"><option value="Expediente"><option value="Informática"><option value="Limpeza"><option value="Elétrico"></datalist>
+        </div>
+        <div class="input-group"><label>URL da Imagem</label><input type="text" id="adminNovaImg" placeholder="https://link-da-imagem.jpg"></div>
+        <div class="input-group"><label>Estoque Inicial</label><input type="number" id="adminNovoEstoque" value="10"></div>
+      </div>
+      <button class="btn-primary" style="width: auto; padding: 10px 20px;" onclick="adminAdicionarItem()">Cadastrar Material</button>
     </div>
 
-    <div class="cart-actions-grid" id="carrinhoAcoes">
-      <button class="btn-secondary" onclick="limparCarrinho()"><i class="material-icons">delete</i> Limpar</button>
-      <button class="btn-secondary" onclick="fecharCarrinho()"><i class="material-icons">add_shopping_cart</i> Continuar</button>
-      <button class="btn-primary" style="grid-column: span 2;" onclick="abrirCheckout()"><i class="material-icons">check_circle</i> Finalizar Pedido</button>
+    <div class="admin-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+        <h3 style="color: #1E2A3E;">Gerenciar Estoque</h3>
+        <button class="btn-secondary" style="width: auto; padding: 6px 12px;" onclick="mudarSenha()">Trocar Senha</button>
+      </div>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Material</th>
+            <th>Categoria</th>
+            <th>Estoque</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="adminTableBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<div id="modalCarrinho" class="modal-modern">
+  <div class="modal-container">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+      <h2><i class="material-icons" style="font-size:28px;">shopping_cart</i> Seu Carrinho</h2>
+      <i class="material-icons" style="cursor:pointer; color:#94a3b8;" onclick="fecharModal('modalCarrinho')">close</i>
+    </div>
+    
+    <div id="carrinhoItensList" style="max-height: 40vh; overflow-y: auto; margin-bottom: 20px;"></div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <button class="btn-secondary" onclick="limparCarrinho()"><i class="material-icons">delete_outline</i> Limpar</button>
+      <button class="btn-secondary" onclick="fecharModal('modalCarrinho')">Continuar Pedindo</button>
+      <button class="btn-primary full-width" onclick="abrirCheckout()"><i class="material-icons">assignment</i> Preencher Dados e Finalizar</button>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="modalCheckout">
+<div id="modalCheckout" class="modal-modern">
   <div class="modal-container">
-    <div class="modal-header">
-      <h2><i class="material-icons">assignment</i> Dados da Requisição</h2>
-      <button class="close-modal" onclick="document.getElementById('modalCheckout').style.display='none'"><i class="material-icons">arrow_back</i></button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+      <h2><i class="material-icons" style="font-size:28px;">assignment</i> Dados da requisição</h2>
+      <i class="material-icons" style="cursor:pointer; color:#94a3b8;" onclick="voltarParaCarrinho()">arrow_back</i>
     </div>
-    <div class="input-group">
-      <label>Setor/Unidade *</label>
-      <select id="reqSetor">
-        <option value="">Selecione...</option>
-        <option>Secretaria do CT</option>
-        <option>DEM - Mecânica</option>
-        <option>DEA - Alimentos</option>
-        <option>DECA - Civil</option>
-      </select>
+    <div class="modal-sub">Preencha as informações abaixo para finalizar seu pedido de materiais.</div>
+    
+    <div class="form-grid">
+      <div class="input-group full-width">
+        <label><i class="material-icons">business</i> Setor/Unidade *</label>
+        <select id="modalSectorSelect">
+          <option disabled selected value="">Selecione o setor</option>
+          <optgroup label="Setores"><option>Almoxarifado</option><option>Secretaria do CT</option></optgroup>
+          <optgroup label="Departamentos"><option>DEM - Mecânica</option><option>DEA - Alimentos</option><option>DECA - Civil</option></optgroup>
+        </select>
+      </div>
+      <div class="input-group"><label><i class="material-icons">person</i> Nome completo *</label><input type="text" id="nomeSolicitante" placeholder="Ex: João da Silva"></div>
+      <div class="input-group"><label><i class="material-icons">email</i> E-mail institucional *</label><input type="email" id="email" placeholder="joao@ufpb.br"></div>
+      <div class="input-group"><label><i class="material-icons">phone</i> WhatsApp *</label><input type="text" id="contato" placeholder="(83) 99999-9999"></div>
+      <div class="input-group"><label><i class="material-icons">badge</i> Perfil</label><select id="perfil"><option>Discente</option><option>Docente</option><option>Técnico-Administrativo</option></select></div>
+      <div class="input-group"><label><i class="material-icons">work</i> Lotação *</label><input type="text" id="lotacao" placeholder="Ex: CT - Coordenação"></div>
+      <div class="input-group full-width"><label><i class="material-icons">description</i> Assunto</label><input type="text" id="assunto" value="Solicitação de materiais"></div>
     </div>
-    <div class="input-group"><label>Nome completo *</label><input type="text" id="reqNome"></div>
-    <div class="input-group"><label>WhatsApp *</label><input type="text" id="reqContato"></div>
-    <button class="btn-primary" onclick="finalizarRequisicao()"><i class="material-icons">send</i> Enviar Solicitação</button>
+    <button class="btn-primary" onclick="finalizarRequisicaoModal()"><i class="material-icons">check_circle</i> Confirmar e Enviar</button>
   </div>
 </div>
 
 <div class="bottom-nav">
-  <button class="nav-item active" data-target="home" onclick="mudarView('home')">
-    <i class="material-icons">home</i><span>Início</span>
-  </button>
-  <button class="nav-item" data-target="materiais" onclick="mudarView('materiais')">
-    <i class="material-icons">inventory</i><span>Materiais</span>
-  </button>
-  <button class="nav-item" data-target="agua" onclick="mudarView('agua')">
-    <i class="material-icons">local_drink</i><span>Água</span>
-  </button>
-  <button class="nav-item" data-target="orders" onclick="mudarView('orders')">
-    <i class="material-icons">receipt_long</i><span>Pedidos</span>
-  </button>
+  <button class="nav-item active" data-target="home" onclick="mudarView('home')"><i class="material-icons">home</i><span>Início</span></button>
+  <button class="nav-item" data-target="materiais" onclick="mudarView('materiais')"><i class="material-icons">category</i><span>Materiais</span></button>
+  <button class="nav-item" data-target="agua" onclick="mudarView('agua')"><i class="material-icons">local_drink</i><span>Água</span></button>
+  <button class="nav-item" data-target="orders" onclick="mudarView('orders')"><i class="material-icons">receipt</i><span>Pedidos</span></button>
 </div>
 
 <script>
-// --- BANCO DE DADOS INICIAL ---
-let materiaisDB = [
-  { id: 1, categoria: "Expediente", nome: "Caneta azul", estoque: 50, img: "https://cdn-icons-png.flaticon.com/512/103/103554.png" },
-  { id: 2, categoria: "Expediente", nome: "Papel A4 (resma)", estoque: 20, img: "https://cdn-icons-png.flaticon.com/512/2965/2965311.png" },
-  { id: 3, categoria: "Informática", nome: "Mouse óptico", estoque: 5, img: "https://cdn-icons-png.flaticon.com/512/3082/3082352.png" },
-  { id: 4, categoria: "Limpeza", nome: "Copo descartável", estoque: 0, img: "https://cdn-icons-png.flaticon.com/512/3024/3024502.png" }
-];
+// ---------- BANCO DE DADOS E ESTADO ----------
+let materiaisDB = [];
 
-// Se tiver salvo no localStorage (edições do admin), recupera
-if(localStorage.getItem('dbMateriais')) {
-  materiaisDB = JSON.parse(localStorage.getItem('dbMateriais'));
+// Função original de popular itens
+function addItem(categoria, nome, imagem = "https://cdn-icons-png.flaticon.com/512/3050/3050392.png", estoque = 45) { 
+  let id = Math.random().toString(36).substr(2, 9);
+  materiaisDB.push({ id, categoria, nome, imagem, estoque }); 
 }
 
-let carrinho = JSON.parse(localStorage.getItem('smartCarrinho')) || [];
-let historico = JSON.parse(localStorage.getItem('smartHistorico')) || [];
+// População inicial se não tiver salvo no localStorage
+if(localStorage.getItem('dbMateriais_v2')) {
+  materiaisDB = JSON.parse(localStorage.getItem('dbMateriais_v2'));
+} else {
+  const expediente = ["Alfinete para mapas","Apagador","Borracha","Caderno 96fl","Caneta azul","Caneta preta","Clipes","Cola branca","Fita adesiva","Lápis","Papel A4 (resma)","Pasta com aba"];
+  const informatica = ["Cartucho toner","Teclado USB","Mouse óptico","Cabo HDMI","Pendrive 32GB"];
+  const limpeza = ["Desinfetante","Papel toalha","Sabão líquido","Copo descartável"];
+  
+  expediente.forEach(n => addItem("Expediente", n, "https://img.kalunga.com.br/fotosdeprodutos/606061z_1.jpg", Math.floor(Math.random() * 50) + 10));
+  informatica.forEach(n => addItem("Informática", n, "https://m.media-amazon.com/images/I/61lPN616-hL._AC_UF1000,1000_QL80_.jpg", Math.floor(Math.random() * 20) + 2));
+  limpeza.forEach(n => addItem("Limpeza", n, "https://images.tcdn.com.br/img/img_prod/675659/copo_plastico_500ml_caixa_c_1000_linha_economica_551_1_e9d43941586305abcd04283474c58cbd_20220728165256.jpg", Math.floor(Math.random() * 30) + 5));
+  
+  localStorage.setItem('dbMateriais_v2', JSON.stringify(materiaisDB));
+}
+
+let carrinho = JSON.parse(localStorage.getItem('cartAlmox_v2')) || [];
+let historico = JSON.parse(localStorage.getItem('historicoAlmox_v2')) || [];
 let currentFilter = "";
 let currentSearch = "";
 
-// --- NAVEGAÇÃO SPA ---
+// ---------- NAVEGAÇÃO SPA ----------
 function mudarView(viewId) {
   document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
   document.getElementById(`view-${viewId}`).classList.add('active');
   
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  const btn = document.querySelector(`.nav-item[data-target="${viewId}"]`);
-  if(btn) btn.classList.add('active');
+  document.querySelector(`.nav-item[data-target="${viewId}"]`)?.classList.add('active');
 
-  if(viewId === 'materiais') { renderCatalogo(); renderChips(); }
+  if(viewId === 'materiais') { renderChips(); renderCatalogo(); }
   if(viewId === 'orders') renderHistorico();
   if(viewId === 'agua') checkAguaStatus();
   if(viewId === 'admin') renderAdmin();
@@ -329,230 +394,206 @@ function mudarView(viewId) {
   window.scrollTo(0,0);
 }
 
-// --- LÓGICA DE MATERIAIS ---
+// ---------- LÓGICA DE MATERIAIS E CATÁLOGO ----------
 function renderChips() {
   const cats = [...new Set(materiaisDB.map(m => m.categoria))];
   let html = `<div class="chip-cat ${currentFilter === '' ? 'active' : ''}" onclick="filtrarCat('')">Todos</div>`;
-  cats.forEach(c => {
-    html += `<div class="chip-cat ${currentFilter === c ? 'active' : ''}" onclick="filtrarCat('${c}')">${c}</div>`;
-  });
+  cats.forEach(c => { html += `<div class="chip-cat ${currentFilter === c ? 'active' : ''}" onclick="filtrarCat('${c}')">${c}</div>`; });
   document.getElementById('categoryChips').innerHTML = html;
 }
-
 function filtrarCat(cat) { currentFilter = cat; renderChips(); renderCatalogo(); }
 document.getElementById('searchInput').addEventListener('input', (e) => { currentSearch = e.target.value; renderCatalogo(); });
 
 function renderCatalogo() {
   const container = document.getElementById('catalogoContainer');
-  let filtered = materiaisDB.filter(m => 
-    (currentFilter === "" || m.categoria === currentFilter) &&
-    (currentSearch === "" || m.nome.toLowerCase().includes(currentSearch.toLowerCase()))
-  );
+  let filtered = materiaisDB.filter(m => (currentFilter === "" || m.categoria === currentFilter) && (currentSearch === "" || m.nome.toLowerCase().includes(currentSearch.toLowerCase())));
 
   container.innerHTML = filtered.map(item => {
-    let badge = item.estoque > 0 ? `<div class="badge-stock badge-available">Disponível (${item.estoque})</div>` : `<div class="badge-stock badge-out">Esgotado</div>`;
-    let btnState = item.estoque > 0 ? `onclick="addCarrinho(${item.id})"` : `disabled`;
+    let badgeClass = item.estoque <= 0 ? 'badge-out' : (item.estoque <= 5 ? 'badge-low' : 'badge-available');
+    let badgeText = item.estoque <= 0 ? '❌ Indisponível' : (item.estoque <= 5 ? `⚠️ Baixo (${item.estoque})` : `✅ Disp. (${item.estoque})`);
     return `
       <div class="product-card">
-        <div class="product-img"><img src="${item.img}" alt="img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1212/1212289.png'"></div>
+        <div class="product-img"><img src="${item.imagem}" alt="${item.nome}"></div>
         <div class="product-title">${item.nome}</div>
-        ${badge}
-        <button class="btn-add-cart" ${btnState}><i class="material-icons">add</i> Adicionar</button>
-      </div>
-    `;
+        <div class="badge-stock ${badgeClass}">${badgeText}</div>
+        <button class="btn-add-cart" onclick="addAoCarrinho('${item.id}')" ${item.estoque <= 0 ? 'disabled' : ''}>
+          <i class="material-icons">add_shopping_cart</i> Adicionar
+        </button>
+      </div>`;
   }).join('');
 }
 
-// --- CARRINHO ---
-function addCarrinho(id) {
-  let item = materiaisDB.find(m => m.id === id);
+// ---------- CARRINHO ----------
+function atualizarBadges() {
+  let total = carrinho.reduce((a,c) => a + c.qtd, 0);
+  document.getElementById('headerCartBadge').innerText = total;
+}
+
+function salvarCarrinho() {
+  localStorage.setItem('cartAlmox_v2', JSON.stringify(carrinho));
+  atualizarBadges();
+  renderCarrinho();
+}
+
+function addAoCarrinho(id) {
+  let itemDB = materiaisDB.find(m => m.id === id);
   let noCarrinho = carrinho.find(c => c.id === id);
   
   if(noCarrinho) {
-    if(noCarrinho.qtd < item.estoque) noCarrinho.qtd++;
-    else return Swal.fire({toast:true, position:'top-end', icon:'warning', title:'Estoque limite', showConfirmButton:false, timer:1500});
+    if(noCarrinho.qtd < itemDB.estoque) noCarrinho.qtd++;
+    else return Swal.fire({toast:true, position:'top-end', icon:'error', title:'Limite de estoque', showConfirmButton:false, timer:1500});
   } else {
-    carrinho.push({ id: item.id, nome: item.nome, qtd: 1, img: item.img });
+    carrinho.push({ id: itemDB.id, nome: itemDB.nome, imagem: itemDB.imagem, qtd: 1 });
   }
   salvarCarrinho();
   Swal.fire({toast:true, position:'top-end', icon:'success', title:'Adicionado!', showConfirmButton:false, timer:1000});
 }
 
-function salvarCarrinho() {
-  localStorage.setItem('smartCarrinho', JSON.stringify(carrinho));
-  let total = carrinho.reduce((acc, c) => acc + c.qtd, 0);
-  document.getElementById('headerCartBadge').innerText = total;
-  renderCarrinho();
-}
-
 function alterarQtd(id, delta) {
-  let item = carrinho.find(c => c.id === id);
+  let cItem = carrinho.find(c => c.id === id);
   let dbItem = materiaisDB.find(m => m.id === id);
-  if(!item) return;
-  item.qtd += delta;
-  if(item.qtd > dbItem.estoque) item.qtd = dbItem.estoque;
-  if(item.qtd <= 0) carrinho = carrinho.filter(c => c.id !== id);
+  if(!cItem) return;
+  cItem.qtd += delta;
+  if(cItem.qtd > dbItem.estoque) cItem.qtd = dbItem.estoque;
+  if(cItem.qtd <= 0) carrinho = carrinho.filter(c => c.id !== id);
   salvarCarrinho();
 }
 
 function renderCarrinho() {
-  const lista = document.getElementById('carrinhoLista');
-  const vazioMsg = document.getElementById('carrinhoVazioMsg');
-  const acoes = document.getElementById('carrinhoAcoes');
-
+  const container = document.getElementById('carrinhoItensList');
   if(carrinho.length === 0) {
-    lista.innerHTML = '';
-    vazioMsg.style.display = 'block';
-    acoes.style.display = 'none';
-  } else {
-    vazioMsg.style.display = 'none';
-    acoes.style.display = 'grid';
-    lista.innerHTML = carrinho.map(c => `
-      <div class="cart-item">
-        <div class="cart-item-img"><img src="${c.img}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1212/1212289.png'"></div>
-        <div class="cart-item-info">
-          <div class="cart-item-name">${c.nome}</div>
-          <div class="cart-qty-control">
-            <button onclick="alterarQtd(${c.id}, -1)">-</button>
-            <span>${c.qtd}</span>
-            <button onclick="alterarQtd(${c.id}, 1)">+</button>
-          </div>
-        </div>
-        <button class="cart-remove" onclick="alterarQtd(${c.id}, -999)"><i class="material-icons">delete</i></button>
-      </div>
-    `).join('');
+    container.innerHTML = '<div style="text-align:center; padding:20px; color:#64748B;">Nenhum item adicionado.</div>';
+    return;
   }
-}
-
-function abrirCarrinho() { document.getElementById('modalCarrinho').style.display = 'flex'; renderCarrinho(); }
-function fecharCarrinho() { document.getElementById('modalCarrinho').style.display = 'none'; }
-function limparCarrinho() { carrinho = []; salvarCarrinho(); }
-function abrirCheckout() { fecharCarrinho(); document.getElementById('modalCheckout').style.display = 'flex'; }
-
-function finalizarRequisicao() {
-  const setor = document.getElementById('reqSetor').value;
-  const nome = document.getElementById('reqNome').value;
-  if(!setor || !nome) return Swal.fire('Atenção', 'Preencha setor e nome', 'warning');
-
-  // Baixa no estoque
-  carrinho.forEach(c => {
-    let m = materiaisDB.find(x => x.id === c.id);
-    if(m) m.estoque -= c.qtd;
-  });
-  localStorage.setItem('dbMateriais', JSON.stringify(materiaisDB));
-
-  let pedido = {
-    id: Date.now(),
-    data: new Date().toLocaleString(),
-    setor, nome,
-    itens: [...carrinho],
-    status: 'Em separação'
-  };
-  
-  historico.unshift(pedido);
-  localStorage.setItem('smartHistorico', JSON.stringify(historico));
-  
-  limparCarrinho();
-  document.getElementById('modalCheckout').style.display = 'none';
-  Swal.fire('Sucesso!', 'Requisição enviada ao almoxarifado.', 'success').then(() => mudarView('orders'));
-}
-
-// --- HISTÓRICO DE REQUISIÇÕES ---
-function renderHistorico() {
-  const cont = document.getElementById('historicoContainer');
-  if(historico.length === 0) return cont.innerHTML = '<div style="text-align:center; padding:20px; color:#64748B;">Nenhum pedido feito ainda.</div>';
-  
-  cont.innerHTML = historico.map(h => `
-    <div class="req-card">
-      <div class="req-header">
-        <div>
-          <div style="font-weight:700;">${h.setor}</div>
-          <div class="req-date">${h.data}</div>
-        </div>
-        <div class="req-status">${h.status}</div>
+  container.innerHTML = carrinho.map(c => `
+    <div class="cart-item-row">
+      <img src="${c.imagem}" style="width:40px; height:40px; object-fit:contain;">
+      <div style="flex:1; font-weight:600; font-size:0.9rem;">${c.nome}</div>
+      <div class="cart-qty-control">
+        <button onclick="alterarQtd('${c.id}', -1)">-</button>
+        <span>${c.qtd}</span>
+        <button onclick="alterarQtd('${c.id}', 1)">+</button>
       </div>
-      <ul class="req-items">
-        ${h.itens.map(i => `<li><span>${i.nome}</span> <strong>${i.qtd} un</strong></li>`).join('')}
-      </ul>
+      <button class="cart-remove-btn" onclick="alterarQtd('${c.id}', -999)"><i class="material-icons">delete</i></button>
     </div>
   `).join('');
 }
 
-// --- LÓGICA DE ÁGUA MINERAL ---
-function checkAguaStatus() {
-  let fila = JSON.parse(localStorage.getItem('smartFilaAgua')) || [];
-  let meuPedidoId = localStorage.getItem('smartMeuPedidoAgua');
-  
-  if(meuPedidoId) {
-    let meuPedido = fila.find(f => f.id == meuPedidoId);
-    if(meuPedido) {
-      document.getElementById('waterFormState').style.display = 'none';
-      document.getElementById('waterRequestedState').style.display = 'block';
-      let posicao = fila.findIndex(f => f.id == meuPedidoId) + 1;
-      document.getElementById('waterPositionDisplay').innerText = `#${posicao}`;
-      return;
-    } else {
-      localStorage.removeItem('smartMeuPedidoAgua'); // Foi finalizado pelo admin
-    }
-  }
-  
-  document.getElementById('waterFormState').style.display = 'block';
-  document.getElementById('waterRequestedState').style.display = 'none';
+function abrirCarrinho() { renderCarrinho(); document.getElementById('modalCarrinho').style.display = 'flex'; }
+function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
+function limparCarrinho() { carrinho = []; salvarCarrinho(); }
+function abrirCheckout() { 
+  if(carrinho.length === 0) return Swal.fire('Vazio', 'Adicione itens primeiro.', 'warning');
+  fecharModal('modalCarrinho'); 
+  document.getElementById('modalCheckout').style.display = 'flex'; 
+}
+function voltarParaCarrinho() { fecharModal('modalCheckout'); abrirCarrinho(); }
+
+// ---------- FINALIZAR REQUISIÇÃO (MATERIAIS) ----------
+// Mock do envio para o Google Sheets Original
+async function enviarParaGoogleSheets(dados) {
+  console.log("Enviando para planilhas:", dados);
+  // fetch(GOOGLE_SHEETS_URL, { method: 'POST', mode: 'no-cors', ... });
 }
 
-function pedirAgua() {
+function finalizarRequisicaoModal() {
+  const setor = document.getElementById('modalSectorSelect').value;
+  const nome = document.getElementById('nomeSolicitante').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const contato = document.getElementById('contato').value.trim();
+  const perfil = document.getElementById('perfil').value;
+  const lotacao = document.getElementById('lotacao').value.trim();
+  const assunto = document.getElementById('assunto').value;
+
+  if(!setor || !nome || !email || !contato || !lotacao) {
+    return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios (*)', 'error');
+  }
+
+  // Desconta do DB
+  carrinho.forEach(c => {
+    let dbM = materiaisDB.find(m => m.id === c.id);
+    if(dbM) dbM.estoque -= c.qtd;
+  });
+  localStorage.setItem('dbMateriais_v2', JSON.stringify(materiaisDB));
+
+  let pedido = {
+    tipo: 'Material', data: new Date().toLocaleString(),
+    setor, nome, itens: [...carrinho], status: 'Em análise'
+  };
+  
+  historico.unshift(pedido);
+  localStorage.setItem('historicoAlmox_v2', JSON.stringify(historico));
+
+  enviarParaGoogleSheets({tipo: "requisicao", nome, setor, email, contato, perfil, lotacao, itens: carrinho.map(i=>`${i.nome} (${i.qtd})`).join(', ')});
+
+  Swal.fire('✅ Solicitação Enviada!', 'Acompanhe na aba Pedidos.', 'success');
+  limparCarrinho();
+  fecharModal('modalCheckout');
+  mudarView('orders');
+}
+
+// ---------- HISTÓRICO ----------
+function renderHistorico() {
+  const cont = document.getElementById('historicoContainer');
+  if(historico.length === 0) return cont.innerHTML = '<div style="text-align:center; padding:20px;">Nenhum pedido feito ainda.</div>';
+  
+  cont.innerHTML = historico.map(h => `
+    <div style="background:white; border-radius:20px; padding:20px; margin-bottom:16px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
+      <div style="display:flex; justify-content:space-between; border-bottom:1px solid #edf2f7; padding-bottom:12px; margin-bottom:12px;">
+        <div><strong>${h.tipo === 'Água' ? '💧 Água Mineral' : '📦 Materiais'}</strong><br><span style="font-size:0.8rem; color:#64748B;">${h.data}</span></div>
+        <span style="background:#EFF6FF; color:#1D4ED8; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:700; height:fit-content;">${h.status}</span>
+      </div>
+      ${h.tipo === 'Material' ? `<ul style="list-style:none; font-size:0.9rem;">${h.itens.map(i=>`<li style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>${i.nome}</span> <strong>${i.qtd} un</strong></li>`).join('')}</ul>` : `<p style="font-size:0.9rem;">Entrega no setor: <strong>${h.setor}</strong></p>`}
+    </div>
+  `).join('');
+}
+
+// ---------- ÁGUA MINERAL ----------
+function checkAguaStatus() {
+  let pedidoAtivo = localStorage.getItem('aguaAtiva_v2');
+  if(pedidoAtivo) {
+    document.getElementById('aguaFormCard').style.display = 'none';
+    document.getElementById('aguaStatusCard').style.display = 'block';
+    // Posição mockada
+    document.getElementById('aguaPosicao').innerText = `#${Math.floor(Math.random() * 5) + 1}`;
+  } else {
+    document.getElementById('aguaFormCard').style.display = 'block';
+    document.getElementById('aguaStatusCard').style.display = 'none';
+  }
+}
+
+function submitAgua() {
   const setor = document.getElementById('aguaSetor').value;
   const nome = document.getElementById('aguaNome').value;
-  if(!setor || !nome) return Swal.fire('Atenção', 'Preencha todos os campos.', 'warning');
+  if(!setor || !nome) return Swal.fire('Atenção', 'Preencha Setor e Nome', 'error');
 
-  let fila = JSON.parse(localStorage.getItem('smartFilaAgua')) || [];
-  let id = Date.now();
-  fila.push({ id, setor, nome, data: new Date().toISOString() });
-  localStorage.setItem('smartFilaAgua', JSON.stringify(fila));
-  localStorage.setItem('smartMeuPedidoAgua', id);
+  localStorage.setItem('aguaAtiva_v2', 'true');
+  historico.unshift({ tipo: 'Água', data: new Date().toLocaleString(), setor, nome, status: 'Aguardando' });
+  localStorage.setItem('historicoAlmox_v2', JSON.stringify(historico));
+
+  enviarParaGoogleSheets({tipo: "filaAgua", nome, setor});
   
-  Swal.fire('Registrado', 'Você entrou na fila da água!', 'success');
+  Swal.fire('Registrado', 'Sua solicitação de água foi enviada.', 'success');
   checkAguaStatus();
 }
 
 function cancelarAgua() {
-  let fila = JSON.parse(localStorage.getItem('smartFilaAgua')) || [];
-  let meuPedidoId = localStorage.getItem('smartMeuPedidoAgua');
-  fila = fila.filter(f => f.id != meuPedidoId);
-  localStorage.setItem('smartFilaAgua', JSON.stringify(fila));
-  localStorage.removeItem('smartMeuPedidoAgua');
+  localStorage.removeItem('aguaAtiva_v2');
   checkAguaStatus();
 }
 
-// --- ADMIN ---
+// ---------- ADMIN ----------
 function abrirAdmin() {
-  let senhaAtual = localStorage.getItem('adminSenha') || "";
-  Swal.fire({
-    title: 'Acesso Restrito',
-    input: 'password',
-    inputPlaceholder: 'Digite a senha do admin',
-    showCancelButton: true,
-    confirmButtonText: 'Entrar'
-  }).then(result => {
-    if(result.isConfirmed) {
-      if(result.value === senhaAtual) {
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        mudarView('admin');
-      } else {
-        Swal.fire('Erro', 'Senha incorreta', 'error');
-      }
-    }
+  let senhaAtual = localStorage.getItem('senhaAdmin') || "";
+  Swal.fire({ title: 'Acesso Restrito', input: 'password', showCancelButton: true, confirmButtonText: 'Entrar' })
+  .then(res => {
+    if(res.isConfirmed && res.value === senhaAtual) mudarView('admin');
+    else if(res.isConfirmed) Swal.fire('Erro', 'Senha incorreta', 'error');
   });
 }
-
 function mudarSenha() {
-  Swal.fire({
-    title: 'Nova Senha', input: 'password', showCancelButton: true
-  }).then(res => {
-    if(res.isConfirmed) {
-      localStorage.setItem('adminSenha', res.value);
-      Swal.fire('Sucesso', 'Senha alterada!', 'success');
-    }
+  Swal.fire({ title: 'Nova Senha', input: 'password', showCancelButton: true }).then(res => {
+    if(res.isConfirmed) { localStorage.setItem('senhaAdmin', res.value); Swal.fire('Sucesso', 'Senha alterada!', 'success'); }
   });
 }
 
@@ -560,36 +601,61 @@ function renderAdmin() {
   const tbody = document.getElementById('adminTableBody');
   tbody.innerHTML = materiaisDB.map(m => `
     <tr>
+      <td style="font-size:0.7rem; color:#94a3b8;">${m.id}</td>
       <td style="font-weight:600;">${m.nome}</td>
       <td>${m.categoria}</td>
-      <td>
-        <input type="number" class="admin-input-stock" value="${m.estoque}" id="estoque-${m.id}">
-      </td>
-      <td>
-        <button class="btn-primary" style="padding: 6px 12px; border-radius:8px;" onclick="salvarEstoque(${m.id})">Salvar</button>
-      </td>
+      <td><input type="number" class="admin-input" value="${m.estoque}" id="est-${m.id}"></td>
+      <td><button class="btn-secondary" style="padding:4px 8px; font-size:0.8rem;" onclick="atualizarEstoque('${m.id}')">Salvar</button></td>
     </tr>
   `).join('');
 }
 
-function salvarEstoque(id) {
-  let novoEstoque = parseInt(document.getElementById(`estoque-${id}`).value);
+function atualizarEstoque(id) {
+  let val = parseInt(document.getElementById(`est-${id}`).value);
   let item = materiaisDB.find(m => m.id === id);
-  if(item) {
-    item.estoque = novoEstoque;
-    localStorage.setItem('dbMateriais', JSON.stringify(materiaisDB));
-    Swal.fire({toast:true, position:'top-end', icon:'success', title:'Estoque atualizado', showConfirmButton:false, timer:1500});
-  }
+  if(item) { item.estoque = val; localStorage.setItem('dbMateriais_v2', JSON.stringify(materiaisDB)); Swal.fire({toast:true, position:'top-end', icon:'success', title:'Salvo', showConfirmButton:false, timer:1000}); }
 }
 
-// Inicialização
+function adminAdicionarItem() {
+  const nome = document.getElementById('adminNovoNome').value.trim();
+  const cat = document.getElementById('adminNovaCat').value.trim();
+  const img = document.getElementById('adminNovaImg').value.trim() || 'https://cdn-icons-png.flaticon.com/512/3050/3050392.png';
+  const est = parseInt(document.getElementById('adminNovoEstoque').value);
+
+  if(!nome || !cat) return Swal.fire('Atenção', 'Nome e Categoria são obrigatórios', 'warning');
+  
+  addItem(cat, nome, img, est);
+  localStorage.setItem('dbMateriais_v2', JSON.stringify(materiaisDB));
+  
+  Swal.fire('Sucesso', 'Material adicionado com sucesso!', 'success');
+  
+  // Limpar campos
+  document.getElementById('adminNovoNome').value = '';
+  document.getElementById('adminNovaCat').value = '';
+  document.getElementById('adminNovaImg').value = '';
+  
+  renderAdmin();
+}
+
+// ---------- INICIALIZAÇÃO ----------
+// Carrossel Original JS
+let slideIndex = 0; const track = document.getElementById('carouselTrack'); const slides = document.querySelectorAll('.carousel-slide'); const dotsContainer = document.getElementById('carouselDots'); let autoInterval;
+function updateCarousel() { if(track) track.style.transform = `translateX(-${slideIndex * 100}%)`; document.querySelectorAll('.dot').forEach((dot, i) => { dot.classList.toggle('active', i === slideIndex); }); }
+function createDots() { if(!dotsContainer) return; slides.forEach((_, i) => { const dot = document.createElement('div'); dot.classList.add('dot'); if(i===0) dot.classList.add('active'); dot.addEventListener('click', () => { slideIndex = i; updateCarousel(); resetAutoPlay(); }); dotsContainer.appendChild(dot); }); }
+function nextSlide() { slideIndex = (slideIndex + 1) % slides.length; updateCarousel(); resetAutoPlay(); }
+function prevSlide() { slideIndex = (slideIndex - 1 + slides.length) % slides.length; updateCarousel(); resetAutoPlay(); }
+function resetAutoPlay() { if(autoInterval) clearInterval(autoInterval); autoInterval = setInterval(nextSlide, 5000); }
+document.getElementById('prevSlideBtn')?.addEventListener('click', prevSlide);
+document.getElementById('nextSlideBtn')?.addEventListener('click', nextSlide);
+if(slides.length) createDots(); resetAutoPlay();
+
+// Remove Splash Screen
 setTimeout(() => { 
-  document.getElementById('splashScreen').style.opacity = '0';
-  setTimeout(() => document.getElementById('splashScreen').remove(), 500);
+  const splash = document.getElementById('splashScreen');
+  if(splash) { splash.style.opacity = '0'; setTimeout(() => splash.remove(), 500); }
 }, 2000);
 
-salvarCarrinho();
-
+atualizarBadges();
 </script>
 </body>
 </html>
