@@ -12,10 +12,15 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    /* ITEM 15 - Bloquear seleção global, permitindo apenas nos inputs */
     body { background-color: #F5F7FA; font-family: 'Inter', system-ui, sans-serif; color: #1E2A3E; padding-bottom: 90px; scroll-behavior: smooth; overflow-x: hidden; -webkit-user-select: none; user-select: none; }
     input, select, textarea { -webkit-user-select: auto; user-select: auto; }
     
+    /* Proteção do Cabeçalho: Desloca o popup "Adicionado" para baixo */
+    body.swal2-toast-shown .swal2-container.swal2-top-end, 
+    body.swal2-toast-shown .swal2-container.swal2-top-right {
+        top: 75px !important;
+    }
+
     .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #005BBB 0%, #003D7A 100%); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; transition: opacity 0.5s ease-out; opacity: 1; }
     .splash-content { animation: fadeInUpScale 0.8s ease-out; }
     .splash-icon-img { width: min(30vw, 140px); max-width: 140px; margin-bottom: 24px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2)); animation: gentleFloat 2s infinite ease-in-out; }
@@ -41,7 +46,6 @@
     .chip-cat { background: #F0F2F5; padding: 8px 18px; border-radius: 40px; font-size: 0.8rem; font-weight: 600; color: #1E2A3E; transition: all 0.2s ease; cursor: pointer; }
     .chip-cat.active { background: #005BBB; color: white; }
 
-    /* ITEM 14 - Carrossel com botões embaixo */
     .carousel-section { max-width: 1400px; margin: 16px auto 0; padding: 0 16px; }
     .carousel-container { position: relative; border-radius: 28px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.08); background: #fff; padding-bottom: 40px; }
     .carousel-track { display: flex; transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1); }
@@ -68,7 +72,8 @@
     .badge-available { background: #E3F7EC; color: #1E7E34; }
     .badge-low { background: #FFF1E0; color: #B45F06; }
     .badge-out { background: #FFEBEE; color: #B91C1C; }
-    .btn-add-cart { background: #005BBB; width: 100%; border: none; padding: 10px 0; border-radius: 40px; color: white; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-top: auto; }
+    .btn-add-cart { background: #005BBB; width: 100%; border: none; padding: 10px 0; border-radius: 40px; color: white; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-top: auto; transition: 0.2s; }
+    .btn-add-cart:hover { background: #003D7A; }
     .btn-add-cart:disabled { background: #B9CFDF; cursor: not-allowed; }
 
     .modal-modern { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(10px); justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
@@ -237,6 +242,7 @@
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
       <h2><i class="material-icons" style="vertical-align: middle;">admin_panel_settings</i> Painel Gestor</h2>
       <div style="display:flex; gap:8px;">
+        <button class="btn-secondary" style="width: auto; padding: 8px 16px;" onclick="forcarAtualizacao()"><i class="material-icons">refresh</i> Atualizar</button>
         <button class="btn-secondary" style="width: auto; padding: 8px 16px;" onclick="mudarSenha()"><i class="material-icons">key</i> Senha</button>
       </div>
     </div>
@@ -310,9 +316,9 @@
     </div>
     <div id="carrinhoItensList" style="max-height: 40vh; overflow-y: auto; margin-bottom: 20px;"></div>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-      <button class="btn-secondary" onclick="limparCarrinho()">Limpar</button>
-      <button class="btn-secondary" onclick="fecharModal('modalCarrinho')">Continuar</button>
-      <button class="btn-primary full-width" onclick="abrirCheckout()"><i class="material-icons">assignment</i> Finalizar</button>
+      <button class="btn-secondary" onclick="confirmarLimparCarrinho()">Limpar</button>
+      <button class="btn-secondary" onclick="fecharModal('modalCarrinho')">Voltar</button>
+      <button class="btn-primary" style="grid-column: span 2;" onclick="abrirCheckout()"><i class="material-icons">assignment</i> Finalizar Pedido</button>
     </div>
   </div>
 </div>
@@ -430,6 +436,13 @@
 </div>
 
 <script>
+// Auto-selecionar texto ao clicar (ITEM 1)
+document.addEventListener('focusin', function(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+    setTimeout(() => { e.target.select(); }, 10);
+  }
+});
+
 // ---------- Integração App Script ----------
 const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbynotzi-Mu68mNg3ZWbCgC2KTQp7xwaUxWYJEfLvX3i4M1G8J8qFCj_y8L67Jzj6KtWjg/exec";
 
@@ -438,14 +451,16 @@ function enviarParaGoogleSheets(dados) {
     method: 'POST', mode: 'no-cors', 
     headers: { 'Content-Type': 'application/json' }, 
     body: JSON.stringify(dados) 
-  }).catch(e => console.log("Nota: O envio foi tentado. Garanta que o AppScript esteja apto a receber o payload JSON."));
+  }).catch(e => console.log("Erro de rede ignorado na sincronização."));
 }
 
 function salvarBackupNuvem() {
   enviarParaGoogleSheets({ tipo: 'backup_estado_app', materiais: materiaisDB, historico: historicoGlobal, fila: filaAgua, histItens: historicoItens });
 }
 
-// ---------- BDs ----------
+function forcarAtualizacao() { window.location.href = window.location.pathname + '?t=' + new Date().getTime(); }
+
+// ---------- BDs Globais ----------
 const DB_MATERIAIS = 'almox_db_materiais';
 const DB_CARRINHO  = 'almox_db_carrinho';
 const DB_HISTORICO = 'almox_db_hist_global';
@@ -453,7 +468,7 @@ const DB_FILA_AGUA = 'almox_db_fila_agua';
 const DB_HIST_ITEN = 'almox_db_hist_itens';
 const DB_PREFS_USR = 'almox_db_prefs_user';
 const DB_PEDIDO_AG = 'almox_db_meu_pedido_agua';
-const DB_SETORES   = 'almox_db_setores'; // Novo ITEM 16
+const DB_SETORES   = 'almox_db_setores';
 
 let materiaisDB = JSON.parse(localStorage.getItem(DB_MATERIAIS));
 if(!materiaisDB) {
@@ -480,13 +495,12 @@ let historicoGlobal = JSON.parse(localStorage.getItem(DB_HISTORICO)) || [];
 let filaAgua = JSON.parse(localStorage.getItem(DB_FILA_AGUA)) || [];
 let currentFilter = ""; let currentSearch = "";
 
-// ---------- LOG DE HISTÓRICO DE ITENS ----------
 function registrarHistoricoItem(idItem, tipo, qtd, obs, saldo) {
   historicoItens.unshift({ idItem, data: new Date().toLocaleString(), tipo, qtd, obs, saldo });
   localStorage.setItem(DB_HIST_ITEN, JSON.stringify(historicoItens));
 }
 
-// ---------- SETORES (ITEM 16) ----------
+// ---------- SETORES ----------
 function renderSetoresSelects() {
   let html = '<option value="" disabled selected>Selecione o setor</option>' + setoresDB.map(s => `<option value="${s}">${s}</option>`).join('');
   document.querySelectorAll('.dynamic-sectors').forEach(select => select.innerHTML = html);
@@ -502,7 +516,7 @@ function importarSetores() {
   if(!text) return;
   let novos = text.split(';').map(s => s.trim()).filter(s => s.length > 0);
   if(novos.length > 0) {
-    setoresDB = [...new Set([...setoresDB, ...novos])]; // merge e remove duplos
+    setoresDB = [...new Set([...setoresDB, ...novos])];
     localStorage.setItem(DB_SETORES, JSON.stringify(setoresDB));
     renderSetoresSelects();
     document.getElementById('adminImportSetores').value = '';
@@ -511,7 +525,7 @@ function importarSetores() {
 }
 
 function limparSetores() {
-  Swal.fire({ title: 'Atenção', text: 'Apagar todos os setores?', icon: 'warning', showCancelButton:true }).then(res => {
+  Swal.fire({ title: 'Atenção', text: 'Apagar todos os setores?', icon: 'warning', showCancelButton:true, confirmButtonColor: '#B91C1C' }).then(res => {
     if(res.isConfirmed) { setoresDB = []; localStorage.setItem(DB_SETORES, JSON.stringify(setoresDB)); renderSetoresSelects(); }
   });
 }
@@ -531,6 +545,18 @@ function carregarDadosLocaisUsuario() {
 function salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao) {
   localStorage.setItem(DB_PREFS_USR, JSON.stringify({ nome, whatsapp, email, setor, perfil, lotacao }));
 }
+
+// Máscara WhatsApp
+document.querySelectorAll('.mask-whatsapp').forEach(input => {
+  input.addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g, "");
+    if(v.length > 11) v = v.slice(0,11); 
+    if(v.length > 2) v = `(${v.substring(0,2)}) ${v.substring(2)}`;
+    if(v.length > 10) v = `${v.substring(0,10)}-${v.substring(10)}`;
+    e.target.value = v;
+  });
+});
+function validaWhatsapp(val) { return val.replace(/\D/g, "").length >= 10; }
 
 // ---------- NAVEGAÇÃO SPA ----------
 function mudarView(viewId) {
@@ -591,40 +617,66 @@ function renderCarrinho() {
 }
 function abrirCarrinho() { renderCarrinho(); document.getElementById('modalCarrinho').style.display = 'flex'; }
 function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
-function limparCarrinho() { carrinho = []; salvarCarrinho(); }
-function abrirCheckout() { if(carrinho.length === 0) return Swal.fire('Vazio', 'Adicione itens.', 'warning'); carregarDadosLocaisUsuario(); fecharModal('modalCarrinho'); document.getElementById('modalCheckout').style.display = 'flex'; }
+
+function confirmarLimparCarrinho() {
+  Swal.fire({
+    title: 'Você quer mesmo limpar o carrinho?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#B91C1C',
+    cancelButtonColor: '#6B7A8A',
+    confirmButtonText: 'Sim',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      limparCarrinho();
+      Swal.fire({toast:true, position:'top-end', icon:'success', title:'Carrinho limpo!', showConfirmButton:false, timer:1000});
+    }
+  });
+}
+
+function abrirCheckout() { 
+  if(carrinho.length === 0) return Swal.fire('Vazio', 'Adicione itens.', 'warning'); 
+  carregarDadosLocaisUsuario(); 
+  fecharModal('modalCarrinho'); 
+  document.getElementById('modalCheckout').style.display = 'flex'; 
+}
 function voltarParaCarrinho() { fecharModal('modalCheckout'); abrirCarrinho(); }
 
 function finalizarRequisicaoModal() {
-  const setor = document.getElementById('reqSetor').value;
-  const nome = document.getElementById('reqNome').value.trim();
-  const whatsapp = document.getElementById('reqContato').value;
-  const email = document.getElementById('reqEmail').value.trim();
-  const perfil = document.getElementById('reqPerfil').value;
-  const lotacao = document.getElementById('reqLotacao').value.trim();
+  try {
+    const setor = document.getElementById('reqSetor').value;
+    const nome = document.getElementById('reqNome').value.trim();
+    const whatsapp = document.getElementById('reqContato').value;
+    const email = document.getElementById('reqEmail').value.trim();
+    const perfil = document.getElementById('reqPerfil').value;
+    const lotacao = document.getElementById('reqLotacao').value.trim();
 
-  if(!setor || !nome || !whatsapp || !email || !lotacao) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios', 'error');
-  if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido. Digite o DDD e os números.', 'error');
+    if(!setor || !nome || !whatsapp || !email || !lotacao) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios', 'error');
+    if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido. Digite o DDD e os números.', 'error');
 
-  salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
+    salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
 
-  carrinho.forEach(c => { 
-    let dbM = materiaisDB.find(m => m.id === c.id); 
-    if(dbM) {
-      dbM.estoque -= c.qtd; 
-      registrarHistoricoItem(c.id, 'Saída (Pedido)', c.qtd, `Pedido: ${nome} (${setor})`, dbM.estoque);
-    }
-  });
-  localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
+    carrinho.forEach(c => { 
+      let dbM = materiaisDB.find(m => m.id === c.id); 
+      if(dbM) {
+        dbM.estoque -= c.qtd; 
+        registrarHistoricoItem(c.id, 'Saída (Pedido)', c.qtd, `Pedido: ${nome} (${setor})`, dbM.estoque);
+      }
+    });
+    localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
 
-  let pedido = { id: Date.now(), tipo: 'Material', data: new Date().toLocaleString(), setor, nome, whatsapp, email, perfil, lotacao, itens: [...carrinho], status: 'Aguardando' };
-  historicoGlobal.unshift(pedido); localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal));
-  
-  enviarParaGoogleSheets({ tipo: "requisicao", nome, setor, whatsapp, email, lotacao, itens: carrinho.map(i=>`${i.nome}(${i.qtd})`).join(', ') });
-  salvarBackupNuvem();
+    let pedido = { id: Date.now(), tipo: 'Material', data: new Date().toLocaleString(), setor, nome, whatsapp, email, perfil, lotacao, itens: [...carrinho], status: 'Aguardando' };
+    historicoGlobal.unshift(pedido); localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal));
+    
+    enviarParaGoogleSheets({ tipo: "requisicao", nome, setor, whatsapp, email, lotacao, itens: carrinho.map(i=>`${i.nome}(${i.qtd})`).join(', ') });
+    salvarBackupNuvem();
 
-  Swal.fire('✅ Enviada!', 'Acompanhe na aba Meus Pedidos.', 'success');
-  limparCarrinho(); fecharModal('modalCheckout'); mudarView('orders');
+    Swal.fire('✅ Enviada!', 'Acompanhe na aba Meus Pedidos.', 'success');
+    limparCarrinho(); fecharModal('modalCheckout'); mudarView('orders');
+  } catch(e) {
+    Swal.fire('Erro', 'Ocorreu um problema ao enviar o pedido.', 'error');
+  }
 }
 
 // ---------- ÁGUA MINERAL ----------
@@ -645,28 +697,32 @@ function checkAguaStatus() {
 }
 
 function submitAgua() {
-  const setor = document.getElementById('aguaSetor').value;
-  const nome = document.getElementById('aguaNome').value;
-  const whatsapp = document.getElementById('aguaContato').value;
-  const email = document.getElementById('aguaEmail').value;
-  const perfil = document.getElementById('aguaPerfil').value;
-  const lotacao = document.getElementById('aguaLotacao').value;
+  try {
+    const setor = document.getElementById('aguaSetor').value;
+    const nome = document.getElementById('aguaNome').value;
+    const whatsapp = document.getElementById('aguaContato').value;
+    const email = document.getElementById('aguaEmail').value;
+    const perfil = document.getElementById('aguaPerfil').value;
+    const lotacao = document.getElementById('aguaLotacao').value;
 
-  if(!setor || !nome || !whatsapp || !lotacao || !email) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios', 'error');
-  if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido.', 'error');
+    if(!setor || !nome || !whatsapp || !lotacao || !email) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios', 'error');
+    if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido.', 'error');
 
-  salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
+    salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
 
-  let id = Date.now();
-  let pAgua = { id, tipo: 'Água', data: new Date().toLocaleString(), setor, nome, whatsapp, lotacao, status: 'Aguardando' };
-  
-  filaAgua.push(pAgua); historicoGlobal.unshift(pAgua);
-  localStorage.setItem(DB_FILA_AGUA, JSON.stringify(filaAgua)); localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal)); localStorage.setItem(DB_PEDIDO_AG, id);
-  
-  enviarParaGoogleSheets({ tipo: "filaAgua", nome, setor, whatsapp, lotacao });
-  salvarBackupNuvem();
+    let id = Date.now();
+    let pAgua = { id, tipo: 'Água', data: new Date().toLocaleString(), setor, nome, whatsapp, lotacao, status: 'Aguardando' };
+    
+    filaAgua.push(pAgua); historicoGlobal.unshift(pAgua);
+    localStorage.setItem(DB_FILA_AGUA, JSON.stringify(filaAgua)); localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal)); localStorage.setItem(DB_PEDIDO_AG, id);
+    
+    enviarParaGoogleSheets({ tipo: "filaAgua", nome, setor, whatsapp, lotacao });
+    salvarBackupNuvem();
 
-  Swal.fire('Entrou na fila!', 'Você está na fila da água.', 'success'); checkAguaStatus();
+    Swal.fire('Entrou na fila!', 'Você está na fila da água.', 'success'); checkAguaStatus();
+  } catch(e) {
+    Swal.fire('Erro', 'Ocorreu um problema ao pedir água.', 'error');
+  }
 }
 
 function cancelarAgua() {
@@ -676,7 +732,7 @@ function cancelarAgua() {
   checkAguaStatus();
 }
 
-// ---------- HISTÓRICO USUÁRIO (ITEM 18) ----------
+// ---------- HISTÓRICO USUÁRIO ----------
 function renderHistoricoUsuario() {
   const cont = document.getElementById('historicoContainer');
   if(historicoGlobal.length === 0) return cont.innerHTML = '<div style="text-align:center;">Nenhum pedido feito.</div>';
@@ -709,7 +765,6 @@ function abrirAdmin() {
 }
 function mudarSenha() { Swal.fire({ title: 'Nova Senha', input: 'password', showCancelButton:true }).then(res => { if(res.isConfirmed) localStorage.setItem('senhaAdminCT', res.value); }); }
 
-// ITEM 3: Toggle Tabs Admin
 function switchAdminTab(tab) {
   let btn = document.getElementById(`btn-tab-${tab}`);
   let panel = document.getElementById(`admin-tab-${tab}`);
@@ -734,7 +789,6 @@ function checkNovaCat() {
   const select = document.getElementById('adminNovaCatSelect'); const input = document.getElementById('adminNovaCatInput');
   if(select.value === 'NOVA') { input.style.display = 'block'; input.focus(); } else { input.style.display = 'none'; }
 }
-
 function adminAdicionarItem() {
   let cat = document.getElementById('adminNovaCatSelect').value;
   if(cat === 'NOVA') cat = document.getElementById('adminNovaCatInput').value.trim();
@@ -789,7 +843,6 @@ function registrarEntrada(id) {
   }
 }
 
-// ITEM 3: Editar/Excluir Material
 function abrirEdicaoMaterial(id) {
   let item = materiaisDB.find(m => m.id === id); if(!item) return;
   document.getElementById('editMatIdAtual').value = id;
@@ -864,7 +917,7 @@ function exportarHistoricoItemPDF() {
   doc.save(`Historico_${item.nome.replace(/\s/g,'_')}.pdf`);
 }
 
-// Gestão de Pedidos (ITEM 17 e 18)
+// Gestão de Pedidos
 function renderAdminPedidos() {
   let pendentes = historicoGlobal.filter(h => h.status === 'Aguardando' || h.status === 'Aguardando retirada');
   let ultimos10 = historicoGlobal.filter(h => h.status !== 'Aguardando' && h.status !== 'Aguardando retirada').slice(0, 10);
@@ -931,7 +984,6 @@ function salvarEdicaoPedido() {
     });
   }
   
-  // ITEM 18: TIMESTAMP DE ENTREGA
   if (novoStatus === 'Entregue' && pedido.status !== 'Entregue') {
     pedido.dataEntrega = new Date().toLocaleString();
   }
