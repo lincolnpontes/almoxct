@@ -92,7 +92,6 @@
     .big-shortcut-text h3 { font-size: 1.2rem; font-weight: 800; color: #1E2A3E; margin-bottom: 4px; }
     .big-shortcut-text p { font-size: 0.85rem; color: #6B7A8A; font-weight: 500; }
 
-    /* Admin CSS */
     .admin-card { background: white; border-radius: 24px; padding: 24px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow-x: auto; }
     .admin-table { width: 100%; border-collapse: collapse; min-width: 600px; }
     .admin-table th { background: #F0F2F5; padding: 12px; text-align: left; font-size: 0.85rem; color: #5A6874; }
@@ -110,7 +109,6 @@
     .search-bar { background: #F0F2F5; border-radius: 32px; display: flex; align-items: center; padding: 12px 16px; gap: 8px; }
     .search-bar input { background: transparent; border: none; font-size: 0.9rem; width: 100%; outline: none; }
 
-    /* Float WhatsApp c/ SVG */
     .whatsapp-float { position: fixed; bottom: 90px; right: 20px; background: #25D366; border-radius: 40px; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); cursor: pointer; transition: 0.2s; z-index: 100; text-decoration: none; }
     .whatsapp-float:hover { transform: scale(1.1); }
     .whatsapp-float svg { width: 32px; height: 32px; fill: white; }
@@ -129,9 +127,10 @@
     <div class="splash-title">Smart Almox</div>
     <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 8px;">Almoxarifado CT UFPB</div>
     <div class="modern-loader"><div class="modern-loader-bar"></div></div>
+    <p id="splashStatus" style="margin-top:16px; font-size:0.8rem;">Sincronizando com a nuvem...</p>
   </div>
   <button class="refresh-btn-splash" onclick="forcarAtualizacao()">
-    <i class="material-icons">refresh</i> Limpar Cache e Atualizar App
+    <i class="material-icons">refresh</i> Limpar Cache e Atualizar
   </button>
 </div>
 
@@ -333,7 +332,7 @@
     </div>
     <div style="overflow-x: auto; max-height: 50vh;">
       <table class="admin-table">
-        <thead><tr><th>Data</th><th>Tipo</th><th>Qtd</th><th>Saldo</th><th>Observação / Origem</th></tr></thead>
+        <thead><tr><th>Data</th><th>Ação</th><th>Qtd</th><th>Saldo</th><th>Observação / Origem</th></tr></thead>
         <tbody id="tabelaHistoricoItemBody"></tbody>
       </table>
     </div>
@@ -355,8 +354,7 @@
         <option value="Aguardando">Aguardando</option>
         <option value="Aguardando retirada">Aguardando retirada</option>
         <option value="Entregue">Entregue</option>
-        <option value="Rejeitado">Rejeitado</option>
-        <option value="Cancelado">Cancelado</option>
+        <option value="Cancelado/Rejeitado">Cancelado/Rejeitado</option>
       </select>
     </div>
     <div id="editarPedidoItensContainer"></div>
@@ -379,11 +377,81 @@
 <script>
 // ---------- Integração App Script ----------
 const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbynotzi-Mu68mNg3ZWbCgC2KTQp7xwaUxWYJEfLvX3i4M1G8J8qFCj_y8L67Jzj6KtWjg/exec";
+
+// Dispara um POST com no-cors como no original para a nuvem
 function enviarParaGoogleSheets(dados) {
-  fetch(GOOGLE_SHEETS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) }).catch(e => console.error("Erro", e));
+  fetch(GOOGLE_SHEETS_URL, { 
+    method: 'POST', mode: 'no-cors', 
+    headers: { 'Content-Type': 'application/json' }, 
+    body: JSON.stringify(dados) 
+  }).catch(e => console.error("Erro Nuvem", e));
 }
 
-// ---------- Máscara WhatsApp ----------
+// Dispara backup completo para a nuvem sempre que há ações críticas do admin
+function salvarBackupNuvem() {
+  enviarParaGoogleSheets({
+    tipo: 'backup_estado_app', materiais: materiaisDB, historico: historicoGlobal, fila: filaAgua, histItens: historicoItens
+  });
+}
+
+function forcarAtualizacao() { window.location.href = window.location.pathname + '?t=' + new Date().getTime(); }
+
+// ---------- Chaves de Armazenamento Fixas (NUNCA MAIS PERDERÁ OS DADOS) ----------
+const DB_MATERIAIS = 'almox_db_materiais';
+const DB_CARRINHO  = 'almox_db_carrinho';
+const DB_HISTORICO = 'almox_db_hist_global';
+const DB_FILA_AGUA = 'almox_db_fila_agua';
+const DB_HIST_ITEN = 'almox_db_hist_itens';
+const DB_PREFS_USR = 'almox_db_prefs_user';
+const DB_PEDIDO_AG = 'almox_db_meu_pedido_agua';
+
+let materiaisDB = JSON.parse(localStorage.getItem(DB_MATERIAIS));
+if(!materiaisDB) {
+  materiaisDB = [
+    { id: '1a', categoria: 'Expediente', nome: 'Caneta azul', imagem: 'https://cdn-icons-png.flaticon.com/512/103/103554.png', estoque: 50 },
+    { id: '2b', categoria: 'Expediente', nome: 'Papel A4 (resma)', imagem: 'https://cdn-icons-png.flaticon.com/512/2965/2965311.png', estoque: 20 },
+    { id: '3c', categoria: 'Limpeza', nome: 'Copo descartável', imagem: 'https://cdn-icons-png.flaticon.com/512/3024/3024502.png', estoque: 0 }
+  ];
+  localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
+}
+
+let carrinho = JSON.parse(localStorage.getItem(DB_CARRINHO)) || [];
+let historicoGlobal = JSON.parse(localStorage.getItem(DB_HISTORICO)) || []; 
+let filaAgua = JSON.parse(localStorage.getItem(DB_FILA_AGUA)) || [];
+let historicoItens = JSON.parse(localStorage.getItem(DB_HIST_ITEN)) || [];
+
+let currentFilter = ""; let currentSearch = "";
+
+// ---------- LOG DE HISTÓRICO DE ITENS ----------
+function registrarHistoricoItem(idItem, tipo, qtd, obs, saldo) {
+  historicoItens.unshift({ idItem, data: new Date().toLocaleString(), tipo, qtd, obs, saldo });
+  localStorage.setItem(DB_HIST_ITEN, JSON.stringify(historicoItens));
+}
+
+// ---------- AUTO-PREENCHIMENTO LOCAL (Ponto 13) ----------
+function carregarDadosLocaisUsuario() {
+  let prefs = JSON.parse(localStorage.getItem(DB_PREFS_USR));
+  if(prefs) {
+    if(document.getElementById('reqNome')) document.getElementById('reqNome').value = prefs.nome || '';
+    if(document.getElementById('reqContato')) document.getElementById('reqContato').value = prefs.whatsapp || '';
+    if(document.getElementById('reqEmail')) document.getElementById('reqEmail').value = prefs.email || '';
+    if(document.getElementById('reqSetor')) document.getElementById('reqSetor').value = prefs.setor || '';
+    if(document.getElementById('reqPerfil')) document.getElementById('reqPerfil').value = prefs.perfil || '';
+    if(document.getElementById('reqLotacao')) document.getElementById('reqLotacao').value = prefs.lotacao || '';
+    
+    if(document.getElementById('aguaNome')) document.getElementById('aguaNome').value = prefs.nome || '';
+    if(document.getElementById('aguaContato')) document.getElementById('aguaContato').value = prefs.whatsapp || '';
+    if(document.getElementById('aguaEmail')) document.getElementById('aguaEmail').value = prefs.email || '';
+    if(document.getElementById('aguaSetor')) document.getElementById('aguaSetor').value = prefs.setor || '';
+    if(document.getElementById('aguaPerfil')) document.getElementById('aguaPerfil').value = prefs.perfil || '';
+    if(document.getElementById('aguaLotacao')) document.getElementById('aguaLotacao').value = prefs.lotacao || '';
+  }
+}
+function salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao) {
+  localStorage.setItem(DB_PREFS_USR, JSON.stringify({ nome, whatsapp, email, setor, perfil, lotacao }));
+}
+
+// Máscara WhatsApp
 document.querySelectorAll('.mask-whatsapp').forEach(input => {
   input.addEventListener('input', function(e) {
     let v = e.target.value.replace(/\D/g, "");
@@ -394,28 +462,6 @@ document.querySelectorAll('.mask-whatsapp').forEach(input => {
   });
 });
 function validaWhatsapp(val) { return val.replace(/\D/g, "").length >= 10; }
-function forcarAtualizacao() { window.location.href = window.location.pathname + '?t=' + new Date().getTime(); }
-
-// ---------- BD INICIAL V5 ----------
-let materiaisDB = JSON.parse(localStorage.getItem('dbMateriais_v5')) || [
-  { id: '1a', categoria: 'Expediente', nome: 'Caneta azul', imagem: 'https://cdn-icons-png.flaticon.com/512/103/103554.png', estoque: 50 },
-  { id: '2b', categoria: 'Expediente', nome: 'Papel A4 (resma)', imagem: 'https://cdn-icons-png.flaticon.com/512/2965/2965311.png', estoque: 20 },
-  { id: '3c', categoria: 'Limpeza', nome: 'Copo descartável', imagem: 'https://cdn-icons-png.flaticon.com/512/3024/3024502.png', estoque: 0 }
-];
-if(!localStorage.getItem('dbMateriais_v5')) localStorage.setItem('dbMateriais_v5', JSON.stringify(materiaisDB));
-
-let carrinho = JSON.parse(localStorage.getItem('cartAlmox_v5')) || [];
-let historicoGlobal = JSON.parse(localStorage.getItem('histGlobal_v5')) || []; 
-let filaAgua = JSON.parse(localStorage.getItem('filaAgua_v5')) || [];
-let historicoItens = JSON.parse(localStorage.getItem('histItens_v5')) || [];
-
-let currentFilter = ""; let currentSearch = "";
-
-// ---------- LOG DE HISTÓRICO DE ITENS ----------
-function registrarHistoricoItem(idItem, tipo, qtd, obs, saldo) {
-  historicoItens.unshift({ idItem, data: new Date().toLocaleString(), tipo, qtd, obs, saldo });
-  localStorage.setItem('histItens_v5', JSON.stringify(historicoItens));
-}
 
 // ---------- NAVEGAÇÃO SPA ----------
 function mudarView(viewId) {
@@ -426,7 +472,7 @@ function mudarView(viewId) {
 
   if(viewId === 'materiais') { renderChips(); renderCatalogo(); }
   if(viewId === 'orders') renderHistoricoUsuario();
-  if(viewId === 'agua') checkAguaStatus();
+  if(viewId === 'agua') { checkAguaStatus(); carregarDadosLocaisUsuario(); }
   if(viewId === 'admin') { renderAdminEstoque(); renderCategoriasAdmin(); renderAdminPedidos(); }
   window.scrollTo(0,0);
 }
@@ -452,7 +498,8 @@ function renderCatalogo() {
 }
 
 function atualizarBadges() { document.getElementById('headerCartBadge').innerText = carrinho.reduce((a,c) => a + c.qtd, 0); }
-function salvarCarrinho() { localStorage.setItem('cartAlmox_v5', JSON.stringify(carrinho)); atualizarBadges(); renderCarrinho(); }
+function salvarCarrinho() { localStorage.setItem(DB_CARRINHO, JSON.stringify(carrinho)); atualizarBadges(); renderCarrinho(); }
+
 function addAoCarrinho(id) {
   let itemDB = materiaisDB.find(m => m.id === id); let noCarrinho = carrinho.find(c => c.id === id);
   if(noCarrinho) {
@@ -476,7 +523,7 @@ function renderCarrinho() {
 function abrirCarrinho() { renderCarrinho(); document.getElementById('modalCarrinho').style.display = 'flex'; }
 function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
 function limparCarrinho() { carrinho = []; salvarCarrinho(); }
-function abrirCheckout() { if(carrinho.length === 0) return Swal.fire('Vazio', 'Adicione itens.', 'warning'); fecharModal('modalCarrinho'); document.getElementById('modalCheckout').style.display = 'flex'; }
+function abrirCheckout() { if(carrinho.length === 0) return Swal.fire('Vazio', 'Adicione itens.', 'warning'); carregarDadosLocaisUsuario(); fecharModal('modalCarrinho'); document.getElementById('modalCheckout').style.display = 'flex'; }
 function voltarParaCarrinho() { fecharModal('modalCheckout'); abrirCarrinho(); }
 
 function finalizarRequisicaoModal() {
@@ -490,6 +537,9 @@ function finalizarRequisicaoModal() {
   if(!setor || !nome || !whatsapp || !email || !lotacao) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios', 'error');
   if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido. Digite o DDD e os números.', 'error');
 
+  salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
+
+  // Abater Estoque e Registrar
   carrinho.forEach(c => { 
     let dbM = materiaisDB.find(m => m.id === c.id); 
     if(dbM) {
@@ -497,11 +547,13 @@ function finalizarRequisicaoModal() {
       registrarHistoricoItem(c.id, 'Saída (Reserva)', c.qtd, `Pedido: ${nome} (${setor})`, dbM.estoque);
     }
   });
-  localStorage.setItem('dbMateriais_v5', JSON.stringify(materiaisDB));
+  localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
 
   let pedido = { id: Date.now(), tipo: 'Material', data: new Date().toLocaleString(), setor, nome, whatsapp, email, perfil, lotacao, itens: [...carrinho], status: 'Aguardando' };
-  historicoGlobal.unshift(pedido); localStorage.setItem('histGlobal_v5', JSON.stringify(historicoGlobal));
+  historicoGlobal.unshift(pedido); localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal));
+  
   enviarParaGoogleSheets({ tipo: "requisicao", nome, setor, whatsapp, email, lotacao, itens: carrinho.map(i=>`${i.nome}(${i.qtd})`).join(', ') });
+  salvarBackupNuvem();
 
   Swal.fire('✅ Enviada!', 'Acompanhe na aba Meus Pedidos.', 'success');
   limparCarrinho(); fecharModal('modalCheckout'); mudarView('orders');
@@ -509,7 +561,7 @@ function finalizarRequisicaoModal() {
 
 // ---------- ÁGUA MINERAL ----------
 function checkAguaStatus() {
-  let meuId = localStorage.getItem('meuPedidoAguaId_v5');
+  let meuId = localStorage.getItem(DB_PEDIDO_AG);
   if(meuId) {
     let posIndex = filaAgua.findIndex(p => p.id == meuId);
     if(posIndex !== -1) {
@@ -517,7 +569,7 @@ function checkAguaStatus() {
       document.getElementById('aguaStatusCard').style.display = 'block';
       document.getElementById('aguaPosicao').innerText = `#${posIndex + 1}`;
     } else {
-      localStorage.removeItem('meuPedidoAguaId_v5');
+      localStorage.removeItem(DB_PEDIDO_AG);
       document.getElementById('aguaFormCard').style.display = 'block';
       document.getElementById('aguaStatusCard').style.display = 'none';
     }
@@ -528,25 +580,31 @@ function submitAgua() {
   const setor = document.getElementById('aguaSetor').value;
   const nome = document.getElementById('aguaNome').value;
   const whatsapp = document.getElementById('aguaContato').value;
+  const email = document.getElementById('aguaEmail').value;
+  const perfil = document.getElementById('aguaPerfil').value;
   const lotacao = document.getElementById('aguaLotacao').value;
 
-  if(!setor || !nome || !whatsapp || !lotacao) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios', 'error');
+  if(!setor || !nome || !whatsapp || !lotacao || !email) return Swal.fire('Atenção', 'Preencha todos os campos obrigatórios', 'error');
   if(!validaWhatsapp(whatsapp)) return Swal.fire('Atenção', 'WhatsApp inválido.', 'error');
+
+  salvarDadosLocaisUsuario(nome, whatsapp, email, setor, perfil, lotacao);
 
   let id = Date.now();
   let pAgua = { id, tipo: 'Água', data: new Date().toLocaleString(), setor, nome, whatsapp, lotacao, status: 'Aguardando' };
   
   filaAgua.push(pAgua); historicoGlobal.unshift(pAgua);
-  localStorage.setItem('filaAgua_v5', JSON.stringify(filaAgua)); localStorage.setItem('histGlobal_v5', JSON.stringify(historicoGlobal)); localStorage.setItem('meuPedidoAguaId_v5', id);
+  localStorage.setItem(DB_FILA_AGUA, JSON.stringify(filaAgua)); localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal)); localStorage.setItem(DB_PEDIDO_AG, id);
+  
   enviarParaGoogleSheets({ tipo: "filaAgua", nome, setor, whatsapp, lotacao });
+  salvarBackupNuvem();
 
   Swal.fire('Entrou na fila!', 'Você está na fila da água.', 'success'); checkAguaStatus();
 }
 
 function cancelarAgua() {
-  let meuId = localStorage.getItem('meuPedidoAguaId_v5');
-  filaAgua = filaAgua.filter(f => f.id != meuId); localStorage.setItem('filaAgua_v5', JSON.stringify(filaAgua)); localStorage.removeItem('meuPedidoAguaId_v5');
-  let h = historicoGlobal.find(x => x.id == meuId); if(h) h.status = 'Cancelado'; localStorage.setItem('histGlobal_v5', JSON.stringify(historicoGlobal));
+  let meuId = localStorage.getItem(DB_PEDIDO_AG);
+  filaAgua = filaAgua.filter(f => f.id != meuId); localStorage.setItem(DB_FILA_AGUA, JSON.stringify(filaAgua)); localStorage.removeItem(DB_PEDIDO_AG);
+  let h = historicoGlobal.find(x => x.id == meuId); if(h) h.status = 'Cancelado/Rejeitado'; localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal));
   checkAguaStatus();
 }
 
@@ -558,25 +616,28 @@ function renderHistoricoUsuario() {
     let corStatus = '#F3F4F6', txtStatus = '#374151';
     if(h.status === 'Aguardando') { corStatus='#FEF08A'; txtStatus='#854D0E'; }
     else if(h.status === 'Aguardando retirada') { corStatus='#DBEAFE'; txtStatus='#1D4ED8'; }
-    else if(h.status === 'Entregue' || h.status === 'Despachado') { corStatus='#BBF7D0'; txtStatus='#166534'; }
-    else if(h.status === 'Cancelado' || h.status === 'Rejeitado') { corStatus='#FEE2E2'; txtStatus='#991B1B'; }
+    else if(h.status === 'Entregue') { corStatus='#BBF7D0'; txtStatus='#166534'; }
+    else if(h.status === 'Cancelado/Rejeitado') { corStatus='#FEE2E2'; txtStatus='#991B1B'; }
 
     return `<div style="background:white; border-radius:20px; padding:20px; margin-bottom:16px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
       <div style="display:flex; justify-content:space-between; border-bottom:1px solid #edf2f7; padding-bottom:12px; margin-bottom:12px;">
         <div><strong>${h.tipo === 'Água' ? '💧 Água' : '📦 Materiais'} - ${h.setor}</strong><br><span style="font-size:0.8rem; color:#64748B;">${h.data}</span></div>
         <span style="background:${corStatus}; color:${txtStatus}; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:700; height:fit-content;">${h.status}</span>
       </div>
-      ${h.tipo === 'Material' ? `<ul style="list-style:none; font-size:0.9rem;">${h.itens.map(i=>`<li style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>${i.nome}</span> <strong>${i.qtd} un</strong></li>`).join('')}</ul>` : ``}
+      ${h.tipo === 'Material' ? `<ul style="list-style:none; font-size:0.9rem;">${h.itens.map(i=> {
+         let isRiscado = h.status === 'Cancelado/Rejeitado' ? `text-decoration: line-through; color: #B91C1C;` : ``;
+         return `<li style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="${isRiscado}">${i.nome}</span> <strong style="${isRiscado}">${i.qtd} un</strong></li>`;
+      }).join('')}</ul>` : ``}
     </div>`;
   }).join('');
 }
 
 // ---------- ADMIN ----------
 function abrirAdmin() {
-  let senha = localStorage.getItem('senhaAdmin_v5') || "";
+  let senha = localStorage.getItem('senhaAdminCT') || "";
   Swal.fire({ title: 'Acesso Restrito', input: 'password', showCancelButton: true }).then(res => { if(res.isConfirmed && res.value === senha) mudarView('admin'); else if(res.isConfirmed) Swal.fire('Erro', 'Senha incorreta', 'error'); });
 }
-function mudarSenha() { Swal.fire({ title: 'Nova Senha', input: 'password', showCancelButton:true }).then(res => { if(res.isConfirmed) localStorage.setItem('senhaAdmin_v5', res.value); }); }
+function mudarSenha() { Swal.fire({ title: 'Nova Senha', input: 'password', showCancelButton:true }).then(res => { if(res.isConfirmed) localStorage.setItem('senhaAdminCT', res.value); }); }
 
 function switchAdminTab(tab) {
   document.getElementById('btn-tab-cadastrar').classList.remove('active'); document.getElementById('btn-tab-estoque').classList.remove('active');
@@ -603,9 +664,10 @@ function adminAdicionarItem() {
   if(!cat || !nome) return Swal.fire('Erro', 'Categoria e Nome obrigatórios', 'error');
   let newId = Date.now().toString();
   materiaisDB.push({ id: newId, categoria: cat, nome, imagem: img, estoque: est });
-  localStorage.setItem('dbMateriais_v5', JSON.stringify(materiaisDB));
+  localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
   
   if(est > 0) registrarHistoricoItem(newId, 'Entrada Inicial', est, 'Cadastro de Material', est);
+  salvarBackupNuvem();
   
   Swal.fire('Sucesso', 'Material cadastrado!', 'success');
   document.getElementById('adminNovaCatSelect').value = ''; checkNovaCat(); document.getElementById('adminNovaCatInput').value = ''; document.getElementById('adminNovoNome').value = '';
@@ -621,8 +683,8 @@ function renderAdminEstoque() {
       <td><input type="text" class="admin-input" id="obs-${m.id}" placeholder="Motivo/Nota"></td>
       <td>
         <div style="display:flex; gap:6px;">
-          <button class="btn-primary" style="padding:6px; width:auto;" onclick="registrarEntrada('${m.id}')">Salvar</button>
-          <button class="btn-secondary" style="padding:6px; width:auto;" onclick="abrirHistoricoItem('${m.id}')"><i class="material-icons" style="font-size:18px;">history</i></button>
+          <button class="btn-primary" style="padding:6px; width:auto;" onclick="registrarEntrada('${m.id}')">Adicionar</button>
+          <button class="btn-secondary" style="padding:6px; width:auto;" onclick="abrirHistoricoItem('${m.id}')" title="Ver Histórico"><i class="material-icons" style="font-size:18px;">history</i></button>
         </div>
       </td>
     </tr>`).join('');
@@ -636,8 +698,10 @@ function registrarEntrada(id) {
   let item = materiaisDB.find(m => m.id === id);
   if(item) { 
     item.estoque += qtd; 
-    localStorage.setItem('dbMateriais_v5', JSON.stringify(materiaisDB)); 
+    localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB)); 
     registrarHistoricoItem(id, 'Entrada Manual', qtd, obs, item.estoque);
+    salvarBackupNuvem();
+    
     inptQtd.value = ''; inptObs.value = ''; 
     Swal.fire({toast:true, position:'top-end', icon:'success', title:'Estoque somado', showConfirmButton:false, timer:1000}); 
     renderAdminEstoque(); 
@@ -651,7 +715,10 @@ function abrirHistoricoItem(idItem) {
   document.getElementById('histItemIdAtual').value = idItem;
   
   let hist = historicoItens.filter(h => h.idItem === idItem);
-  document.getElementById('tabelaHistoricoItemBody').innerHTML = hist.length === 0 ? '<tr><td colspan="5" style="text-align:center;">Sem histórico</td></tr>' : hist.map(h => `<tr><td>${h.data}</td><td><strong style="color:${h.tipo.includes('Entrada')?'#166534':'#B91C1C'}">${h.tipo}</strong></td><td>${h.qtd}</td><td>${h.saldo}</td><td>${h.obs}</td></tr>`).join('');
+  document.getElementById('tabelaHistoricoItemBody').innerHTML = hist.length === 0 ? '<tr><td colspan="5" style="text-align:center;">Sem histórico</td></tr>' : hist.map(h => {
+    let styleRow = h.tipo === 'Pedido Rejeitado' ? `text-decoration: line-through; color: #B91C1C;` : ``;
+    return `<tr><td>${h.data}</td><td><strong style="color:${h.tipo.includes('Entrada')?'#166534':'#B91C1C'}">${h.tipo}</strong></td><td><span style="${styleRow}">${h.qtd}</span></td><td>${h.saldo}</td><td>${h.obs}</td></tr>`;
+  }).join('');
   document.getElementById('modalHistoricoItem').style.display = 'flex';
 }
 
@@ -684,17 +751,17 @@ function renderAdminPedidos() {
       let isAgua = p.tipo === 'Água';
       let cleanZ = p.whatsapp ? p.whatsapp.replace(/\D/g, '') : '';
       let msgZap = encodeURIComponent(`Prezado(a) ${p.nome}. O Almoxarifado do CT informa que seu item está aguardando ser retirado.`);
-      
       let badgeColor = p.status === 'Aguardando' ? 'background:#FEF08A; color:#854D0E;' : 'background:#DBEAFE; color:#1D4ED8;';
 
-      let zapBtn = cleanZ ? `<a href="https://wa.me/55${cleanZ}?text=${msgZap}" target="_blank" class="btn-secondary" style="background:#25D366; color:white; border:none; width:auto; padding:6px 12px; text-decoration:none; display:flex; align-items:center; gap:6px;"><i class="material-icons" style="font-size:16px;">chat</i> Avisar WhatsApp</a>` : '';
-      let acaoBtn = `<button class="btn-primary" style="padding:6px 12px; width:auto;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons" style="font-size:16px;">edit</i> Editar & Gerenciar</button>`;
+      // (Ponto 6) Mostrar Whatsapp só se for "Aguardando retirada"
+      let zapBtn = (p.status === 'Aguardando retirada' && cleanZ) ? `<a href="https://wa.me/55${cleanZ}?text=${msgZap}" target="_blank" class="btn-secondary" style="background:#25D366; color:white; border:none; width:auto; padding:6px 12px; text-decoration:none; display:flex; align-items:center; gap:6px;"><i class="material-icons" style="font-size:16px;">chat</i> Avisar WhatsApp</a>` : '';
+      let acaoBtn = `<button class="btn-primary" style="padding:6px 12px; width:auto;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons" style="font-size:16px;">edit</i> Gerenciar / Despachar</button>`;
 
       return `<div class="pedido-admin-card" style="border-left: 4px solid ${isAgua ? '#005BBB' : '#F59E0B'};"><div class="pedido-admin-header"><div><strong>${isAgua ? '💧 Água' : '📦 Materiais'} - ${p.setor}</strong><br><span style="font-size:0.8rem;">Solict.: ${p.nome} | Whats: ${p.whatsapp||'N/A'}</span></div><span class="badge-status" style="${badgeColor}">${p.status}</span></div>${!isAgua ? `<div style="font-size:0.85rem; background:white; padding:8px; border-radius:8px; margin-top:8px;">${p.itens.map(i=>`${i.nome} (${i.qtd})`).join(', ')}</div>` : ''}<div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">${acaoBtn}${zapBtn}</div></div>`;
     }).join('');
   }
 
-  document.getElementById('adminUltimosList').innerHTML = ultimos10.length === 0 ? '<p>Nenhum concluído.</p>' : ultimos10.map(p => `<div style="padding:10px; border-bottom:1px solid #EDF2F7; display:flex; justify-content:space-between; align-items:center;"><div style="font-size:0.85rem;"><strong>${p.tipo}</strong> - ${p.setor} (${p.nome})</div><div style="display:flex; gap:8px; align-items:center;"><span style="font-weight:bold; font-size:0.8rem;">${p.status}</span><button class="btn-secondary" style="padding:4px; border:none;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons" style="font-size:18px;">edit</i></button></div></div>`).join('');
+  document.getElementById('adminUltimosList').innerHTML = ultimos10.length === 0 ? '<p>Nenhum concluído.</p>' : ultimos10.map(p => `<div style="padding:10px; border-bottom:1px solid #EDF2F7; display:flex; justify-content:space-between; align-items:center;"><div style="font-size:0.85rem;"><strong>${p.tipo}</strong> - ${p.setor} (${p.nome})</div><div style="display:flex; gap:8px; align-items:center;"><span style="font-weight:bold; font-size:0.8rem; color:${p.status==='Cancelado/Rejeitado'?'#B91C1C':'#166534'}">${p.status}</span><button class="btn-secondary" style="padding:4px; border:none;" onclick="abrirEdicaoPedido('${p.id}')"><i class="material-icons" style="font-size:18px;">edit</i></button></div></div>`).join('');
 }
 
 function abrirEdicaoPedido(id) {
@@ -717,18 +784,19 @@ function salvarEdicaoPedido() {
   let novoStatus = document.getElementById('editPedidoStatus').value;
   
   if(pedido.tipo === 'Material' && pedido.itens) {
-    let canceladoOuRej = (novoStatus === 'Rejeitado' || novoStatus === 'Cancelado');
-    let jaEstavaCancelado = (pedido.status === 'Rejeitado' || pedido.status === 'Cancelado');
+    let sendoCancelado = (novoStatus === 'Cancelado/Rejeitado');
+    let jaEstavaCancelado = (pedido.status === 'Cancelado/Rejeitado');
 
     pedido.itens.forEach((item, idx) => {
       let dbM = materiaisDB.find(m => m.id === item.id);
       let novaQtd = parseInt(document.getElementById(`editItemQtd_${idx}`).value);
       
-      if(canceladoOuRej && !jaEstavaCancelado && dbM) {
+      // Ponto 3: Se foi rejeitado, devolve pro estoque e risca na interface
+      if(sendoCancelado && !jaEstavaCancelado && dbM) {
         dbM.estoque += item.qtd;
-        registrarHistoricoItem(item.id, 'Entrada (Devolução)', item.qtd, `Pedido ${novoStatus} de ${pedido.nome}`, dbM.estoque);
-      } else if (!canceladoOuRej && novaQtd >= 0 && novaQtd !== item.qtd && dbM) {
-        let dif = item.qtd - novaQtd; // Positivo = Devolvendo pro estoque
+        registrarHistoricoItem(item.id, 'Pedido Rejeitado', item.qtd, `Devolvido - Pedido de ${pedido.nome}`, dbM.estoque);
+      } else if (!sendoCancelado && novaQtd >= 0 && novaQtd !== item.qtd && dbM) {
+        let dif = item.qtd - novaQtd; 
         dbM.estoque += dif;
         let t = dif > 0 ? 'Entrada (Ajuste Admin)' : 'Saída (Ajuste Admin)';
         registrarHistoricoItem(item.id, t, Math.abs(dif), `Ajuste Pedido de ${pedido.nome}`, dbM.estoque);
@@ -737,19 +805,22 @@ function salvarEdicaoPedido() {
     });
   }
   
-  if(pedido.tipo === 'Água' && (novoStatus === 'Entregue' || novoStatus === 'Cancelado' || novoStatus === 'Rejeitado')) {
+  if(pedido.tipo === 'Água' && (novoStatus === 'Entregue' || novoStatus === 'Cancelado/Rejeitado')) {
     filaAgua = filaAgua.filter(f => f.id != id);
-    localStorage.setItem('filaAgua_v5', JSON.stringify(filaAgua));
+    localStorage.setItem(DB_FILA_AGUA, JSON.stringify(filaAgua));
   }
 
   pedido.status = novoStatus;
-  localStorage.setItem('dbMateriais_v5', JSON.stringify(materiaisDB));
-  localStorage.setItem('histGlobal_v5', JSON.stringify(historicoGlobal));
+  localStorage.setItem(DB_MATERIAIS, JSON.stringify(materiaisDB));
+  localStorage.setItem(DB_HISTORICO, JSON.stringify(historicoGlobal));
+  
+  salvarBackupNuvem(); // Envia para o Script atualizar os BDs lá tbm
   
   fecharModal('modalEditarPedido'); renderAdminPedidos(); renderAdminEstoque();
   Swal.fire({toast:true, position:'top-end', icon:'success', title:'Atualizado!', showConfirmButton:false, timer:1500});
 }
 
+// Consultar Todos (PDF / XLSX)
 function abrirTodosPedidosModal() {
   document.getElementById('tabelaTodosPedidosBody').innerHTML = historicoGlobal.map(p => `<tr><td>${p.data.split(' ')[0]}</td><td>${p.tipo}</td><td>${p.setor}</td><td>${p.nome}</td><td><strong>${p.status}</strong></td></tr>`).join('');
   document.getElementById('modalTodosPedidos').style.display = 'flex';
@@ -769,6 +840,8 @@ let slideIndex = 0; const track = document.getElementById('carouselTrack'); cons
 function nextSlide() { slideIndex = (slideIndex + 1) % slides.length; if(track) track.style.transform = `translateX(-${slideIndex * 100}%)`; }
 setInterval(nextSlide, 5000);
 setTimeout(() => { const s = document.getElementById('splashScreen'); if(s) { s.style.opacity='0'; setTimeout(()=>s.remove(),500); } }, 3500);
+
+carregarDadosLocaisUsuario();
 atualizarBadges();
 </script>
 </body>
